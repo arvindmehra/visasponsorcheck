@@ -1,0 +1,2 @@
+# Shared RSpec support helpers are loaded automatically from this directory
+# via rails_helper.rb: Rails.root.glob('spec/support/**/*.rb')
