@@ -18,6 +18,14 @@ RSpec.describe "Searches", type: :request do
       expect(response.body).not_to include("VisaSponsorCheck") # Header text from main layout
     end
 
+    it "handles typeahead frame requests" do
+      get search_path, params: { q: "Boltwhiz" }, headers: { "Turbo-Frame" => "typeahead_results" }
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Suggestions")
+      expect(response.body).to include("BOLTWHIZ LIMITED")
+      expect(response.body).not_to include("VisaSponsorCheck")
+    end
+
     it "returns empty state if no matches" do
       get search_path, params: { q: "Nonexistent" }
       expect(response).to have_http_status(:success)

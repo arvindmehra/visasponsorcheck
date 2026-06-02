@@ -113,6 +113,7 @@
       </div>
 
       <!-- Historical Record metadata card -->
+      <% if false %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <% @sponsor_licences.each do |licence| %>
           <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-100/30">
@@ -138,56 +139,59 @@
           </div>
         <% end %>
       </div>
+      <% end %>
     </div>
 
     <!-- Right Column: History Timeline (1/3 width) -->
-    <div class="space-y-6">
-      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
-        <h2 class="text-xl font-bold text-slate-900 mb-6">Activity History</h2>
+    <% if false %>
+      <div class="space-y-6">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
+          <h2 class="text-xl font-bold text-slate-900 mb-6">Activity History</h2>
 
-        <% if @change_events.any? %>
-          <div class="flow-root">
-            <ul role="list" class="-mb-8">
-              <% @change_events.each_with_index do |event, index| %>
-                <li>
-                  <div class="relative pb-8">
-                    <!-- Line connecting icons -->
-                    <% if index < @change_events.size - 1 %>
-                      <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-150" aria-hidden="true"></span>
-                    <% end %>
+          <% if @change_events.any? %>
+            <div class="flow-root">
+              <ul role="list" class="-mb-8">
+                <% @change_events.each_with_index do |event, index| %>
+                  <li>
+                    <div class="relative pb-8">
+                      <!-- Line connecting icons -->
+                      <% if index < @change_events.size - 1 %>
+                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-150" aria-hidden="true"></span>
+                      <% end %>
 
-                    <div class="relative flex space-x-3">
-                      <!-- Event Icon -->
-                      <div>
-                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-sm shadow-sm">
-                          <%= event.icon %>
-                        </span>
-                      </div>
+                      <div class="relative flex space-x-3">
+                        <!-- Event Icon -->
+                        <div>
+                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-sm shadow-sm">
+                            <%= event.icon %>
+                          </span>
+                        </div>
 
-                      <!-- Event Content -->
-                      <div class="flex-1 min-w-0 pt-1.5">
-                        <p class="text-sm font-semibold text-slate-850">
-                          <%= event.human_description %>
-                        </p>
-                        <div class="flex justify-between items-center mt-1 text-xs text-slate-500">
-                          <span>Import Run #<%= event.sponsor_import_log_id %></span>
-                          <time datetime="<%= event.occurred_at.iso8601 %>">
-                            <%= time_ago_in_words(event.occurred_at) %> ago
-                          </time>
+                        <!-- Event Content -->
+                        <div class="flex-1 min-w-0 pt-1.5">
+                          <p class="text-sm font-semibold text-slate-850">
+                            <%= event.human_description %>
+                          </p>
+                          <div class="flex justify-between items-center mt-1 text-xs text-slate-500">
+                            <span>Import Run #<%= event.sponsor_import_log_id %></span>
+                            <time datetime="<%= event.occurred_at.iso8601 %>">
+                              <%= time_ago_in_words(event.occurred_at) %> ago
+                            </time>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        <% else %>
-          <div class="text-center py-6">
-            <p class="text-xs text-slate-500">No activity history recorded yet.</p>
-          </div>
-        <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% else %>
+            <div class="text-center py-6">
+              <p class="text-xs text-slate-500">No activity history recorded yet.</p>
+            </div>
+          <% end %>
+        </div>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>
