@@ -84,7 +84,7 @@ end
 
 group :test do
   # Shoulda matchers for concise model specs [https://github.com/thoughtbot/shoulda-matchers]
-  gem "shoulda-matchers", "~> 6.0"
+  gem "shoulda-matchers", "~> 8.0"
 
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
