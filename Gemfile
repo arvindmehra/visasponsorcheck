@@ -34,7 +34,7 @@ gem "friendly_id", "~> 5.5"
 gem "httparty", "~> 0.22"
 
 # Nokogiri for HTML parsing (scrape CSV link from gov.uk)
-gem "nokogiri", "~> 1.18"
+gem "nokogiri", "~> 1.19"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
