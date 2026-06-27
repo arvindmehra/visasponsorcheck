@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_230751) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_27_003949) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -23,7 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_230751) do
     t.text "slug", null: false
     t.text "town"
     t.datetime "updated_at", null: false
-    t.index ["name_normalised"], name: "index_companies_on_name_normalised", opclass: :gist_trgm_ops, using: :gist
+    t.index ["name_normalised"], name: "index_companies_on_name_normalised", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_companies_on_slug", unique: true
   end
 

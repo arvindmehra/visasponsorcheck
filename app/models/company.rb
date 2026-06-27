@@ -38,12 +38,15 @@ class Company < ApplicationRecord
     normalised_query = query.to_s.strip.downcase.gsub(/\s+/, " ")
     return none if normalised_query.blank?
 
+    # Set threshold on the current connection
+    connection.execute("SET pg_trgm.similarity_threshold = 0.15")
+
     where(
-      "similarity(name_normalised, :q) > 0.15 OR name_normalised ILIKE :partial",
+      "name_normalised % :q OR name_normalised ILIKE :partial",
       q: normalised_query,
       partial: "%#{sanitize_sql_like(normalised_query)}%"
     ).order(
-      Arel.sql("similarity(name_normalised, #{connection.quote(normalised_query)}) DESC")
+      Arel.sql("name_normalised <-> #{connection.quote(normalised_query)}")
     )
   }
 
