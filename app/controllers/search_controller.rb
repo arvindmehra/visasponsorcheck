@@ -9,7 +9,11 @@ class SearchController < ApplicationController
 
     # Support rendering with or without layout for Turbo Frame requests
     if turbo_frame_request?
-      render layout: false
+      if request.headers["Turbo-Frame"] == "typeahead_results"
+        render partial: "search/typeahead", locals: { companies: @companies, query: @query }
+      else
+        render layout: false
+      end
     else
       render
     end
