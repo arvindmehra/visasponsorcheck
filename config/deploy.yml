@@ -1,0 +1,78 @@
+# Kamal 2 deployment configuration for DigitalOcean
+# Docs: https://kamal-deploy.org
+#
+# Deploy with: kamal deploy
+# First deploy: kamal setup
+
+# ── Application ────────────────────────────────────────────
+service: visasponsoruk
+
+# Docker image name. Replace with your Docker Hub username.
+image: arvind490/visasponsoruk
+
+# ── Builder ────────────────────────────────────────────────
+builder:
+  arch: amd64
+
+# ── Servers ────────────────────────────────────────────────
+# Replace with your DigitalOcean Droplet's IP address.
+servers:
+  web:
+    hosts:
+      - 167.99.201.191   # ← Replace with your Droplet IP
+
+# ── SSH ────────────────────────────────────────────────────
+ssh:
+  user: root
+
+# ── Docker Registry ────────────────────────────────────────
+registry:
+  username: arvind490
+  password:
+    - KAMAL_REGISTRY_PASSWORD   # Set in .kamal/secrets
+
+# ── Proxy (Thruster → Traefik) ─────────────────────────────
+proxy:
+  ssl: true
+  host: visasponsoruk.com          # ← Replace with your domain
+  healthcheck:
+    path: /up
+    interval: 5
+    timeout: 10
+
+# ── Environment Variables ──────────────────────────────────
+env:
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: false   # Thruster serves static files
+    WEB_CONCURRENCY: "0"              # Single-process Puma (saves RAM)
+    MALLOC_ARENA_MAX: "2"             # Reduces memory fragmentation
+    RAILS_MAX_THREADS: "3"
+  secret:
+    - RAILS_MASTER_KEY      # Decrypts config/credentials.yml.enc
+    - DATABASE_URL          # Constructed securely in .kamal/secrets
+
+# ── Accessories ────────────────────────────────────────────
+# Accessories are Docker containers Kamal manages alongside
+# the app on the same Droplet. PostgreSQL runs here.
+accessories:
+  postgres:
+    image: postgres:16
+    host: 167.99.201.191   # ← Same Droplet IP as above
+    port: "127.0.0.1:5432:5432"   # Only accessible locally (not exposed to internet)
+    env:
+      clear:
+        POSTGRES_DB: visasponsoruk_production
+        POSTGRES_USER: visasponsoruk
+      secret:
+        - POSTGRES_PASSWORD
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data   # Persistent data on Droplet disk
+
+# ── Aliases ────────────────────────────────────────────────
+aliases:
+  console: app exec --interactive --reuse 'bin/rails console'
+  shell:   app exec --interactive --reuse 'bash'
+  logs:    app logs -f
+  dbc:     app exec --interactive --reuse 'bin/rails dbconsole'

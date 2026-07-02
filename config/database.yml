@@ -15,14 +15,14 @@ default: &default
 
 development:
   <<: *default
-  database: visasponsorcheck_development
+  database: visasponsoruk_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: visasponsorcheck_test
+  database: visasponsoruk_test
 
 production_default: &production_default
   adapter: postgresql
@@ -32,9 +32,9 @@ production_default: &production_default
 production:
   primary:
     <<: *production_default
-    url: <%= ENV["DATABASE_URL"] %>
+    url: "<%= ENV['DATABASE_URL'] %>"
   queue:
     <<: *production_default
-    url: <%= ENV["DATABASE_URL"] %>
+    url: "<%= ENV['DATABASE_URL'] %>"
     pool: 10
 

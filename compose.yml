@@ -1,0 +1,85 @@
+# Docker Compose for local production testing
+# ─────────────────────────────────────────────────────────────
+# This mimics the production environment on your Mac.
+# It is NOT for development — use `rails server` for that.
+#
+# Usage:
+#   docker compose up --build        # build + start everything
+#   docker compose watch             # live sync code changes (no rebuild)
+#   docker compose down              # stop everything
+#   docker compose down -v           # stop + delete DB data
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────────────
+  postgres:
+    image: postgres:16
+    container_name: visasponsoruk-postgres
+    environment:
+      POSTGRES_DB: visasponsoruk_production
+      POSTGRES_USER: visasponsoruk
+      POSTGRES_PASSWORD: localpassword
+    ports:
+      - "5433:5432"   # port 5433 on Mac → 5432 in container
+                      # (5433 avoids conflict with your local Postgres)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U visasponsoruk -d visasponsoruk_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Rails app ───────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: visasponsoruk-web
+    depends_on:
+      postgres:
+        condition: service_healthy   # wait for Postgres to be ready
+    environment:
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_SERVE_STATIC_FILES: "true"   # serve assets locally (no Thruster CDN)
+      RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_production"
+    ports:
+      - "80:80"   # Thruster listens on 80 inside the container
+    restart: unless-stopped
+
+    # ── Watch (live code sync) ─────────────────────────────────
+    # `docker compose watch` monitors files and either syncs them
+    # into the container or triggers a restart when they change.
+    develop:
+      watch:
+        # sync+restart: copies the file then restarts Puma so Rails
+        # production (which caches everything at boot) picks up changes.
+        - action: sync+restart
+          path: ./app
+          target: /rails/app
+
+        - action: sync+restart
+          path: ./config
+          target: /rails/config
+
+        # DB migrations — sync only, then run migrations manually with:
+        #   docker compose exec web bin/rails db:migrate
+        - action: sync
+          path: ./db
+          target: /rails/db
+
+        # Static files — no restart needed
+        - action: sync
+          path: ./public
+          target: /rails/public
+
+        # Gemfile changes need a full image rebuild (gems must be installed)
+        - action: rebuild
+          path: ./Gemfile
+
+        - action: rebuild
+          path: ./Gemfile.lock
+
+volumes:
+  postgres_data:

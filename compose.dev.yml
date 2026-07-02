@@ -1,0 +1,63 @@
+# Docker Compose override for DEVELOPMENT mode
+# ─────────────────────────────────────────────────────────────
+# Runs the app in development mode with live code reloading.
+# Source code is bind-mounted so changes on your Mac are
+# instantly visible inside the container.
+#
+# Usage:
+#   docker compose -f compose.yml -f compose.dev.yml up --build
+#   docker compose -f compose.yml -f compose.dev.yml down
+#
+# Access at: http://localhost:3000
+
+services:
+  postgres:
+    # Use a separate dev volume so dev/prod DBs don't mix
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: visasponsoruk_development
+      POSTGRES_USER: visasponsoruk
+      POSTGRES_PASSWORD: localpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U visasponsoruk -d visasponsoruk_development"]
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Override production defaults: install ALL gems (including dev/test)
+        BUNDLE_WITHOUT: ""
+        RAILS_ENV: development
+
+    environment:
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_development"
+
+    # ── Bind mounts ────────────────────────────────────────────
+    # Mount source code directly so any file save on your Mac is
+    # instantly visible inside the container.
+    # Gems stay from the built image — not overwritten by the mount.
+    volumes:
+      - ./app:/rails/app
+      - ./config:/rails/config
+      - ./db:/rails/db
+      - ./public:/rails/public
+      - ./log:/rails/log
+      - ./tmp:/rails/tmp
+
+    # Dev runs Puma directly (no Thruster), listening on port 3000
+    ports:
+      - "3000:3000"
+
+    # Skip Thruster; Puma handles requests directly in dev
+    command: bin/rails server -b 0.0.0.0 -p 3000
+
+    # Let it crash visibly in dev instead of silently restarting
+    restart: "no"
+
+volumes:
+  postgres_dev_data:

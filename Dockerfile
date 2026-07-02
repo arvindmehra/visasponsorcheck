@@ -1,77 +1,116 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t visasponsorcheck .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name visasponsorcheck visasponsorcheck
+# ============================================================
+# Production Dockerfile for Kamal deployment on DigitalOcean
+# Thruster acts as the HTTP proxy in front of Puma.
+#
+# Build locally (optional):
+#   docker build -t visasponsoruk .
+# Deployed automatically by:
+#   kamal deploy
+# ============================================================
 
-# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
-
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+# Match the Ruby version in .ruby-version
 ARG RUBY_VERSION=4.0.5
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# Rails app lives here
 WORKDIR /rails
 
-# Install base packages
+# ── Runtime packages ───────────────────────────────────────
+# libvips  → Active Storage image processing
+# libpq5   → PostgreSQL client runtime (required by pg gem)
+# curl     → Health-check probes
+# libjemalloc2 → Low-latency memory allocator for Ruby
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
-    ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
+    apt-get install --no-install-recommends -y \
+      curl \
+      libjemalloc2 \
+      libpq5 \
+      libvips && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Set production environment variables and enable jemalloc for reduced memory usage and latency.
-ENV RAILS_ENV="production" \
+# ── Build arguments (overridable from compose) ────────────────
+# Default values are for production. compose.dev.yml overrides these.
+ARG BUNDLE_WITHOUT="development:test"
+ARG RAILS_ENV="production"
+
+# ── Environment ────────────────────────────────────────────
+ENV RAILS_ENV=$RAILS_ENV \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development" \
+    BUNDLE_WITHOUT=$BUNDLE_WITHOUT \
+    RAILS_LOG_TO_STDOUT="true" \
     LD_PRELOAD="/usr/local/lib/libjemalloc.so"
 
-# Throw-away build stage to reduce size of final image
+# Create a stable symlink for jemalloc so LD_PRELOAD works on both
+# amd64 and arm64 without needing $(uname -m) which ENV doesn't evaluate.
+RUN ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so
+
+
+# ============================================================
+# Build stage – compile gems and assets then discard
+# ============================================================
 FROM base AS build
 
-# Install packages needed to build gems
+# Build-time packages (not included in the final image)
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libvips libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y \
+      build-essential \
+      git \
+      libpq-dev \
+      libvips \
+      libyaml-dev \
+      pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install application gems
-COPY vendor/* ./vendor/
+# ── Install gems ───────────────────────────────────────────
 COPY Gemfile Gemfile.lock ./
 
 RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
+    # Strip gem cache and git metadata to shrink image size
+    rm -rf ~/.bundle/ \
+           "${BUNDLE_PATH}"/ruby/*/cache \
+           "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+    # Pre-compile bootsnap (-j 1 avoids QEMU parallelism bug)
     bundle exec bootsnap precompile -j 1 --gemfile
 
-# Copy application code
+# ── Copy application source ────────────────────────────────
 COPY . .
 
-# Precompile bootsnap code for faster boot times.
-# -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
+# Pre-compile bootsnap cache for app code
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# ── Compile assets ─────────────────────────────────────────
+# DATABASE_URL=sqlite3::memory: → no PostgreSQL server exists at build time;
+#   this prevents Rails from trying to connect to any socket.
+# SECRET_KEY_BASE_DUMMY=1 → Rails generates a temporary in-memory secret
+#   instead of crashing due to missing credentials at build time.
+RUN DATABASE_URL=sqlite3::memory: SECRET_KEY_BASE_DUMMY=1 \
+    ./bin/rails assets:precompile
 
 
-
-
-# Final stage for app image
+# ============================================================
+# Final image – lean runtime, no build tools
+# ============================================================
 FROM base
 
-# Run and own only the runtime files as a non-root user for security
+# Non-root user for container security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash
-USER 1000:1000
 
-# Copy built artifacts: gems, application
+# Copy compiled gems and application code from build stage
 COPY --chown=rails:rails --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --chown=rails:rails --from=build /rails /rails
 
-# Entrypoint prepares the database.
+USER 1000:1000
+
+# ── Entrypoint ─────────────────────────────────────────────
+# Runs db:prepare (create + migrate) before the server starts on first boot.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-# Start server via Thruster by default, this can be overwritten at runtime
+# Thruster listens on port 80 and proxies to Puma on 3000.
+# It also serves static assets and handles HTTP/2 + TLS termination.
 EXPOSE 80
+
 CMD ["./bin/thrust", "./bin/rails", "server"]

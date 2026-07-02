@@ -1,109 +1,420 @@
-# VisaSponsorCheck
+# VisaSponsorUK
 
-VisaSponsorCheck is a Ruby on Rails application designed to track and monitor the status of licensed UK visa sponsors (companies registered with the UK government to sponsor worker visas). It scrapes official government data, parses updates, logs change histories, and exposes a user-friendly interface to search and inspect sponsors.
-
----
-
-## What the Application Does
-
-* **Sponsor Registry:** Maintains a searchable database of UK-based companies licensed to sponsor visas.
-* **Official Data Scraper:** Scrapes the GOV.UK website dynamically to find and download the latest licensed sponsor worker CSV register.
-* **Granular Diff Tracking:** Compares imports against the database, detecting when a sponsor licence is:
-  * **Added** to the register.
-  * **Removed** from the register.
-  * Updated with a new **rating** (e.g. A-rating), **licence type**, or **route** (e.g. Skilled Worker).
-* **Historical Audit Log:** Logs each status or detail change as a chronological `SponsorChangeEvent` associated with the company.
-* **Resilient Importer:** Uses row-level database transactions and error recovery. Any malformed or failed rows during the sync are skipped, logged, and written to a separate CSV error log, preventing the entire sync run from failing.
+VisaSponsorUK is a Ruby on Rails 8 application that tracks and monitors UK-licensed visa sponsors. It scrapes the official GOV.UK register daily, detects changes in sponsor status, and exposes a searchable interface for looking up companies and their sponsorship history.
 
 ---
 
-## Setup & Booting Instructions
+## Table of Contents
 
-### System Requirements
-* **Ruby:** `~> 3.x`
-* **PostgreSQL:** `>= 16`
-* **Tailwind CSS:** Standalone CLI (managed via the `tailwindcss-rails` gem)
+- [What the App Does](#what-the-app-does)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Option A — Local Development (Recommended)](#option-a--local-development-recommended)
+- [Option B — Docker Development](#option-b--docker-development)
+- [Option C — Docker Production Testing](#option-c--docker-production-testing)
+- [Database Commands](#database-commands)
+- [Background Jobs](#background-jobs)
+- [Triggering a Sync Manually](#triggering-a-sync-manually)
+- [Running Tests](#running-tests)
+- [Deployment](#deployment)
+- [How the Sync Pipeline Works](#how-the-sync-pipeline-works)
 
-### First-time Setup
-1. **Install Dependencies:**
-   ```bash
-   bundle install
-   ```
-2. **Setup the Database:**
-   Ensure PostgreSQL is running locally, then initialize the database (which runs migrations and seeds):
-   ```bash
-   bin/rails db:setup
-   ```
-3. **Compile Assets:**
-   Perform an initial Tailwind CSS compile:
-   ```bash
-   bin/rails tailwindcss:build
-   ```
+---
 
-### Running the Application Local Dev Environment
-To boot the rails server alongside the Tailwind CSS auto-watcher, run:
+## What the App Does
+
+| Feature | Description |
+| :--- | :--- |
+| **Sponsor Registry** | Searchable database of all UK companies licensed to sponsor worker visas |
+| **Daily Sync** | Scrapes GOV.UK, downloads the official CSV, and diffs it against the database |
+| **Change Detection** | Tracks when a sponsor is added, removed, or has its rating/type/route changed |
+| **Audit Log** | Every change is recorded as a `SponsorChangeEvent` with timestamp |
+| **Fuzzy Search** | PostgreSQL trigram search (`pg_trgm`) finds companies even with typos |
+| **Background Jobs** | Solid Queue runs the sync at 2:00 AM daily |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| Language | Ruby 4.0.5 |
+| Framework | Rails 8.1.3 |
+| Database | PostgreSQL 16 |
+| Background Jobs | Solid Queue (Rails 8 built-in) |
+| Asset Pipeline | Propshaft + Tailwind CSS v4 |
+| Frontend | Hotwire (Turbo + Stimulus) |
+| HTTP Proxy | Thruster (production only) |
+| Deployment | Kamal 2 |
+
+---
+
+## Prerequisites
+
+### For local development (Option A)
+- **Ruby 4.0.5** — install via [rbenv](https://github.com/rbenv/rbenv) or [rvm](https://rvm.io)
+- **PostgreSQL 16+** — `brew install postgresql@16`
+- **Bundler** — `gem install bundler`
+
+### For Docker (Options B & C)
+- **Docker Desktop** — [download here](https://www.docker.com/products/docker-desktop/)
+
+---
+
+## Option A — Local Development (Recommended)
+
+The fastest setup. No Docker required. Code changes are reflected instantly.
+
+### Step 1 — Install gems
+
+```bash
+bundle install
+```
+
+### Step 2 — Start PostgreSQL
+
+```bash
+brew services start postgresql@16
+
+# Verify it's running
+psql -U $USER -c '\l'
+```
+
+### Step 3 — Set up the database
+
+```bash
+bin/rails db:create db:migrate
+```
+
+### Step 4 — Start the server
+
 ```bash
 bin/dev
 ```
-This uses `foreman` (configured via [Procfile.dev](Procfile.dev)) to start:
-1. The Rails Server on port `3000` (`bin/rails server`).
-2. The Tailwind CSS file watcher (`bin/rails tailwindcss:watch`).
 
----
+This starts two processes simultaneously via [Procfile.dev](Procfile.dev):
+- **Rails server** → http://localhost:3000
+- **Tailwind CSS watcher** → recompiles CSS on every change
 
-## How the Sync Happens
+### Common local dev commands
 
-The synchronization of the UK sponsor register is orchestrated by the [SponsorImporter](app/services/sponsor_importer.rb) service. 
+```bash
+# Rails console
+bin/rails console
 
-```mermaid
-graph TD
-    A[Start Sync] --> B[Create SponsorImportLog pending]
-    B --> C[Scrape GOV.UK for latest CSV link]
-    C --> D[Download CSV to Tempfile]
-    D --> E[Parse CSV streamingly with SponsorCsvParser]
-    E --> F[For each row: Row-level Transaction]
-    F --> G{Upsert Company & Licence}
-    G -- New Licence --> H[Create status: active / Create 'added' Event]
-    G -- Existing Licence --> I[Check for changes in status/rating/type]
-    I -- Changed --> J[Log Change Events / Touch last_seen_at]
-    I -- No Change --> K[Touch last_seen_at via update_columns]
-    F -- Row Failures --> L[Collect in-memory & Dump to tmp/import_errors/*.csv]
-    G --> M[Check for unseen active licences]
-    M --> N[Mark unseen licences as status: 'removed' / Create 'removed' Event]
-    N --> O[Finish SponsorImportLog / Clean up Tempfile]
+# Database console (psql)
+bin/rails dbconsole
+
+# Run pending migrations
+bin/rails db:migrate
+
+# Check migration status
+bin/rails db:migrate:status
+
+# Rollback last migration
+bin/rails db:rollback
+
+# Drop, recreate, migrate, seed
+bin/rails db:reset
+
+# View all routes
+bin/rails routes
+
+# Run tests
+bundle exec rspec
 ```
 
-### Detailed Pipeline Stages:
-1. **Download:** [SponsorCsvDownloader](app/services/sponsor_csv_downloader.rb) visits the [GOV.UK Page](https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers), scrapes the page HTML using `Nokogiri` to find the absolute link to the Worker Sponsor CSV, and streams the body to a local tempfile using `HTTParty`.
-2. **Parse:** [SponsorCsvParser](app/services/sponsor_csv_parser.rb) processes the CSV streamingly using the standard library `CSV.foreach` to keep memory usage low. It matches headings case-insensitively using regex mappings (supporting variations like `Organisation Name`, `Company Name`, etc.).
-3. **Upsert:** For each row:
-   * **Company Resolution:** Finds/creates the `Company` based on a normalized lowercase name.
-   * **Licence Upsert:** Finds/initializes the `SponsorLicence` matching the company and route.
-   * **Event Emission:** Emits `added` for new licenses, or granular change events (`rating_changed`, `licence_type_changed`, `status_changed`) if properties differ from those saved.
-4. **Pruning (Removals):** Once the parser completes, the importer queries all active database licences whose `last_seen_at` is older than the current import starting timestamp. These are marked as `removed` and logged with a corresponding change event.
-5. **Robust Error Logging:** Any row parsing or database validation failures are captured, counted, and compiled. At the end of the sync, a CSV containing all skipped rows and their error messages is written to `tmp/import_errors/errors_[log_id]_[timestamp].csv` for debugging.
+---
+
+## Option B — Docker Development
+
+Use this when you want to run in Docker but still have **instant code reloading**.
+Source code is bind-mounted so edits on your Mac appear inside the container immediately.
+
+### Step 1 — Export master key
+
+```bash
+export RAILS_MASTER_KEY=$(cat config/master.key)
+```
+
+### Step 2 — Build and start
+
+```bash
+docker compose -f compose.yml -f compose.dev.yml up --build
+```
+
+Opens at **http://localhost:3000**
+
+On first boot, `db:prepare` runs automatically. Edit any file in `app/`, `config/`, or `db/` and Rails reloads it automatically — no restart needed.
+
+### Docker dev commands
+
+```bash
+# Rails console
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails console
+
+# Database console (psql)
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails dbconsole
+
+# Run pending migrations
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:migrate
+
+# Check migration status
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:migrate:status
+
+# Rollback last migration
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:rollback
+
+# Drop, recreate, migrate, seed
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:reset
+
+# Open a bash shell inside the container
+docker compose -f compose.yml -f compose.dev.yml exec web bash
+
+# View live logs
+docker compose -f compose.yml -f compose.dev.yml logs -f web
+
+# Restart the web container (re-runs db:prepare)
+docker compose -f compose.yml -f compose.dev.yml restart web
+
+# Stop everything (keeps DB data)
+docker compose -f compose.yml -f compose.dev.yml down
+
+# Stop and wipe the dev database
+docker compose -f compose.yml -f compose.dev.yml down -v
+```
 
 ---
 
-## How the Jobs Work
+## Option C — Docker Production Testing
 
-Active Job is configured to use **Solid Queue**, a database-backed queuing system natively supported in Rails 8+.
+Use this to test the **exact production Docker image** locally before deploying.
 
-### Queue Configuration
-Job concurrency, thread limits, and polling behavior are defined in [config/queue.yml](config/queue.yml). Workers poll the database queue at a `0.1s` interval with `3` concurrency threads.
+> ⚠️ Code changes require a container restart — not instant like Option B.
 
-### Job Orchestration
-Sync tasks are encapsulated inside [SponsorSyncJob](app/jobs/sponsor_sync_job.rb):
-* Invokes `SponsorImporter.call` asynchronously.
+### Step 1 — Export master key
 
-### Recurring Scheduler
-Background job scheduling is declared in [config/recurring.yml](config/recurring.yml):
-* **`sponsor_sync`:** Runs the `SponsorSyncJob` automatically at **2:00 AM every day**.
-* **`clear_solid_queue_finished_jobs`:** Cleans up completed Solid Queue jobs in batches every hour.
+```bash
+export RAILS_MASTER_KEY=$(cat config/master.key)
+```
 
-### Running Queue Workers in Production
-To start execution of queued jobs and recurring schedules, run:
+### Step 2 — Build and start
+
+```bash
+docker compose up --build
+```
+
+Opens at **http://localhost** (port 80, not 3000 — Thruster handles it)
+
+### Watch mode (sync without full rebuild)
+
+```bash
+# In a second terminal — syncs file changes and restarts Puma
+docker compose watch
+```
+
+### Docker prod commands
+
+```bash
+# Rails console
+docker compose exec web bin/rails console
+
+# Database console (psql)
+docker compose exec web bin/rails dbconsole
+
+# Run pending migrations
+docker compose exec web bin/rails db:migrate
+
+# Check migration status
+docker compose exec web bin/rails db:migrate:status
+
+# Rollback last migration
+docker compose exec web bin/rails db:rollback
+
+# Open a bash shell
+docker compose exec web bash
+
+# View live logs
+docker compose logs -f web
+
+# Restart web container (re-runs db:prepare)
+docker compose restart web
+
+# Stop everything (keeps DB data)
+docker compose down
+
+# Stop and wipe the production test database
+docker compose down -v
+```
+
+---
+
+## Database Commands
+
+Quick reference for running migrations in each environment:
+
+| Command | Local | Docker Dev | Docker Prod |
+| :--- | :--- | :--- | :--- |
+| Migrate | `bin/rails db:migrate` | `docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:migrate` | `docker compose exec web bin/rails db:migrate` |
+| Status | `bin/rails db:migrate:status` | `docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:migrate:status` | `docker compose exec web bin/rails db:migrate:status` |
+| Rollback | `bin/rails db:rollback` | `docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:rollback` | `docker compose exec web bin/rails db:rollback` |
+| Reset DB | `bin/rails db:reset` | `docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:reset` | `docker compose exec web bin/rails db:reset` |
+
+> [!NOTE]
+> Containers automatically run `db:prepare` on startup. If you add a new migration **while containers are already running**, you must run `db:migrate` manually — or restart the container:
+> ```bash
+> # Docker dev
+> docker compose -f compose.yml -f compose.dev.yml restart web
+>
+> # Docker prod
+> docker compose restart web
+> ```
+
+### Database configuration
+
+Settings live in [config/database.yml](config/database.yml).
+
+| Environment | How it connects |
+| :--- | :--- |
+| Development | Local Postgres via `DATABASE_USERNAME` + `DATABASE_PASSWORD` env vars |
+| Test | Local Postgres, database `visasponsoruk_test` |
+| Production | Via `DATABASE_URL` environment variable |
+
+For local development, create a `.env` file or export:
+
+```bash
+# Usually not needed — defaults to your Mac username with empty password
+export DATABASE_USERNAME=your_postgres_username
+export DATABASE_PASSWORD=your_postgres_password
+```
+
+---
+
+## Background Jobs
+
+Jobs use **Solid Queue** — stored in the primary PostgreSQL database (no Redis required).
+
+### Queue configuration
+
+[config/queue.yml](config/queue.yml): 3 worker threads, 0.1s poll interval.
+
+### Recurring schedule
+
+[config/recurring.yml](config/recurring.yml):
+- `sponsor_sync` — runs `SponsorSyncJob` at **2:00 AM daily**
+- `clear_solid_queue_finished_jobs` — cleans finished jobs **every hour**
+
+### Workers
+
+In development, Solid Queue runs inside Puma automatically. To start manually:
+
 ```bash
 bundle exec rake solid_queue:start
 ```
-*(In production, this is typically booted alongside Puma or managed as a separate systemd background worker process).*
+
+---
+
+## Triggering a Sync Manually
+
+### Via Rails console
+
+```ruby
+# Queue as a background job
+SponsorSyncJob.perform_later
+
+# Run synchronously (useful for debugging)
+SponsorImporter.call
+```
+
+### Via command line
+
+```bash
+bin/rails runner "SponsorSyncJob.perform_later"
+```
+
+### Error logs
+
+If any CSV rows fail during sync, error details are written to:
+```
+tmp/import_errors/errors_[log_id]_[timestamp].csv
+```
+
+---
+
+## Running Tests
+
+```bash
+# Run all specs
+bundle exec rspec
+
+# Run a specific file
+bundle exec rspec spec/models/company_spec.rb
+
+# Run with documentation format
+bundle exec rspec --format documentation
+
+# Security audit (check gems for known CVEs)
+bundle exec bundler-audit check --update
+
+# Static analysis for security vulnerabilities
+bundle exec brakeman -q
+```
+
+---
+
+## Deployment
+
+Deployment uses **Kamal 2** onto a DigitalOcean Droplet with PostgreSQL running as a Docker accessory container on the same server.
+
+```bash
+# Export secrets on your local machine before deploying
+export KAMAL_REGISTRY_PASSWORD="your_docker_hub_password"
+export DB_PASSWORD="your_db_password"
+
+# First-time server setup (installs Docker, starts all containers)
+kamal setup
+
+# Deploy new code
+git push && kamal deploy
+
+# Rails console on the live server
+kamal console
+
+# View live server logs
+kamal logs
+
+# Rollback to previous release
+kamal rollback
+```
+
+---
+
+## How the Sync Pipeline Works
+
+```mermaid
+graph TD
+    A[Trigger: SponsorSyncJob] --> B[Create SponsorImportLog pending]
+    B --> C[SponsorCsvDownloader: Scrape GOV.UK for CSV link]
+    C --> D[Download CSV to Tempfile via HTTParty]
+    D --> E[SponsorCsvParser: Stream rows via CSV.foreach]
+    E --> F[Per row: DB transaction]
+    F --> G{Upsert Company and Licence}
+    G -- New --> H[Create status:active / Emit 'added' event]
+    G -- Existing --> I{Detect changes}
+    I -- Changed --> J[Emit change events / Touch last_seen_at]
+    I -- No change --> K[Touch last_seen_at only]
+    F -- Row error --> L[Collect error / write to tmp/import_errors/]
+    G --> M[Find active licences not seen in this import]
+    M --> N[Mark as removed / Emit 'removed' event]
+    N --> O[Finalise SponsorImportLog / Delete Tempfile]
+```
+
+### Key services
+
+| File | Responsibility |
+| :--- | :--- |
+| [app/services/sponsor_importer.rb](app/services/sponsor_importer.rb) | Orchestrates the entire sync pipeline |
+| [app/services/sponsor_csv_downloader.rb](app/services/sponsor_csv_downloader.rb) | Scrapes GOV.UK and downloads the CSV |
+| [app/services/sponsor_csv_parser.rb](app/services/sponsor_csv_parser.rb) | Streams and parses CSV rows |
+| [app/jobs/sponsor_sync_job.rb](app/jobs/sponsor_sync_job.rb) | Active Job wrapper for async execution |
+| [app/models/company.rb](app/models/company.rb) | Fuzzy search via PostgreSQL trigram index |
