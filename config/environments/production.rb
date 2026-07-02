@@ -6,6 +6,10 @@ Rails.application.configure do
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
+  # Ensure secret_key_base is set (fallback to a generated hex string to prevent boot crashes on PaaS)
+  require "securerandom"
+  config.secret_key_base = ENV["SECRET_KEY_BASE"] || SecureRandom.hex(64)
+
   # Eager load code on boot for better performance and memory savings (ignored by Rake tasks).
   config.eager_load = true
 

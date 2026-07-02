@@ -36,4 +36,5 @@ production:
   queue:
     <<: *production_default
     url: <%= ENV["DATABASE_URL"] %>
+    pool: 10
 
