@@ -1,0 +1,154 @@
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a UK sponsor licence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A UK sponsor licence is official permission granted by UKVI (UK Visas and Immigration) that allows a company to employ workers from overseas on certain visa routes. Without a sponsor licence, a UK employer cannot legally sponsor international workers for work visas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does an A-rated sponsor mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An A-rated sponsor licence means the company has a clean compliance record with UKVI and is fully approved to sponsor workers. A-rating is the standard rating for compliant sponsors. If a company receives a B-rating, it means UKVI has found some compliance concerns and the sponsor must follow an action plan to return to A-status. Always prefer A-rated sponsors when evaluating job offers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a company sponsor a visa without a licence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A company cannot legally sponsor a worker for a Skilled Worker or other work visa routes without a valid sponsor licence issued by UKVI. Any job offer claiming visa sponsorship from an unlicensed company is invalid. You can verify a company's licence status using our search tool or on the official GOV.UK register."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between Skilled Worker and Tier 2 visa?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Skilled Worker visa replaced the old Tier 2 (General) visa in December 2020. They are essentially the same route under a new name following the post-Brexit points-based immigration system. Employers who previously had Tier 2 sponsorship licences automatically had their licences converted to the Skilled Worker route. The terms 'Tier 2 sponsor list' and 'Skilled Worker sponsor list' refer to the same register."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I check if a company can sponsor a UK visa?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can check if a company is a licensed UK visa sponsor in two ways: (1) Search our VisaSponsorUK tool above — we update our database regularly from the GOV.UK register; or (2) Check directly on the GOV.UK Register of Licensed Sponsors, available on the UK Home Office website. Look for the company name and confirm the status shows 'Active' and the relevant route (e.g. Skilled Worker, Health and Care Worker)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the register of licensed sponsors?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Register of Licensed Sponsors is an official list published by the UK Home Office containing all organisations currently approved to sponsor workers on UK work visas. The register is updated regularly and includes the company name, licence type, rating (A or B), and the visa routes they are approved to sponsor. This register is the authoritative source and is available on GOV.UK."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if a sponsor licence is revoked?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If a company's sponsor licence is revoked by UKVI, they are removed from the register and can no longer sponsor new workers. Existing sponsored employees may be given 60 days to find a new employer with a valid sponsor licence or leave the UK. Revocation can happen due to non-compliance with sponsor duties, illegal working, or failure to maintain HR records. Always verify a sponsor's current status before accepting a job offer."
+      }
+    }
+  ]
+}
+</script>
+<% end %>
+
+<div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">FAQ</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-4">
+    UK Visa Sponsor — Frequently Asked Questions
+  </h1>
+  <p class="text-lg text-slate-500 mb-12">
+    Everything you need to know about the UK sponsor licence check, the register of licensed sponsors,
+    Skilled Worker visas, and how to verify if a company can sponsor your visa.
+  </p>
+
+  <!-- FAQ Items -->
+  <div class="space-y-6">
+    <% faqs = [
+      {
+        q: "What is a UK sponsor licence?",
+        a: "A UK sponsor licence is official permission granted by UKVI (UK Visas and Immigration) that allows a company to employ workers from overseas on certain visa routes. Without a sponsor licence, a UK employer cannot legally sponsor international workers for work visas."
+      },
+      {
+        q: "What does an A-rated sponsor mean?",
+        a: "An A-rated sponsor licence means the company has a clean compliance record with UKVI and is fully approved to sponsor workers. A-rating is the standard rating for fully compliant sponsors. If a company receives a B-rating, it means UKVI has found compliance concerns and the sponsor must follow a corrective action plan. Always prefer A-rated sponsors when evaluating job offers."
+      },
+      {
+        q: "Can a company sponsor a visa without a licence?",
+        a: "No. A company cannot legally sponsor a worker for a Skilled Worker or other work visa routes without a valid sponsor licence issued by UKVI. Any job offer claiming visa sponsorship from an unlicensed company is invalid. You can verify a company's licence status using our search tool or on the official GOV.UK register."
+      },
+      {
+        q: "What is the difference between Skilled Worker and Tier 2 visa?",
+        a: "The Skilled Worker visa replaced the old Tier 2 (General) visa in December 2020. They are essentially the same route under a new name following the post-Brexit points-based immigration system. Employers who previously held Tier 2 sponsorship licences had their licences automatically converted. The terms 'Tier 2 sponsor list' and 'Skilled Worker sponsor list' refer to the same register."
+      },
+      {
+        q: "How do I check if a company can sponsor a UK visa?",
+        a: "You can check if a company is a licensed UK visa sponsor in two ways: (1) Use our search tool on the homepage — we update our database regularly from the GOV.UK register; or (2) Check directly on the GOV.UK Register of Licensed Sponsors. Look for the company name and confirm the status shows 'Active' and the relevant route (e.g. Skilled Worker)."
+      },
+      {
+        q: "What is the register of licensed sponsors?",
+        a: "The Register of Licensed Sponsors is an official list published by the UK Home Office containing all organisations approved to sponsor workers on UK work visas. The register is updated regularly and includes company name, licence type, rating (A or B), and the visa routes they are approved for. It is the authoritative source and is available on GOV.UK."
+      },
+      {
+        q: "What happens if a sponsor licence is revoked?",
+        a: "If a company's sponsor licence is revoked by UKVI, they are removed from the register and can no longer sponsor new workers. Existing sponsored employees may be given 60 days to find a new licensed employer or leave the UK. Revocation can happen due to non-compliance, illegal working, or failure to maintain HR records. Always verify a sponsor's current status before accepting a job offer."
+      },
+      {
+        q: "What is a Health and Care Worker visa?",
+        a: "The Health and Care Worker visa is a sub-route of the Skilled Worker visa specifically for medical professionals joining the NHS, NHS-funded social care, or health and care sector employers. Sponsors on this route must be registered with the Care Quality Commission (CQC) or be NHS bodies. It has lower salary thresholds and is exempt from the Immigration Health Surcharge."
+      }
+    ] %>
+
+    <% faqs.each_with_index do |faq, i| %>
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="faq-<%= i + 1 %>">
+        <h2 class="text-lg font-bold text-slate-900 mb-3"><%= faq[:q] %></h2>
+        <p class="text-slate-600 leading-relaxed"><%= faq[:a] %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- How Sponsor Licences Work -->
+  <div class="mt-16 rounded-2xl border border-indigo-100 bg-indigo-50 p-8">
+    <h2 class="text-2xl font-bold text-slate-900 mb-4">How UK Sponsor Licences Work</h2>
+    <div class="space-y-4 text-slate-600 leading-relaxed">
+      <p>
+        Any UK employer wanting to hire workers from overseas (outside the UK and Ireland) must first apply for a sponsor licence from UKVI. The licence is granted per visa route — for example, a company may hold a licence for the <strong class="text-slate-800">Skilled Worker</strong> route but not for <strong class="text-slate-800">Intra-Company Transfer</strong>.
+      </p>
+      <p>
+        Once licensed, employers can issue a <strong class="text-slate-800">Certificate of Sponsorship (CoS)</strong> to overseas workers, which the worker uses to apply for their visa. The employer is then legally responsible for the worker's compliance with visa conditions.
+      </p>
+      <p>
+        UKVI publishes the <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener noreferrer nofollow" class="text-indigo-600 hover:underline">register of licensed sponsors</a> regularly. VisaSponsorUK downloads and tracks changes to this register automatically so you can see when companies gained, lost, or had their licences reinstated.
+      </p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="mt-12 text-center">
+    <%= link_to root_path, class: "inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors" do %>
+      Search the Sponsor Register
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+      </svg>
+    <% end %>
+  </div>
+</div>

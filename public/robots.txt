@@ -1,1 +1,18 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# VisaSponsorUK robots.txt
+User-agent: *
+Allow: /
+Allow: /sponsor/
+Allow: /sponsors
+Allow: /sponsors/
+Allow: /faq
+Allow: /search
+
+# Block system/framework internals
+Disallow: /rails/
+Disallow: /cable
+Disallow: /up
+
+# Block search result pages (not indexable, infinite scroll risk)
+Disallow: /search?
+
+Sitemap: https://visasponsoruk.com/sitemap.xml.gz
