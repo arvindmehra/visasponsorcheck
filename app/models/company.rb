@@ -88,9 +88,11 @@ class Company < ApplicationRecord
       .distinct
   }
 
-  # Returns a sorted list of distinct city slugs (for sitemap + directory page)
+  # Returns a sorted list of distinct clean city slugs (for sitemap + directory page)
   def self.distinct_cities
     where.not(town_normalised: [ nil, "" ])
+      .where("town_normalised ~ '^[a-z][a-z -]+$'")  # only clean alpha slugs
+      .where("LENGTH(town_normalised) >= 2")
       .distinct
       .pluck(:town_normalised)
       .sort
