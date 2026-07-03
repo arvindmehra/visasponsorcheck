@@ -67,20 +67,14 @@
     <div class="mt-8">
       <%= turbo_frame_tag "search_results" do %>
         <!-- Default State / Search Prompts -->
-        <div class="rounded-2xl border border-dashed border-slate-200 p-12 text-center bg-white/50 backdrop-blur-sm shadow-sm">
-          <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <h3 class="mt-4 text-sm font-semibold text-slate-700">No search query</h3>
-          <p class="mt-1 text-xs text-slate-500">Type a company name above to begin searching live sponsors.</p>
-        </div>
+        
       <% end %>
     </div>
   </div>
 
   <!-- Statistics Dashboard -->
   <div class="mt-20 border-t border-slate-200 pt-10">
-    <dl class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       <!-- Active Licences -->
       <div class="flex flex-col gap-y-2 rounded-2xl bg-white border border-slate-200/60 p-6 shadow-sm shadow-slate-100/50">
         <dt class="text-xs font-semibold text-slate-550 uppercase tracking-wider">Active Licences</dt>
@@ -94,20 +88,6 @@
         <dt class="text-xs font-semibold text-slate-550 uppercase tracking-wider">Active Sponsors</dt>
         <dd class="text-3xl font-bold tracking-tight text-slate-900">
           <%= number_with_delimiter(@active_companies_count) %>
-        </dd>
-      </div>
-
-      <!-- Sync Status -->
-      <div class="flex flex-col gap-y-2 rounded-2xl bg-white border border-slate-200/60 p-6 shadow-sm shadow-slate-100/50">
-        <dt class="text-xs font-semibold text-slate-550 uppercase tracking-wider">Registry Sync</dt>
-        <dd class="text-sm font-semibold text-slate-700 mt-2 flex items-center gap-1.5">
-          <% if @last_sync %>
-            <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block shadow shadow-emerald-500/30"></span>
-            <span>Synced <%= time_ago_in_words(@last_sync.completed_at || @last_sync.created_at) %> ago</span>
-          <% else %>
-            <span class="h-2.5 w-2.5 rounded-full bg-amber-500 inline-block"></span>
-            <span>Sync pending</span>
-          <% end %>
         </dd>
       </div>
     </dl>
