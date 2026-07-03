@@ -99,4 +99,11 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+
+  # Database cleaner for clean DB states in tests
+  gem "database_cleaner-active_record", "~> 2.2"
+
+  # Test coverage reporting
+  gem "simplecov", "~> 0.22", require: false
 end
+

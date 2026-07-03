@@ -4,5 +4,9 @@ class SponsorSyncJob < ApplicationJob
   def perform(*args)
     # Start the importer to sync the UK sponsor register
     SponsorImporter.call
+
+    # Trigger sitemap regeneration
+    SitemapRefreshJob.perform_later
   end
 end
+

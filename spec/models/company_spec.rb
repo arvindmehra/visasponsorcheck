@@ -156,4 +156,95 @@ RSpec.describe Company, type: :model do
       expect(company.location).to be_nil
     end
   end
+
+  describe "town_normalised and slugging" do
+    it "sets town_normalised when town is assigned" do
+      company = build(:company, town: "  London  ")
+      expect(company.town_normalised).to eq("london")
+    end
+
+    it "sets town_normalised to nil when town is nil" do
+      company = build(:company, town: nil)
+      expect(company.town_normalised).to be_nil
+    end
+  end
+
+  describe "directory scopes" do
+    let!(:london_company) { create(:company, town: "London") }
+    let!(:manchester_company) { create(:company, town: "Manchester") }
+    let!(:no_city_company) { create(:company, town: nil) }
+
+    before do
+      create(:sponsor_licence, company: london_company, status: "active", rating: "A", route: "Skilled Worker")
+      create(:sponsor_licence, company: manchester_company, status: "active", rating: "B", route: "Temporary Worker")
+      # removed licence only
+      create(:sponsor_licence, company: no_city_company, status: "removed", rating: "A", route: "Skilled Worker")
+    end
+
+    describe ".by_city" do
+      it "returns companies active in that city" do
+        expect(Company.by_city("london")).to include(london_company)
+        expect(Company.by_city("london")).not_to include(manchester_company)
+      end
+    end
+
+    describe ".by_route" do
+      it "returns companies active in that route" do
+        expect(Company.by_route("Skilled Worker")).to include(london_company)
+        expect(Company.by_route("Skilled Worker")).not_to include(manchester_company)
+      end
+    end
+
+    describe ".a_rated" do
+      it "returns active A-rated companies" do
+        expect(Company.a_rated).to include(london_company)
+        expect(Company.a_rated).not_to include(manchester_company)
+      end
+    end
+
+    describe ".revoked" do
+      it "returns companies with only removed licences" do
+        expect(Company.revoked).to include(no_city_company)
+        expect(Company.revoked).not_to include(london_company)
+      end
+    end
+
+    describe ".distinct_cities" do
+      it "returns distinct clean normalised cities sorted" do
+        expect(Company.distinct_cities).to eq(["london", "manchester"])
+      end
+    end
+
+    describe ".distinct_routes" do
+      it "returns active routes sorted" do
+        expect(Company.distinct_routes).to eq(["Skilled Worker", "Temporary Worker"])
+      end
+    end
+  end
+
+  describe "instance helpers" do
+    let(:company) { build(:company, name: "Acme Ltd", town: "London", county: "Greater London") }
+
+    describe "#city_slug" do
+      it "returns normalised town" do
+        expect(company.city_slug).to eq("london")
+      end
+    end
+
+    describe "#seo_summary" do
+      it "generates an informative summary for active sponsors" do
+        company.save!
+        create(:sponsor_licence, company: company, rating: "A", route: "Skilled Worker", status: "active", last_seen_at: Time.utc(2026, 6, 1))
+        expect(company.seo_summary).to include("Acme Ltd is an A-rated UK visa sponsor based in London, Greater London")
+        expect(company.seo_summary).to include("licensed to sponsor workers on the Skilled Worker route")
+        expect(company.seo_summary).to include("last verified against the GOV.UK register in June 2026")
+      end
+
+      it "generates a summary for removed sponsors" do
+        company.save!
+        expect(company.seo_summary).to eq("Acme Ltd was previously listed on the UK visa sponsor register but has since been removed.")
+      end
+    end
+  end
 end
+

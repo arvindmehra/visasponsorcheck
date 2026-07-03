@@ -32,9 +32,10 @@ production_default: &production_default
 production:
   primary:
     <<: *production_default
-    url: "<%= ENV['DATABASE_URL'] %>"
+    url: "<%= ENV['DATABASE_URL'] || 'postgresql://localhost/visasponsoruk_production_dummy' %>"
   queue:
     <<: *production_default
-    url: "<%= ENV['DATABASE_URL'] %>"
+    url: "<%= ENV['DATABASE_URL'] || 'postgresql://localhost/visasponsoruk_production_dummy' %>"
     pool: 10
+
 
