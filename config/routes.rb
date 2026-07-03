@@ -21,6 +21,11 @@ Rails.application.routes.draw do
   # 301 redirect from old /companies/:id to /sponsor/:id
   get "companies/:id",                     to: redirect("/sponsor/%{id}"), as: :old_company
 
+  # Sitemap redirects to volume-backed path
+  get "sitemap.xml", to: redirect("/sitemaps/sitemap.xml.gz")
+  get "sitemap.xml.gz", to: redirect("/sitemaps/sitemap.xml.gz")
+
+
   # Root path
   root "home#index"
 end

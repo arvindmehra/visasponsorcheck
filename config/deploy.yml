@@ -14,12 +14,12 @@ image: arvind490/visasponsoruk
 builder:
   arch: amd64
 
-# ── Servers ────────────────────────────────────────────────
-# Replace with your DigitalOcean Droplet's IP address.
 servers:
   web:
     hosts:
       - 167.99.201.191   # ← Replace with your Droplet IP
+
+
 
 # ── SSH ────────────────────────────────────────────────────
 ssh:
@@ -70,9 +70,15 @@ accessories:
     volumes:
       - /var/lib/postgresql/data:/var/lib/postgresql/data   # Persistent data on Droplet disk
 
+# ── Volumes ────────────────────────────────────────────────
+# Persistent data paths shared between container recreations
+volumes:
+  - "/var/www/visasponsoruk/sitemaps:/rails/public/sitemaps"
+
 # ── Aliases ────────────────────────────────────────────────
 aliases:
   console: app exec --interactive --reuse 'bin/rails console'
   shell:   app exec --interactive --reuse 'bash'
   logs:    app logs -f
   dbc:     app exec --interactive --reuse 'bin/rails dbconsole'
+

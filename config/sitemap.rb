@@ -1,8 +1,9 @@
 SitemapGenerator::Sitemap.default_host = "https://visasponsoruk.com"
 SitemapGenerator::Sitemap.sitemaps_host = "https://visasponsoruk.com"
 SitemapGenerator::Sitemap.public_path  = "public/"
-SitemapGenerator::Sitemap.sitemaps_path = ""  # puts sitemap.xml.gz at /sitemap.xml.gz
+SitemapGenerator::Sitemap.sitemaps_path = "sitemaps/"  # puts sitemap.xml.gz at /sitemaps/sitemap.xml.gz
 SitemapGenerator::Sitemap.compress = true
+
 
 SitemapGenerator::Sitemap.create do
   # Static pages
@@ -35,7 +36,7 @@ SitemapGenerator::Sitemap.create do
 
   # Individual company pages — batched for memory efficiency
   puts "Adding company pages..."
-  Company.select(:slug, :updated_at).find_each(batch_size: 1000) do |company|
+  Company.select(:id, :slug, :updated_at).find_each(batch_size: 1000) do |company|
     add "/sponsor/#{company.slug}",
         lastmod: company.updated_at,
         changefreq: "monthly",
