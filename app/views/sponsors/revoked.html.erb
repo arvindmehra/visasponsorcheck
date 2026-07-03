@@ -1,0 +1,77 @@
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Revoked UK Visa Sponsor Licences",
+  "url": "<%= revoked_sponsors_url %>",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
+      { "@type": "ListItem", "position": 2, "name": "Sponsors", "item": "<%= sponsors_url %>" },
+      { "@type": "ListItem", "position": 3, "name": "Revoked", "item": "<%= revoked_sponsors_url %>" }
+    ]
+  }
+}
+</script>
+<% end %>
+
+<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <%= link_to "Sponsors", sponsors_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">Revoked Licences</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">Revoked UK Sponsor Licence List</h1>
+  <p class="text-lg text-slate-500 mb-10">
+    <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> companies have had their UK visa sponsor
+    licence revoked or removed from the GOV.UK register. Workers considering these employers should verify their current status
+    before accepting any job offer relying on visa sponsorship.
+  </p>
+
+  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-8">
+    <table class="min-w-full divide-y divide-slate-200">
+      <thead class="bg-slate-50">
+        <tr class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <th scope="col" class="px-6 py-4">Company</th>
+          <th scope="col" class="px-4 py-4">Location</th>
+          <th scope="col" class="px-4 py-4">Last Route</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% @companies.each do |company| %>
+          <tr class="hover:bg-slate-50/60 transition-colors opacity-80">
+            <td class="px-6 py-4">
+              <%= link_to company_path(company), class: "font-semibold text-slate-700 hover:text-indigo-600 transition-colors" do %>
+                <%= company.name %>
+                <span class="ml-2 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 border border-slate-200">Removed</span>
+              <% end %>
+            </td>
+            <td class="px-4 py-4 text-sm text-slate-500"><%= company.location || "—" %></td>
+            <td class="px-4 py-4 text-sm text-slate-500 line-through">
+              <%= company.sponsor_licences.pluck(:route).uniq.join(", ") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @pagy.last > 1 %>
+    <nav class="flex items-center justify-between text-sm" aria-label="Pagination">
+      <div class="text-slate-500">Showing <%= @pagy.from %>–<%= @pagy.to %> of <%= number_with_delimiter(@count) %> companies</div>
+      <div class="flex gap-2">
+        <% if @pagy.prev %>
+          <%= link_to "← Previous", revoked_sponsors_path(page: @pagy.prev), class: "rounded-lg border border-slate-200 bg-white px-4 py-2 font-medium text-slate-600 hover:bg-slate-50 transition-colors" %>
+        <% end %>
+        <% if @pagy.next %>
+          <%= link_to "Next →", revoked_sponsors_path(page: @pagy.next), class: "rounded-lg border border-slate-200 bg-white px-4 py-2 font-medium text-slate-600 hover:bg-slate-50 transition-colors" %>
+        <% end %>
+      </div>
+    </nav>
+  <% end %>
+</div>

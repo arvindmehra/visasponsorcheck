@@ -1,0 +1,78 @@
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "UK Visa Sponsor Directory",
+  "description": "Browse all licensed UK visa sponsors by city, visa route, and rating.",
+  "url": "<%= sponsors_url %>",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
+      { "@type": "ListItem", "position": 2, "name": "Sponsors", "item": "<%= sponsors_url %>" }
+    ]
+  }
+}
+</script>
+<% end %>
+
+<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">Sponsors</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">UK Visa Sponsor Directory</h1>
+  <p class="text-lg text-slate-500 mb-12 max-w-3xl">
+    Browse <%= number_with_delimiter(@active_count) %> companies licensed by UKVI to sponsor UK work visas.
+    Filter by city, visa route (Skilled Worker, Health &amp; Care, and more), or rating.
+  </p>
+
+  <!-- Browse by City -->
+  <section class="mb-14">
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">Browse by City</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <% @cities.each do |city_slug| %>
+        <% city_name = city_slug.split(" ").map(&:capitalize).join(" ") %>
+        <%= link_to city_sponsors_path(city: city_slug),
+              class: "rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-all duration-200 text-center" do %>
+          <%= city_name %>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Browse by Visa Route -->
+  <section class="mb-14">
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">Browse by Visa Route</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <% @routes.each do |route| %>
+        <% route_slug = route.downcase.gsub(/\s+/, "-") %>
+        <%= link_to route_sponsors_path(route: route_slug),
+              class: "rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-all duration-200" do %>
+          <%= route %>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Browse by Rating / Status -->
+  <section>
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">Browse by Rating &amp; Status</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+      <%= link_to a_rated_sponsors_path,
+            class: "rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 hover:bg-emerald-100 transition-colors" do %>
+        <div class="font-bold text-emerald-700 text-sm mb-1">A-Rated Sponsors</div>
+        <div class="text-xs text-emerald-600">Clean compliance record with UKVI</div>
+      <% end %>
+      <%= link_to revoked_sponsors_path,
+            class: "rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 hover:bg-slate-100 transition-colors" do %>
+        <div class="font-bold text-slate-700 text-sm mb-1">Revoked Licences</div>
+        <div class="text-xs text-slate-500">Companies removed from the register</div>
+      <% end %>
+    </div>
+  </section>
+</div>

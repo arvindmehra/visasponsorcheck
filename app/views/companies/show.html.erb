@@ -1,21 +1,63 @@
-<% content_for :title, "#{@company.name} — UK Visa Sponsor Status" %>
-<% content_for :meta_description, "Verify if #{@company.name} is a licensed UK visa sponsor. See active routes, sponsor rating, location: #{@company.location || 'Unknown'}, and historical record updates." %>
+<% # Meta tags are set in CompaniesController#show via set_meta_tags %>
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "<%= @company.name.gsub('"', '\"') %>",
+      "url": "<%= company_url(@company) %>",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "<%= @company.town %>",
+        "addressCountry": "GB"
+      },
+      "description": "<%= @company.seo_summary.gsub('"', '\"') %>"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
+        { "@type": "ListItem", "position": 2, "name": "Sponsors", "item": "<%= sponsors_url %>" },
+        <% if @company.city_slug.present? %>
+        { "@type": "ListItem", "position": 3, "name": "<%= @company.location %>", "item": "<%= city_sponsors_url(city: @company.city_slug) %>" },
+        { "@type": "ListItem", "position": 4, "name": "<%= @company.name.gsub('"', '\"') %>", "item": "<%= company_url(@company) %>" }
+        <% else %>
+        { "@type": "ListItem", "position": 3, "name": "<%= @company.name.gsub('"', '\"') %>", "item": "<%= company_url(@company) %>" }
+        <% end %>
+      ]
+    }
+  ]
+}
+</script>
+<% end %>
 
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
   <!-- Breadcrumb navigation -->
   <nav class="flex mb-8" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1 md:space-x-3 text-xs text-slate-500 font-medium uppercase tracking-wider">
       <li class="inline-flex items-center">
-        <a href="/" class="hover:text-indigo-600 transition-colors">Home</a>
+        <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
       </li>
       <li>
         <div class="flex items-center">
           <svg class="h-3 w-3 text-slate-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
           </svg>
-          <span class="text-slate-550">Sponsor Registry</span>
+          <%= link_to "Sponsors", sponsors_path, class: "hover:text-indigo-600 transition-colors" %>
         </div>
       </li>
+      <% if @company.city_slug.present? %>
+        <li>
+          <div class="flex items-center">
+            <svg class="h-3 w-3 text-slate-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+            <%= link_to @company.location, city_sponsors_path(city: @company.city_slug), class: "hover:text-indigo-600 transition-colors" %>
+          </div>
+        </li>
+      <% end %>
       <li aria-current="page">
         <div class="flex items-center">
           <svg class="h-3 w-3 text-slate-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
@@ -56,9 +98,18 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span class="text-slate-700"><%= @company.location %></span>
+            <% if @company.city_slug.present? %>
+              <%= link_to @company.location, city_sponsors_path(city: @company.city_slug), class: "text-indigo-600 hover:underline font-medium" %>
+            <% else %>
+              <span class="text-slate-700"><%= @company.location %></span>
+            <% end %>
           </p>
         <% end %>
+
+        <!-- Auto-generated SEO summary (unique content per page) -->
+        <p class="mt-4 text-sm text-slate-500 leading-relaxed max-w-2xl">
+          <%= @company.seo_summary %>
+        </p>
       </div>
     </div>
   </div>

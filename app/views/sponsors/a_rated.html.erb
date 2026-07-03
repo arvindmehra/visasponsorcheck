@@ -1,0 +1,85 @@
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "A-Rated UK Visa Sponsors List",
+  "url": "<%= a_rated_sponsors_url %>",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
+      { "@type": "ListItem", "position": 2, "name": "Sponsors", "item": "<%= sponsors_url %>" },
+      { "@type": "ListItem", "position": 3, "name": "A-Rated", "item": "<%= a_rated_sponsors_url %>" }
+    ]
+  }
+}
+</script>
+<% end %>
+
+<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <%= link_to "Sponsors", sponsors_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">A-Rated</span>
+  </nav>
+
+  <div class="flex items-center gap-3 mb-3">
+    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 border border-emerald-200 text-sm font-bold text-emerald-700">A</span>
+    <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">A-Rated UK Visa Sponsor List</h1>
+  </div>
+  <p class="text-lg text-slate-500 mb-10">
+    <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> UK companies hold an
+    <strong class="text-slate-700">A-rated sponsor licence</strong>. An A rating indicates a clean compliance record
+    with UKVI — these are the most reliable sponsors for international workers.
+  </p>
+
+  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-8">
+    <table class="min-w-full divide-y divide-slate-200">
+      <thead class="bg-slate-50">
+        <tr class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <th scope="col" class="px-6 py-4">Company</th>
+          <th scope="col" class="px-4 py-4">Location</th>
+          <th scope="col" class="px-4 py-4">Routes</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% @companies.each do |company| %>
+          <tr class="hover:bg-slate-50/60 transition-colors">
+            <td class="px-6 py-4">
+              <%= link_to company_path(company), class: "font-semibold text-slate-900 hover:text-indigo-600 transition-colors" do %>
+                <%= company.name %>
+              <% end %>
+            </td>
+            <td class="px-4 py-4 text-sm text-slate-500">
+              <% if company.city_slug.present? %>
+                <%= link_to company.location, city_sponsors_path(city: company.city_slug), class: "hover:text-indigo-600 transition-colors" %>
+              <% else %>
+                <span class="text-slate-400">—</span>
+              <% end %>
+            </td>
+            <td class="px-4 py-4 text-sm text-slate-500">
+              <%= company.sponsor_licences.active.pluck(:route).uniq.join(", ") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @pagy.last > 1 %>
+    <nav class="flex items-center justify-between text-sm" aria-label="Pagination">
+      <div class="text-slate-500">Showing <%= @pagy.from %>–<%= @pagy.to %> of <%= number_with_delimiter(@count) %> sponsors</div>
+      <div class="flex gap-2">
+        <% if @pagy.prev %>
+          <%= link_to "← Previous", a_rated_sponsors_path(page: @pagy.prev), class: "rounded-lg border border-slate-200 bg-white px-4 py-2 font-medium text-slate-600 hover:bg-slate-50 transition-colors" %>
+        <% end %>
+        <% if @pagy.next %>
+          <%= link_to "Next →", a_rated_sponsors_path(page: @pagy.next), class: "rounded-lg border border-slate-200 bg-white px-4 py-2 font-medium text-slate-600 hover:bg-slate-50 transition-colors" %>
+        <% end %>
+      </div>
+    </nav>
+  <% end %>
+</div>
