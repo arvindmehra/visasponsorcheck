@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_27_005114) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_03_115005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -22,9 +22,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_27_005114) do
     t.text "name_normalised", null: false
     t.text "slug", null: false
     t.text "town"
+    t.text "town_normalised"
     t.datetime "updated_at", null: false
     t.index ["name_normalised"], name: "index_companies_on_name_normalised", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_companies_on_slug", unique: true
+    t.index ["town"], name: "index_companies_on_town"
+    t.index ["town_normalised"], name: "index_companies_on_town_normalised"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -190,6 +193,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_27_005114) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "route"], name: "index_sponsor_licences_on_company_id_and_route", unique: true
     t.index ["company_id"], name: "index_sponsor_licences_on_company_id"
+    t.index ["licence_type"], name: "index_sponsor_licences_on_licence_type"
+    t.index ["rating"], name: "index_sponsor_licences_on_rating"
+    t.index ["route"], name: "index_sponsor_licences_on_route"
+    t.index ["status"], name: "index_sponsor_licences_on_status"
   end
 
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
