@@ -174,8 +174,7 @@
       </div>
 
       <!-- Historical Record metadata card -->
-      <% if false %>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <% @sponsor_licences.each do |licence| %>
           <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-100/30">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 truncate">
@@ -183,15 +182,15 @@
             </h3>
             <div class="space-y-2 text-xs">
               <div class="flex justify-between">
-                <span class="text-slate-500">First recorded:</span>
-                <span class="text-slate-800 font-medium"><%= licence.first_seen_at.strftime("%B %d, %Y") %></span>
+                <span class="text-slate-550">First recorded:</span>
+                <span class="text-slate-800 font-medium"><%= licence.first_seen_at&.strftime("%B %d, %Y") || "N/A" %></span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-500">Last verified:</span>
-                <span class="text-slate-800 font-medium"><%= licence.last_seen_at.strftime("%B %d, %Y") %></span>
+                <span class="text-slate-550">Last verified:</span>
+                <span class="text-slate-800 font-medium"><%= licence.last_seen_at&.strftime("%B %d, %Y") || "N/A" %></span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-500">CSV Raw Name:</span>
+                <span class="text-slate-550">CSV Raw Name:</span>
                 <span class="text-slate-700 font-mono italic truncate max-w-[200px]" title="<%= licence.organisation_name %>">
                   "<%= licence.organisation_name %>"
                 </span>
@@ -200,59 +199,90 @@
           </div>
         <% end %>
       </div>
-      <% end %>
     </div>
 
-    <!-- Right Column: History Timeline (1/3 width) -->
-    <% if false %>
-      <div class="space-y-6">
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
-          <h2 class="text-xl font-bold text-slate-900 mb-6">Activity History</h2>
+    <!-- Right Column: Quick Links & History Timeline (1/3 width) -->
+    <div class="space-y-6">
+      <!-- Quick Links Section -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
+        <h2 class="text-xl font-bold text-slate-900 mb-4">External Resources</h2>
+        <div class="space-y-3">
+          <%= link_to "https://find-and-update.company-information.service.gov.uk/search?q=#{CGI.escape(@company.name)}",
+                target: "_blank", rel: "noopener noreferrer nofollow",
+                class: "flex items-center justify-between w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-650 transition-all duration-200 shadow-sm" do %>
+            <span>Find on Companies House</span>
+            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          <% end %>
 
-          <% if @change_events.any? %>
-            <div class="flow-root">
-              <ul role="list" class="-mb-8">
-                <% @change_events.each_with_index do |event, index| %>
-                  <li>
-                    <div class="relative pb-8">
-                      <!-- Line connecting icons -->
-                      <% if index < @change_events.size - 1 %>
-                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-150" aria-hidden="true"></span>
-                      <% end %>
+          <%= link_to "https://www.linkedin.com/search/results/all/?keywords=#{CGI.escape(@company.name)}",
+                target: "_blank", rel: "noopener noreferrer nofollow",
+                class: "flex items-center justify-between w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-650 transition-all duration-200 shadow-sm" do %>
+            <span>Find on LinkedIn</span>
+            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          <% end %>
 
-                      <div class="relative flex space-x-3">
-                        <!-- Event Icon -->
-                        <div>
-                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-sm shadow-sm">
-                            <%= event.icon %>
-                          </span>
-                        </div>
-
-                        <!-- Event Content -->
-                        <div class="flex-1 min-w-0 pt-1.5">
-                          <p class="text-sm font-semibold text-slate-850">
-                            <%= event.human_description %>
-                          </p>
-                          <div class="flex justify-between items-center mt-1 text-xs text-slate-500">
-                            <span>Import Run #<%= event.sponsor_import_log_id %></span>
-                            <time datetime="<%= event.occurred_at.iso8601 %>">
-                              <%= time_ago_in_words(event.occurred_at) %> ago
-                            </time>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-          <% else %>
-            <div class="text-center py-6">
-              <p class="text-xs text-slate-500">No activity history recorded yet.</p>
-            </div>
+          <%= link_to "https://www.google.com/search?q=#{CGI.escape(@company.name + ' UK website')}",
+                target: "_blank", rel: "noopener noreferrer nofollow",
+                class: "flex items-center justify-between w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-650 transition-all duration-200 shadow-sm" do %>
+            <span>Search Website via Google</span>
+            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
           <% end %>
         </div>
       </div>
-    <% end %>
+
+      <!-- Activity History Timeline -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Activity History</h2>
+
+        <% if @change_events.any? %>
+          <div class="flow-root">
+            <ul role="list" class="-mb-8">
+              <% @change_events.each_with_index do |event, index| %>
+                <li>
+                  <div class="relative pb-8">
+                    <!-- Line connecting icons -->
+                    <% if index < @change_events.size - 1 %>
+                      <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-150" aria-hidden="true"></span>
+                    <% end %>
+
+                    <div class="relative flex space-x-3">
+                      <!-- Event Icon -->
+                      <div>
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-sm shadow-sm">
+                          <%= event.icon %>
+                        </span>
+                      </div>
+
+                      <!-- Event Content -->
+                      <div class="flex-1 min-w-0 pt-1.5">
+                        <p class="text-sm font-semibold text-slate-850">
+                          <%= event.human_description %>
+                        </p>
+                        <div class="flex justify-between items-center mt-1 text-xs text-slate-500">
+                          <span>Sync Import Log</span>
+                          <time datetime="<%= event.occurred_at.iso8601 %>">
+                            <%= time_ago_in_words(event.occurred_at) %> ago
+                          </time>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% else %>
+          <div class="text-center py-6">
+            <p class="text-xs text-slate-550">No activity history recorded yet.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
