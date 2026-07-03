@@ -20,7 +20,10 @@ class Company < ApplicationRecord
 
   # Sanitise location fields on write
   def town=(value)
-    super(sanitise_location(value))
+    sanitised = sanitise_location(value)
+    super(sanitised)
+    # Keep normalised version in sync for city-slug routing
+    write_attribute(:town_normalised, sanitised&.downcase&.strip)
   end
 
   def county=(value)
@@ -55,6 +58,49 @@ class Company < ApplicationRecord
     joins(:sponsor_licences).where(sponsor_licences: { status: "active" }).distinct
   }
 
+  # Filter by normalised city slug (e.g. "london", "manchester")
+  scope :by_city, ->(city_slug) {
+    joins(:sponsor_licences)
+      .where(sponsor_licences: { status: "active" })
+      .where(town_normalised: city_slug.to_s.downcase.strip)
+      .distinct
+  }
+
+  # Filter by visa route (e.g. "Skilled Worker")
+  scope :by_route, ->(route) {
+    joins(:sponsor_licences)
+      .where(sponsor_licences: { status: "active", route: route })
+      .distinct
+  }
+
+  # All active A-rated sponsors
+  scope :a_rated, -> {
+    joins(:sponsor_licences)
+      .where(sponsor_licences: { status: "active", rating: "A" })
+      .distinct
+  }
+
+  # Companies with removed/revoked licences (and no active ones)
+  scope :revoked, -> {
+    where.not(id: joins(:sponsor_licences).where(sponsor_licences: { status: "active" }).select(:id))
+      .joins(:sponsor_licences)
+      .where(sponsor_licences: { status: "removed" })
+      .distinct
+  }
+
+  # Returns a sorted list of distinct city slugs (for sitemap + directory page)
+  def self.distinct_cities
+    where.not(town_normalised: [ nil, "" ])
+      .distinct
+      .pluck(:town_normalised)
+      .sort
+  end
+
+  # Returns all distinct visa routes with active sponsors
+  def self.distinct_routes
+    SponsorLicence.active.distinct.pluck(:route).sort
+  end
+
   # -----------------------------------------------------------------------
   # Instance helpers
   # -----------------------------------------------------------------------
@@ -74,6 +120,29 @@ class Company < ApplicationRecord
   # Returns "London" or "London, England" depending on what's available
   def location
     [town, county].compact.reject(&:blank?).join(", ").presence
+  end
+
+  # City slug for building city landing page URLs (e.g. "london")
+  def city_slug
+    town_normalised.presence
+  end
+
+  # Auto-generated unique summary sentence for SEO (prevents thin content flag)
+  def seo_summary
+    parts = []
+    licences = sponsor_licences.active.order(:route)
+    if licences.any?
+      rating  = licences.first.rating
+      routes  = licences.pluck(:route).uniq.to_sentence
+      city    = location.presence || "the UK"
+      last_ok = licences.maximum(:last_seen_at)&.strftime("%B %Y")
+      parts << "#{name} is #{rating == 'A' ? 'an A-rated' : 'a B-rated'} UK visa sponsor based in #{city},"
+      parts << "licensed to sponsor workers on the #{routes} route#{'s' if licences.size > 1}."
+      parts << "Their licence was last verified against the GOV.UK register in #{last_ok}." if last_ok
+    else
+      parts << "#{name} was previously listed on the UK visa sponsor register but has since been removed."
+    end
+    parts.join(" ")
   end
 
   # -----------------------------------------------------------------------

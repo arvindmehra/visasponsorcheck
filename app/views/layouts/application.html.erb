@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="h-full bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
+<html class="h-full bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white" lang="en">
   <head>
-    <title><%= content_for(:title) || "UK Visa Sponsor Finder — Check Registered Companies" %></title>
+    <%= display_meta_tags(
+          title: "UK Visa Sponsor Finder — Check Registered Companies",
+          description: "Search and verify if any UK company is a licensed visa sponsor. View active licences, ratings, visa routes, and historical changes from the official GOV.UK register.",
+          og: { image: image_url("logo.png") }
+        ) %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= content_for(:meta_description) || "Search and verify if any UK company is a licensed visa sponsor. View historical changes, license types, routes, and ratings directly from gov.uk registers." %>">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="UK Visa Sponsor Finder">
+    <meta name="application-name" content="VisaSponsorUK">
     <meta name="mobile-web-app-capable" content="yes">
-    
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -35,6 +37,39 @@
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <!-- Global Organisation + WebSite JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "VisaSponsorUK",
+          "url": "<%= root_url %>",
+          "logo": "<%= image_url('logo.png') %>",
+          "description": "UK visa sponsor register tracker — search licensed sponsors from the official GOV.UK register.",
+          "sameAs": []
+        },
+        {
+          "@type": "WebSite",
+          "name": "VisaSponsorUK",
+          "url": "<%= root_url %>",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "<%= search_url %>?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Per-page structured data (BreadcrumbList, FAQPage, ItemList etc.) -->
+    <%= yield :structured_data %>
   </head>
 
   <body class="flex min-h-full flex-col bg-slate-50 text-slate-700">
@@ -45,15 +80,17 @@
           <!-- Logo / Link to Home -->
           <div class="flex items-center">
             <a href="/" class="flex items-center gap-2.5 group" id="nav-logo-link">
-              <%= image_tag 'logo-transparent.png', class: "h-10 w-auto flex-shrink-0 object-contain group-hover:scale-105 transition-all duration-300", alt: "VisaSponsorUK Logo" %>  
+              <%= image_tag 'logo-transparent.png', class: "h-10 w-auto flex-shrink-0 object-contain group-hover:scale-105 transition-all duration-300", alt: "VisaSponsorUK Logo" %>
             </a>
           </div>
 
-          <!-- Quick Navigation / Stats badge -->
+          <!-- Navigation links -->
           <div class="flex items-center gap-4">
-            <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" 
-               target="_blank" 
-               rel="noopener noreferrer" 
+            <%= link_to "Browse Sponsors", sponsors_path, class: "hidden md:inline-flex text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors", id: "nav-sponsors-link" %>
+            <%= link_to "FAQ", faq_path, class: "hidden md:inline-flex text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors", id: "nav-faq-link" %>
+            <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers"
+               target="_blank"
+               rel="noopener noreferrer nofollow"
                class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-200 border border-slate-200 hover:border-slate-300 transition-all duration-200 shadow-sm"
                id="nav-gov-source-link">
               <span>Gov.uk Source</span>
@@ -71,18 +108,25 @@
       <%= yield %>
     </main>
 
-    <!-- Sleek Footer -->
+    <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-10 mt-auto shadow-inner shadow-slate-50/50">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div class="flex items-center gap-3">
             <%= image_tag 'logo-transparent.png', class: "flex-shrink-0 object-contain", style: "height: 28px; width: auto;", alt: "VisaSponsorUK Logo" %>
             <p class="text-xs text-slate-500">
-              © <%= Time.current.year %> All Rights Reserved.
+              © <%= Time.current.year %> VisaSponsorUK. All rights reserved.
             </p>
           </div>
-          
+          <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-400">
+            <%= link_to "Browse Sponsors", sponsors_path, class: "hover:text-slate-600 transition-colors" %>
+            <%= link_to "FAQ", faq_path, class: "hover:text-slate-600 transition-colors" %>
+            <span>Data sourced from <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener noreferrer nofollow" class="underline hover:text-slate-600">GOV.UK</a> under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer nofollow" class="underline hover:text-slate-600">Open Government Licence</a>.</span>
+          </div>
         </div>
+        <p class="mt-4 text-center text-xs text-slate-400">
+          Not affiliated with the UK Home Office, UKVI, or any government body. Data is updated regularly from the official register.
+        </p>
       </div>
     </footer>
   </body>
