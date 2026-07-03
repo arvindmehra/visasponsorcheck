@@ -17,6 +17,7 @@ Rails.application.routes.draw do
 
   # Company pages — keyword-rich /sponsor/:slug URL
   get "sponsor/:id",                       to: "companies#show",   as: :company
+  get "sponsor/:id/enrich",                to: "companies#enrich", as: :enrich_company
 
   # 301 redirect from old /companies/:id to /sponsor/:id
   get "companies/:id",                     to: redirect("/sponsor/%{id}"), as: :old_company

@@ -10,20 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_03_115005) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_03_165933) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
 
   create_table "companies", force: :cascade do |t|
+    t.string "company_number"
     t.text "county"
     t.datetime "created_at", null: false
+    t.string "linkedin_url"
     t.text "name", null: false
     t.text "name_normalised", null: false
+    t.text "registered_office_address"
     t.text "slug", null: false
     t.text "town"
     t.text "town_normalised"
     t.datetime "updated_at", null: false
+    t.string "website_url"
+    t.index ["company_number"], name: "index_companies_on_company_number"
     t.index ["name_normalised"], name: "index_companies_on_name_normalised", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_companies_on_slug", unique: true
     t.index ["town"], name: "index_companies_on_town"
