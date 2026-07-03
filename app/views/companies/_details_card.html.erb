@@ -1,0 +1,22 @@
+<%= turbo_frame_tag "company_details_#{company.id}" do %>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
+    <h2 class="text-xl font-bold text-slate-900 mb-4">Company Details</h2>
+    <div class="space-y-4">
+      <div>
+        <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Registered Address</span>
+        <p class="text-sm text-slate-700 mt-1 font-medium leading-relaxed">
+          <%= company.registered_office_address.presence || company.location.presence || "United Kingdom" %>
+        </p>
+      </div>
+
+      <% if company.company_number.present? %>
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Company Number</span>
+          <p class="text-sm font-mono text-slate-800 mt-1 font-semibold">
+            <%= company.company_number %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

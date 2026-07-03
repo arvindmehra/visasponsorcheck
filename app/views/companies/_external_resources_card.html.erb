@@ -1,0 +1,44 @@
+<%= turbo_frame_tag "company_external_#{company.id}" do %>
+  <div class="mt-8 pt-6 border-t border-slate-150">
+    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">External Resources</h3>
+    <div class="flex flex-wrap text-sm font-medium" style="gap: 1.5rem; column-gap: 1.5rem; row-gap: 0.5rem;">
+      <% if company.company_number.present? %>
+        <%= link_to "https://find-and-update.company-information.service.gov.uk/company/#{company.company_number}",
+              target: "_blank", rel: "noopener noreferrer nofollow",
+              class: "inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-800 transition-colors" do %>
+          <span>Companies House</span>
+          <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+        <% end %>
+      <% else %>
+        <%= link_to "https://find-and-update.company-information.service.gov.uk/search?q=#{CGI.escape(company.name)}",
+              target: "_blank", rel: "noopener noreferrer nofollow",
+              class: "inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-800 transition-colors" do %>
+          <span>Companies House</span>
+          <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+        <% end %>
+      <% end %>
+
+      <%= link_to "https://www.linkedin.com/search/results/all/?keywords=#{CGI.escape(company.name)}",
+            target: "_blank", rel: "noopener noreferrer nofollow",
+            class: "inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-800 transition-colors" do %>
+        <span>LinkedIn</span>
+        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+        </svg>
+      <% end %>
+
+      <%= link_to "https://www.google.com/search?q=#{CGI.escape(company.name + ' UK website')}",
+            target: "_blank", rel: "noopener noreferrer nofollow",
+            class: "inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-800 transition-colors" do %>
+        <span>Google Search</span>
+        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+        </svg>
+      <% end %>
+    </div>
+  </div>
+<% end %>

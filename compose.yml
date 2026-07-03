@@ -43,6 +43,8 @@ services:
       RAILS_LOG_TO_STDOUT: "true"
       RAILS_SERVE_STATIC_FILES: "true"   # serve assets locally (no Thruster CDN)
       RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      COMPANIES_HOUSE_API_KEY: "${COMPANIES_HOUSE_API_KEY}"
+      COMPANIES_HOUSE_SANDBOX: "${COMPANIES_HOUSE_SANDBOX}"
       DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_production"
     ports:
       - "80:80"   # Thruster listens on 80 inside the container

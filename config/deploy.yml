@@ -52,6 +52,7 @@ env:
   secret:
     - RAILS_MASTER_KEY      # Decrypts config/credentials.yml.enc
     - DATABASE_URL          # Constructed securely in .kamal/secrets
+    - COMPANIES_HOUSE_API_KEY
 
 # ── Accessories ────────────────────────────────────────────
 # Accessories are Docker containers Kamal manages alongside
