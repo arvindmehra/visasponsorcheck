@@ -38,6 +38,26 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
+    <!-- Google Consent Mode - must load BEFORE gtag -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied'
+      });
+    </script>
+
+    <% if Rails.env.production? %>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>"></script>
+      <script>
+        gtag('js', new Date());
+        gtag('config', '<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>');
+      </script>
+    <% end %>
+
     <!-- Global Organisation + WebSite JSON-LD -->
     <script type="application/ld+json">
     {

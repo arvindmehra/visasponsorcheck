@@ -32,7 +32,17 @@
 </script>
 <% end %>
 
+<% if Rails.env.production? %>
+  <script>
+    gtag('event', 'filter_applied', {
+      filter_type: 'city',
+      filter_value: '<%= j @city_name %>'
+    });
+  </script>
+<% end %>
+
 <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+
   <!-- Breadcrumb -->
   <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
     <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
