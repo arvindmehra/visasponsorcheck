@@ -45,10 +45,14 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
+    title = "Visa Sponsors in #{@city_name} | UK Sponsor Licence List"
+    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    canonical_url = @pagy.page > 1 ? city_sponsors_url(city: @city_slug, page: @pagy.page) : city_sponsors_url(city: @city_slug)
+
     set_meta_tags(
-      title: "Visa Sponsors in #{@city_name} | UK Sponsor Licence List",
+      title: title,
       description: "#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}.",
-      canonical: city_sponsors_url(city: @city_slug)
+      canonical: canonical_url
     )
   end
 
@@ -68,10 +72,14 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
+    title = "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register"
+    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    canonical_url = @pagy.page > 1 ? route_sponsors_url(route: @route_slug, page: @pagy.page) : route_sponsors_url(route: @route_slug)
+
     set_meta_tags(
-      title: "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register",
+      title: title,
       description: "#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list.",
-      canonical: route_sponsors_url(route: @route_slug)
+      canonical: canonical_url
     )
   end
 
@@ -83,10 +91,14 @@ class SponsorsController < ApplicationController
     )
     @count = Company.a_rated.count
 
+    title = "A-Rated UK Visa Sponsors List | Top Rated Sponsor Licences"
+    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    canonical_url = @pagy.page > 1 ? a_rated_sponsors_url(page: @pagy.page) : a_rated_sponsors_url
+
     set_meta_tags(
-      title: "A-Rated UK Visa Sponsors List | Top Rated Sponsor Licences",
+      title: title,
       description: "#{number_with_delimiter(@count)} UK companies hold an A-rated sponsor licence. A-rated sponsors have a clean compliance record with UKVI. Browse the full A-rated sponsor list.",
-      canonical: a_rated_sponsors_url
+      canonical: canonical_url
     )
   end
 
@@ -98,10 +110,14 @@ class SponsorsController < ApplicationController
     )
     @count = Company.revoked.count
 
+    title = "Revoked Sponsor Licences UK | Removed from Register"
+    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    canonical_url = @pagy.page > 1 ? revoked_sponsors_url(page: @pagy.page) : revoked_sponsors_url
+
     set_meta_tags(
-      title: "Revoked Sponsor Licences UK | Removed from Register",
+      title: title,
       description: "#{number_with_delimiter(@count)} companies have had their UK sponsor licence revoked or removed. Check our revoked sponsor licence list sourced from GOV.UK.",
-      canonical: revoked_sponsors_url
+      canonical: canonical_url
     )
   end
 

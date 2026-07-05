@@ -13,7 +13,7 @@
       <img src="./assets/0.13.2/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" class="hide">
-      <div class="timestamp">Generated <abbr class="timeago" title="2026-07-05T16:14:24+01:00">2026-07-05T16:14:24+01:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2026-07-05T16:17:47+01:00">2026-07-05T16:17:47+01:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -22,14 +22,14 @@
     <span class="group_name">All Files</span>
     (<span class="covered_percent">
       <span class="green">
-  94.47%
+  94.59%
 </span>
 
      </span>
      covered at
      <span class="covered_strength">
        <span class="green">
-         8.22
+         8.06
        </span>
     </span> hits/line
     )
@@ -42,11 +42,11 @@
   </div>
 
   <div class="t-line-summary">
-    <b>506</b> relevant lines,
-    <span class="green"><b>478</b> lines covered</span> and
+    <b>518</b> relevant lines,
+    <span class="green"><b>490</b> lines covered</span> and
     <span class="red"><b>28</b> lines missed. </span>
     (<span class="green">
-  94.47%
+  94.59%
 </span>
 )
   </div>
@@ -127,11 +127,11 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#5b37dab5608e2e77e014341e0e9388a1badba7f0" class="src_link" title="app/controllers/sponsors_controller.rb">app/controllers/sponsors_controller.rb</a></td>
             <td class="green strong cell--number t-file__coverage">100.00 %</td>
-            <td class="cell--number">114</td>
-            <td class="cell--number">44</td>
-            <td class="cell--number">44</td>
+            <td class="cell--number">130</td>
+            <td class="cell--number">56</td>
+            <td class="cell--number">56</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">1.73</td>
+            <td class="cell--number">1.63</td>
             
           </tr>
         
@@ -312,14 +312,14 @@
     <span class="group_name">Controllers</span>
     (<span class="covered_percent">
       <span class="green">
-  98.02%
+  98.23%
 </span>
 
      </span>
      covered at
      <span class="covered_strength">
        <span class="green">
-         2.72
+         2.57
        </span>
     </span> hits/line
     )
@@ -332,11 +332,11 @@
   </div>
 
   <div class="t-line-summary">
-    <b>101</b> relevant lines,
-    <span class="green"><b>99</b> lines covered</span> and
+    <b>113</b> relevant lines,
+    <span class="green"><b>111</b> lines covered</span> and
     <span class="red"><b>2</b> lines missed. </span>
     (<span class="green">
-  98.02%
+  98.23%
 </span>
 )
   </div>
@@ -417,11 +417,11 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#5b37dab5608e2e77e014341e0e9388a1badba7f0" class="src_link" title="app/controllers/sponsors_controller.rb">app/controllers/sponsors_controller.rb</a></td>
             <td class="green strong cell--number t-file__coverage">100.00 %</td>
-            <td class="cell--number">114</td>
-            <td class="cell--number">44</td>
-            <td class="cell--number">44</td>
+            <td class="cell--number">130</td>
+            <td class="cell--number">56</td>
+            <td class="cell--number">56</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">1.73</td>
+            <td class="cell--number">1.63</td>
             
           </tr>
         
@@ -2701,8 +2701,8 @@
     
 
     <div class="t-line-summary">
-      <b>44</b> relevant lines.
-      <span class="green"><b>44</b> lines covered</span> and
+      <b>56</b> relevant lines.
+      <span class="green"><b>56</b> lines covered</span> and
       <span class="red"><b>0</b> lines missed.</span>
     </div>
 
@@ -3235,27 +3235,31 @@
 
             
 
-            <code class="ruby">    set_meta_tags(</code>
+            <code class="ruby">    title = &quot;Visa Sponsors in #{@city_name} | UK Sponsor Licence List&quot;</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="49">
+          <li class="covered" data-hits="2" data-linenumber="49">
+            
+              <span class="hits">2</span>
             
 
             
 
-            <code class="ruby">      title: &quot;Visa Sponsors in #{@city_name} | UK Sponsor Licence List&quot;,</code>
+            <code class="ruby">    title += &quot; (Page #{@pagy.page})&quot; if @pagy.page &gt; 1</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="50">
+          <li class="covered" data-hits="2" data-linenumber="50">
+            
+              <span class="hits">2</span>
             
 
             
 
-            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}.&quot;,</code>
+            <code class="ruby">    canonical_url = @pagy.page &gt; 1 ? city_sponsors_url(city: @city_slug, page: @pagy.page) : city_sponsors_url(city: @city_slug)</code>
           </li>
         </div>
       
@@ -3265,17 +3269,19 @@
 
             
 
-            <code class="ruby">      canonical: city_sponsors_url(city: @city_slug)</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="52">
+          <li class="covered" data-hits="2" data-linenumber="52">
+            
+              <span class="hits">2</span>
             
 
             
 
-            <code class="ruby">    )</code>
+            <code class="ruby">    set_meta_tags(</code>
           </li>
         </div>
       
@@ -3285,7 +3291,7 @@
 
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">      title: title,</code>
           </li>
         </div>
       
@@ -3295,7 +3301,7 @@
 
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}.&quot;,</code>
           </li>
         </div>
       
@@ -3305,12 +3311,52 @@
 
             
 
+            <code class="ruby">      canonical: canonical_url</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="56">
+            
+
+            
+
+            <code class="ruby">    )</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="57">
+            
+
+            
+
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="58">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="59">
+            
+
+            
+
             <code class="ruby">  # GET /sponsors/route/:route</code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="56">
+          <li class="covered" data-hits="1" data-linenumber="60">
             
               <span class="hits">1</span>
             
@@ -3322,7 +3368,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="2" data-linenumber="57">
+          <li class="covered" data-hits="2" data-linenumber="61">
             
               <span class="hits">2</span>
             
@@ -3334,7 +3380,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="2" data-linenumber="58">
+          <li class="covered" data-hits="2" data-linenumber="62">
             
               <span class="hits">2</span>
             
@@ -3346,7 +3392,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="59">
+          <li class="never" data-hits="" data-linenumber="63">
             
 
             
@@ -3356,7 +3402,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="2" data-linenumber="60">
+          <li class="covered" data-hits="2" data-linenumber="64">
             
               <span class="hits">2</span>
             
@@ -3368,7 +3414,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="2" data-linenumber="61">
+          <li class="covered" data-hits="2" data-linenumber="65">
             
               <span class="hits">2</span>
             
@@ -3380,7 +3426,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="62">
+          <li class="never" data-hits="" data-linenumber="66">
             
 
             
@@ -3390,7 +3436,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="63">
+          <li class="never" data-hits="" data-linenumber="67">
             
 
             
@@ -3400,7 +3446,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="64">
+          <li class="never" data-hits="" data-linenumber="68">
             
 
             
@@ -3410,7 +3456,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="2" data-linenumber="65">
+          <li class="covered" data-hits="2" data-linenumber="69">
             
               <span class="hits">2</span>
             
@@ -3418,50 +3464,6 @@
             
 
             <code class="ruby">    @count = Company.by_route(@route_name).count</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="66">
-            
-
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="2" data-linenumber="67">
-            
-              <span class="hits">2</span>
-            
-
-            
-
-            <code class="ruby">    if @count.zero?</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="1" data-linenumber="68">
-            
-              <span class="hits">1</span>
-            
-
-            
-
-            <code class="ruby">      render file: &quot;public/404.html&quot;, status: :not_found and return</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="69">
-            
-
-            
-
-            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -3476,24 +3478,26 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="71">
+          <li class="covered" data-hits="2" data-linenumber="71">
+            
+              <span class="hits">2</span>
+            
+
+            
+
+            <code class="ruby">    if @count.zero?</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="72">
             
               <span class="hits">1</span>
             
 
             
 
-            <code class="ruby">    set_meta_tags(</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="72">
-            
-
-            
-
-            <code class="ruby">      title: &quot;#{@route_name} Visa Sponsors UK | Licensed Sponsor Register&quot;,</code>
+            <code class="ruby">      render file: &quot;public/404.html&quot;, status: :not_found and return</code>
           </li>
         </div>
       
@@ -3503,7 +3507,7 @@
 
             
 
-            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list.&quot;,</code>
+            <code class="ruby">    end</code>
           </li>
         </div>
       
@@ -3513,37 +3517,43 @@
 
             
 
-            <code class="ruby">      canonical: route_sponsors_url(route: @route_slug)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="75">
-            
-
-            
-
-            <code class="ruby">    )</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="76">
-            
-
-            
-
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="77">
-            
-
-            
-
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="75">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    title = &quot;#{@route_name} Visa Sponsors UK | Licensed Sponsor Register&quot;</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="76">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    title += &quot; (Page #{@pagy.page})&quot; if @pagy.page &gt; 1</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="77">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    canonical_url = @pagy.page &gt; 1 ? route_sponsors_url(route: @route_slug, page: @pagy.page) : route_sponsors_url(route: @route_slug)</code>
           </li>
         </div>
       
@@ -3553,7 +3563,7 @@
 
             
 
-            <code class="ruby">  # GET /sponsors/a-rated</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
@@ -3565,19 +3575,17 @@
 
             
 
-            <code class="ruby">  def a_rated</code>
+            <code class="ruby">    set_meta_tags(</code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="80">
-            
-              <span class="hits">1</span>
+          <li class="never" data-hits="" data-linenumber="80">
             
 
             
 
-            <code class="ruby">    @pagy, @companies = pagy(</code>
+            <code class="ruby">      title: title,</code>
           </li>
         </div>
       
@@ -3587,7 +3595,7 @@
 
             
 
-            <code class="ruby">      Company.a_rated.includes(:sponsor_licences).order(:name),</code>
+            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list.&quot;,</code>
           </li>
         </div>
       
@@ -3597,7 +3605,7 @@
 
             
 
-            <code class="ruby">      limit: 50</code>
+            <code class="ruby">      canonical: canonical_url</code>
           </li>
         </div>
       
@@ -3612,14 +3620,12 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="84">
-            
-              <span class="hits">1</span>
+          <li class="never" data-hits="" data-linenumber="84">
             
 
             
 
-            <code class="ruby">    @count = Company.a_rated.count</code>
+            <code class="ruby">  end</code>
           </li>
         </div>
       
@@ -3634,101 +3640,29 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="86">
+          <li class="never" data-hits="" data-linenumber="86">
+            
+
+            
+
+            <code class="ruby">  # GET /sponsors/a-rated</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="87">
             
               <span class="hits">1</span>
             
 
             
 
-            <code class="ruby">    set_meta_tags(</code>
+            <code class="ruby">  def a_rated</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="87">
-            
-
-            
-
-            <code class="ruby">      title: &quot;A-Rated UK Visa Sponsors List | Top Rated Sponsor Licences&quot;,</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="88">
-            
-
-            
-
-            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} UK companies hold an A-rated sponsor licence. A-rated sponsors have a clean compliance record with UKVI. Browse the full A-rated sponsor list.&quot;,</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="89">
-            
-
-            
-
-            <code class="ruby">      canonical: a_rated_sponsors_url</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="90">
-            
-
-            
-
-            <code class="ruby">    )</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="91">
-            
-
-            
-
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="92">
-            
-
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="93">
-            
-
-            
-
-            <code class="ruby">  # GET /sponsors/revoked</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="1" data-linenumber="94">
-            
-              <span class="hits">1</span>
-            
-
-            
-
-            <code class="ruby">  def revoked</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="1" data-linenumber="95">
+          <li class="covered" data-hits="1" data-linenumber="88">
             
               <span class="hits">1</span>
             
@@ -3740,17 +3674,17 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="96">
+          <li class="never" data-hits="" data-linenumber="89">
             
 
             
 
-            <code class="ruby">      Company.revoked.includes(:sponsor_licences).order(:name),</code>
+            <code class="ruby">      Company.a_rated.includes(:sponsor_licences).order(:name),</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="97">
+          <li class="never" data-hits="" data-linenumber="90">
             
 
             
@@ -3760,7 +3694,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="98">
+          <li class="never" data-hits="" data-linenumber="91">
             
 
             
@@ -3770,19 +3704,19 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="99">
+          <li class="covered" data-hits="1" data-linenumber="92">
             
               <span class="hits">1</span>
             
 
             
 
-            <code class="ruby">    @count = Company.revoked.count</code>
+            <code class="ruby">    @count = Company.a_rated.count</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="100">
+          <li class="never" data-hits="" data-linenumber="93">
             
 
             
@@ -3792,7 +3726,53 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="101">
+          <li class="covered" data-hits="1" data-linenumber="94">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    title = &quot;A-Rated UK Visa Sponsors List | Top Rated Sponsor Licences&quot;</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="95">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    title += &quot; (Page #{@pagy.page})&quot; if @pagy.page &gt; 1</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="96">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    canonical_url = @pagy.page &gt; 1 ? a_rated_sponsors_url(page: @pagy.page) : a_rated_sponsors_url</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="97">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="98">
             
               <span class="hits">1</span>
             
@@ -3804,37 +3784,37 @@
         </div>
       
         <div>
+          <li class="never" data-hits="" data-linenumber="99">
+            
+
+            
+
+            <code class="ruby">      title: title,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="100">
+            
+
+            
+
+            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} UK companies hold an A-rated sponsor licence. A-rated sponsors have a clean compliance record with UKVI. Browse the full A-rated sponsor list.&quot;,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="101">
+            
+
+            
+
+            <code class="ruby">      canonical: canonical_url</code>
+          </li>
+        </div>
+      
+        <div>
           <li class="never" data-hits="" data-linenumber="102">
-            
-
-            
-
-            <code class="ruby">      title: &quot;Revoked Sponsor Licences UK | Removed from Register&quot;,</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="103">
-            
-
-            
-
-            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} companies have had their UK sponsor licence revoked or removed. Check our revoked sponsor licence list sourced from GOV.UK.&quot;,</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="104">
-            
-
-            
-
-            <code class="ruby">      canonical: revoked_sponsors_url</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="105">
             
 
             
@@ -3844,7 +3824,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="106">
+          <li class="never" data-hits="" data-linenumber="103">
             
 
             
@@ -3854,7 +3834,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="107">
+          <li class="never" data-hits="" data-linenumber="104">
             
 
             
@@ -3864,7 +3844,211 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="108">
+          <li class="never" data-hits="" data-linenumber="105">
+            
+
+            
+
+            <code class="ruby">  # GET /sponsors/revoked</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="106">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">  def revoked</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="107">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    @pagy, @companies = pagy(</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="108">
+            
+
+            
+
+            <code class="ruby">      Company.revoked.includes(:sponsor_licences).order(:name),</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="109">
+            
+
+            
+
+            <code class="ruby">      limit: 50</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="110">
+            
+
+            
+
+            <code class="ruby">    )</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="111">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    @count = Company.revoked.count</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="112">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="113">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    title = &quot;Revoked Sponsor Licences UK | Removed from Register&quot;</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="114">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    title += &quot; (Page #{@pagy.page})&quot; if @pagy.page &gt; 1</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="115">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    canonical_url = @pagy.page &gt; 1 ? revoked_sponsors_url(page: @pagy.page) : revoked_sponsors_url</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="116">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="117">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">    set_meta_tags(</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="118">
+            
+
+            
+
+            <code class="ruby">      title: title,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="119">
+            
+
+            
+
+            <code class="ruby">      description: &quot;#{number_with_delimiter(@count)} companies have had their UK sponsor licence revoked or removed. Check our revoked sponsor licence list sourced from GOV.UK.&quot;,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="120">
+            
+
+            
+
+            <code class="ruby">      canonical: canonical_url</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="121">
+            
+
+            
+
+            <code class="ruby">    )</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="122">
+            
+
+            
+
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="123">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="124">
             
               <span class="hits">1</span>
             
@@ -3876,7 +4060,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="109">
+          <li class="never" data-hits="" data-linenumber="125">
             
 
             
@@ -3886,7 +4070,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="110">
+          <li class="covered" data-hits="1" data-linenumber="126">
             
               <span class="hits">1</span>
             
@@ -3898,7 +4082,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="2" data-linenumber="111">
+          <li class="covered" data-hits="2" data-linenumber="127">
             
               <span class="hits">2</span>
             
@@ -3910,7 +4094,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="6" data-linenumber="112">
+          <li class="covered" data-hits="6" data-linenumber="128">
             
               <span class="hits">6</span>
             
@@ -3922,7 +4106,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="113">
+          <li class="never" data-hits="" data-linenumber="129">
             
 
             
@@ -3932,7 +4116,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="114">
+          <li class="never" data-hits="" data-linenumber="130">
             
 
             
