@@ -35,6 +35,9 @@ services:
       RAILS_ENV: development
       RAILS_LOG_TO_STDOUT: "true"
       RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      COMPANIES_HOUSE_API_KEY: "${COMPANIES_HOUSE_API_KEY}"
+      COMPANIES_HOUSE_DEV_API_KEY: "${COMPANIES_HOUSE_DEV_API_KEY}"
+      COMPANIES_HOUSE_SANDBOX: "${COMPANIES_HOUSE_SANDBOX}"
       DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_development"
 
     # ── Bind mounts ────────────────────────────────────────────
@@ -69,6 +72,9 @@ services:
     environment:
       RAILS_ENV: development
       RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      COMPANIES_HOUSE_API_KEY: "${COMPANIES_HOUSE_API_KEY}"
+      COMPANIES_HOUSE_DEV_API_KEY: "${COMPANIES_HOUSE_DEV_API_KEY}"
+      COMPANIES_HOUSE_SANDBOX: "${COMPANIES_HOUSE_SANDBOX}"
       DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_development"
     volumes:
       - ./app:/rails/app
