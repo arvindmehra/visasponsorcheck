@@ -176,7 +176,7 @@
         <% if @company.enriched_at.present? %>
           <%= render partial: 'companies/external_resources_card', locals: { company: @company } %>
         <% else %>
-          <turbo-frame id="company_external_<%= @company.id %>">
+          <%= turbo_frame_tag "company_external_#{@company.id}", src: enrich_company_path(@company, card: :external), loading: :lazy do %>
             <div class="mt-8 pt-6 border-t border-slate-150 animate-pulse">
               <h3 class="h-4 bg-slate-200 rounded-md w-1/4 mb-3"></h3>
               <div class="flex flex-wrap gap-4">
@@ -185,7 +185,7 @@
                 <div class="h-4 bg-slate-200 rounded w-28"></div>
               </div>
             </div>
-          </turbo-frame>
+          <% end %>
         <% end %>
       </div>
     </div>
@@ -195,7 +195,7 @@
       <% if @company.enriched_at.present? %>
         <%= render partial: 'companies/details_card', locals: { company: @company } %>
       <% else %>
-        <%= turbo_frame_tag "company_details_#{@company.id}", src: enrich_company_path(@company), loading: :lazy do %>
+        <%= turbo_frame_tag "company_details_#{@company.id}", src: enrich_company_path(@company, card: :details), loading: :lazy do %>
           <!-- Company Details Loading Skeleton -->
           <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40 mb-6 animate-pulse">
             <h2 class="h-5 bg-slate-200 rounded-md w-1/3 mb-4"></h2>

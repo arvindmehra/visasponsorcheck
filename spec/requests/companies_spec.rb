@@ -38,6 +38,19 @@ RSpec.describe "Companies", type: :request do
         expect(response.body).to include("03900676")
         expect(response.body).to include("123 Street")
       end
+
+      it "returns the external resources partial when card: external is requested" do
+        expect(CompanyEnricher).to receive(:enrich!).and_wrap_original do |method, company|
+          company.update!(company_number: "03900676", registered_office_address: "123 Street")
+          company
+        end
+
+        get enrich_company_path(company, card: :external)
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("External Resources")
+        expect(response.body).to include("Companies House")
+        expect(response.body).not_to include("Company Details")
+      end
     end
 
     context "when company is already enriched" do
@@ -52,6 +65,15 @@ RSpec.describe "Companies", type: :request do
         expect(response).to have_http_status(:success)
         expect(response.body).to include("99999999")
         expect(response.body).to include("Already Rich Road")
+      end
+
+      it "does not call CompanyEnricher and returns cached external resources info" do
+        expect(CompanyEnricher).not_to receive(:enrich!)
+
+        get enrich_company_path(company, card: :external)
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("External Resources")
+        expect(response.body).to include("Companies House")
       end
     end
   end

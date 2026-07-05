@@ -55,7 +55,11 @@ class CompaniesController < ApplicationController
         ]
       end
       format.html do
-        render partial: 'companies/details_card', locals: { company: @company }
+        if params[:card].to_s == "external"
+          render partial: 'companies/external_resources_card', locals: { company: @company }
+        else
+          render partial: 'companies/details_card', locals: { company: @company }
+        end
       end
     end
   end
