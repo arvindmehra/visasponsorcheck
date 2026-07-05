@@ -61,6 +61,8 @@ services:
 
     # Let it crash visibly in dev instead of silently restarting
     restart: "no"
+    tty: true
+    stdin_open: true
 
   css:
     build:

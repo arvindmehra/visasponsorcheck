@@ -11,6 +11,10 @@
     <meta name="application-name" content="VisaSponsorUK">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- Disable Turbo 8 prefetching (hover link preload) globally to prevent premature GET requests. -->
+    <!-- To reactivate it, change content to "true" or remove the meta tag entirely. -->
+    <meta name="turbo-prefetch" content="false">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

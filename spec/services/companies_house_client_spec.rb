@@ -7,6 +7,33 @@ RSpec.describe CompaniesHouseClient do
 
     before do
       allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :api_key).and_return(api_key)
+      allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :dev_api_key).and_return(nil)
+    end
+
+    context "when in sandbox mode" do
+      before do
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('COMPANIES_HOUSE_SANDBOX').and_return('true')
+        allow(ENV).to receive(:[]).with('COMPANIES_HOUSE_DEV_API_KEY').and_return(nil)
+        allow(ENV).to receive(:[]).with('COMPANIES_HOUSE_API_KEY').and_return(nil)
+      end
+
+      it "uses dev_api_key from credentials if present" do
+        allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :dev_api_key).and_return("dev_key_from_creds")
+        expect(described_class.api_key).to eq("dev_key_from_creds")
+      end
+
+      it "uses COMPANIES_HOUSE_DEV_API_KEY from env if present" do
+        allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :dev_api_key).and_return(nil)
+        allow(ENV).to receive(:[]).with('COMPANIES_HOUSE_DEV_API_KEY').and_return("dev_key_from_env")
+        expect(described_class.api_key).to eq("dev_key_from_env")
+      end
+
+      it "falls back to production api_key if no dev key is specified" do
+        allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :dev_api_key).and_return(nil)
+        allow(ENV).to receive(:[]).with('COMPANIES_HOUSE_DEV_API_KEY').and_return(nil)
+        expect(described_class.api_key).to eq(api_key)
+      end
     end
 
     context "when API key is missing" do
