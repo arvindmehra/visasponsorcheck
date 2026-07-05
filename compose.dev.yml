@@ -59,5 +59,31 @@ services:
     # Let it crash visibly in dev instead of silently restarting
     restart: "no"
 
+  css:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUNDLE_WITHOUT: ""
+        RAILS_ENV: development
+    environment:
+      RAILS_ENV: development
+      RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_development"
+    volumes:
+      - ./app:/rails/app
+      - ./config:/rails/config
+      - ./db:/rails/db
+      - ./public:/rails/public
+      - ./log:/rails/log
+      - ./tmp:/rails/tmp
+    command: bin/rails tailwindcss:watch
+    tty: true
+    stdin_open: true
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_dev_data:
