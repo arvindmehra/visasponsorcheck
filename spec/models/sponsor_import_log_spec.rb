@@ -18,19 +18,19 @@ RSpec.describe SponsorImportLog, type: :model do
 
     describe ".recent" do
       it "returns logs ordered by created_at descending" do
-        expect(SponsorImportLog.recent).to eq([failed_log, done_log, pending_log])
+        expect(SponsorImportLog.recent).to eq([ failed_log, done_log, pending_log ])
       end
     end
 
     describe ".done" do
       it "returns done logs" do
-        expect(SponsorImportLog.done).to eq([done_log])
+        expect(SponsorImportLog.done).to eq([ done_log ])
       end
     end
 
     describe ".failed" do
       it "returns failed logs" do
-        expect(SponsorImportLog.failed).to eq([failed_log])
+        expect(SponsorImportLog.failed).to eq([ failed_log ])
       end
     end
   end

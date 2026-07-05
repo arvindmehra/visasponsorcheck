@@ -132,7 +132,7 @@ class Company < ApplicationRecord
 
   # Returns "London" or "London, England" depending on what's available
   def location
-    [town, county].compact.reject(&:blank?).join(", ").presence
+    [ town, county ].compact.reject(&:blank?).join(", ").presence
   end
 
   # City slug for building city landing page URLs (e.g. "london")

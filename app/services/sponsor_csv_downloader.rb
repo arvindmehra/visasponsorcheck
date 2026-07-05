@@ -21,14 +21,14 @@ class SponsorCsvDownloader
 
     url = if @source == GOV_UK_URL
             scrape_csv_url
-          else
+    else
             @source
-          end
+    end
 
     raise "Could not resolve CSV URL" if url.blank?
 
     # Download URL to a temp file
-    temp_file = Tempfile.new(["sponsor_register", ".csv"])
+    temp_file = Tempfile.new([ "sponsor_register", ".csv" ])
     temp_file.binmode
 
     response = HTTParty.get(url, stream_body: true) do |fragment|

@@ -78,4 +78,3 @@ RSpec.describe "Companies", type: :request do
     end
   end
 end
-

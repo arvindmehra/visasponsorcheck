@@ -25,7 +25,7 @@ SitemapGenerator::Sitemap.create do
   Company
     .joins(:sponsor_licences)
     .where(sponsor_licences: { status: "active" })
-    .where.not(town_normalised: [nil, ""])
+    .where.not(town_normalised: [ nil, "" ])
     .group(:town_normalised)
     .having("COUNT(DISTINCT companies.id) >= 3")
     .pluck(:town_normalised)

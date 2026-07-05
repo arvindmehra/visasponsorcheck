@@ -3,9 +3,9 @@ class SearchController < ApplicationController
     @query = params[:q].to_s.strip
     @companies = if @query.present?
                    Company.fuzzy_search(@query).limit(20).includes(:sponsor_licences)
-                 else
+    else
                    Company.none
-                 end
+    end
 
     # Support rendering with or without layout for Turbo Frame requests
     if turbo_frame_request?

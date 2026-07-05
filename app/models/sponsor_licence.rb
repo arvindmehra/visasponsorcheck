@@ -4,7 +4,7 @@ class SponsorLicence < ApplicationRecord
   # -----------------------------------------------------------------------
 
   STATUSES       = %w[active removed].freeze
-  LICENCE_TYPES  = ["Worker", "Temporary Worker"].freeze
+  LICENCE_TYPES  = [ "Worker", "Temporary Worker" ].freeze
   RATINGS        = %w[A B].freeze
 
   # Parsed from "Type & Rating" CSV column e.g. "Worker (A rating)"

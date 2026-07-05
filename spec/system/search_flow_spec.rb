@@ -16,7 +16,7 @@ RSpec.describe "Search Flow", type: :system, js: true do
 
     # Perform search
     fill_in "search-input-field", with: "Google"
-    
+
     # Press Enter to perform search
     find("#search-input-field").native.send_keys(:enter)
 

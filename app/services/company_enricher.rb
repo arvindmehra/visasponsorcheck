@@ -4,7 +4,7 @@ class CompanyEnricher
 
     # 1. Query Companies House API
     result = CompaniesHouseClient.search_by_name(company.name)
-    
+
     # 2. Update company details (always set enriched_at so we cache the lookup attempt)
     if result
       company.update(
@@ -17,7 +17,7 @@ class CompanyEnricher
         enriched_at: Time.current
       )
     end
-    
+
     company
   rescue => e
     Rails.logger.error("Enrichment failed for #{company.name}: #{e.message}")

@@ -40,11 +40,11 @@ class SponsorCsvParser
   def normalize_row(row)
     hash = row.to_h
 
-    organisation_name = find_value(hash, [/organisation.*name/i, /company.*name/i, /name/i])
-    town = find_value(hash, [/town.*city/i, /town/i, /city/i])
-    county = find_value(hash, [/county/i])
-    type_and_rating = find_value(hash, [/type.*rating/i, /rating/i])
-    route = find_value(hash, [/route/i])
+    organisation_name = find_value(hash, [ /organisation.*name/i, /company.*name/i, /name/i ])
+    town = find_value(hash, [ /town.*city/i, /town/i, /city/i ])
+    county = find_value(hash, [ /county/i ])
+    type_and_rating = find_value(hash, [ /type.*rating/i, /rating/i ])
+    route = find_value(hash, [ /route/i ])
 
     {
       organisation_name: organisation_name&.to_s&.strip,

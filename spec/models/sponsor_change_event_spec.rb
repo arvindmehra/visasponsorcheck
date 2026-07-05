@@ -27,7 +27,7 @@ RSpec.describe SponsorChangeEvent, type: :model do
 
     describe ".recent" do
       it "returns events ordered by occurred_at descending" do
-        expect(SponsorChangeEvent.recent).to eq([removed_event, added_event, rating_changed_event])
+        expect(SponsorChangeEvent.recent).to eq([ removed_event, added_event, rating_changed_event ])
       end
     end
 
@@ -39,19 +39,19 @@ RSpec.describe SponsorChangeEvent, type: :model do
 
     describe ".additions" do
       it "filters only added events" do
-        expect(SponsorChangeEvent.additions).to eq([added_event])
+        expect(SponsorChangeEvent.additions).to eq([ added_event ])
       end
     end
 
     describe ".removals" do
       it "filters only removed events" do
-        expect(SponsorChangeEvent.removals).to eq([removed_event])
+        expect(SponsorChangeEvent.removals).to eq([ removed_event ])
       end
     end
 
     describe ".changes_only" do
       it "filters out additions and removals" do
-        expect(SponsorChangeEvent.changes_only).to eq([rating_changed_event])
+        expect(SponsorChangeEvent.changes_only).to eq([ rating_changed_event ])
       end
     end
   end

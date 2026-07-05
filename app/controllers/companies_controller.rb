@@ -50,15 +50,15 @@ class CompaniesController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.replace("company_details_#{@company.id}", partial: 'companies/details_card', locals: { company: @company }),
-          turbo_stream.replace("company_external_#{@company.id}", partial: 'companies/external_resources_card', locals: { company: @company })
+          turbo_stream.replace("company_details_#{@company.id}", partial: "companies/details_card", locals: { company: @company }),
+          turbo_stream.replace("company_external_#{@company.id}", partial: "companies/external_resources_card", locals: { company: @company })
         ]
       end
       format.html do
         if params[:card].to_s == "external"
-          render partial: 'companies/external_resources_card', locals: { company: @company }
+          render partial: "companies/external_resources_card", locals: { company: @company }
         else
-          render partial: 'companies/details_card', locals: { company: @company }
+          render partial: "companies/details_card", locals: { company: @company }
         end
       end
     end

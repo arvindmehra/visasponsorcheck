@@ -114,7 +114,7 @@ RSpec.describe Company, type: :model do
       create(:sponsor_licence, company: company, route: "Skilled Worker", status: "active")
       create(:sponsor_licence, company: company, route: "Intra-Company Transfer", status: "active")
       create(:sponsor_licence, company: company, route: "Seasonal Worker", status: "removed")
-      expect(company.routes).to eq(["Intra-Company Transfer", "Skilled Worker"])
+      expect(company.routes).to eq([ "Intra-Company Transfer", "Skilled Worker" ])
     end
   end
 
@@ -211,7 +211,7 @@ RSpec.describe Company, type: :model do
 
     describe ".distinct_cities" do
       it "returns distinct clean normalised cities sorted" do
-        expect(Company.distinct_cities).to eq(["london", "manchester"])
+        expect(Company.distinct_cities).to eq([ "london", "manchester" ])
       end
     end
 
@@ -225,14 +225,14 @@ RSpec.describe Company, type: :model do
         create_list(:company, 2, town: "London") # London now has 4
 
         # Expected counts: London (4), Manchester (2), Birmingham (1)
-        expect(Company.top_cities(2)).to eq(["london", "manchester"])
-        expect(Company.top_cities(3)).to eq(["london", "manchester", "birmingham"])
+        expect(Company.top_cities(2)).to eq([ "london", "manchester" ])
+        expect(Company.top_cities(3)).to eq([ "london", "manchester", "birmingham" ])
       end
     end
 
     describe ".distinct_routes" do
       it "returns active routes sorted" do
-        expect(Company.distinct_routes).to eq(["Skilled Worker", "Temporary Worker"])
+        expect(Company.distinct_routes).to eq([ "Skilled Worker", "Temporary Worker" ])
       end
     end
   end
@@ -262,4 +262,3 @@ RSpec.describe Company, type: :model do
     end
   end
 end
-

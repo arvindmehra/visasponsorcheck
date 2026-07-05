@@ -9,4 +9,3 @@ class SponsorSyncJob < ApplicationJob
     SitemapRefreshJob.perform_later
   end
 end
-

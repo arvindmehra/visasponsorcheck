@@ -13,6 +13,6 @@ class CreateSponsorLicences < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :sponsor_licences, [:company_id, :route], unique: true
+    add_index :sponsor_licences, [ :company_id, :route ], unique: true
   end
 end

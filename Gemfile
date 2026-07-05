@@ -109,4 +109,3 @@ group :test do
   # Test coverage reporting
   gem "simplecov", "~> 0.22", require: false
 end
-

@@ -3,7 +3,7 @@ require "tempfile"
 
 RSpec.describe SponsorCsvParser do
   describe ".call" do
-    let(:temp_csv) { Tempfile.new(["test_sponsors", ".csv"]) }
+    let(:temp_csv) { Tempfile.new([ "test_sponsors", ".csv" ]) }
 
     after do
       temp_csv.close

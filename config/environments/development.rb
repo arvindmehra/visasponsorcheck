@@ -77,5 +77,5 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   # Allow Docker bridge network gateway to access web console in development
-  config.web_console.permissions = '192.168.0.0/16'
+  config.web_console.permissions = "192.168.0.0/16"
 end

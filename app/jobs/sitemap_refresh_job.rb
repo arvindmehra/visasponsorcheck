@@ -3,7 +3,16 @@ class SitemapRefreshJob < ApplicationJob
 
   def perform
     # Generate the sitemap xml
-    Rake::Task["sitemap:clean"].invoke rescue nil
-    Rake::Task["sitemap:create"].invoke rescue nil
+    begin
+      Rake::Task["sitemap:clean"].invoke
+    rescue => e
+      Rails.logger.error("Sitemap clean failed: #{e.message}")
+    end
+
+    begin
+      Rake::Task["sitemap:create"].invoke
+    rescue => e
+      Rails.logger.error("Sitemap create failed: #{e.message}")
+    end
   end
 end

@@ -2,7 +2,7 @@ require "rails_helper"
 require "tempfile"
 
 RSpec.describe SponsorImporter do
-  let(:temp_csv) { Tempfile.new(["test_import", ".csv"]) }
+  let(:temp_csv) { Tempfile.new([ "test_import", ".csv" ]) }
 
   before do
     # Stub the downloader so it returns our temp file path

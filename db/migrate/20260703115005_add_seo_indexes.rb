@@ -25,4 +25,3 @@ class AddSeoIndexes < ActiveRecord::Migration[8.1]
     add_index :sponsor_licences, :licence_type, name: "index_sponsor_licences_on_licence_type"
   end
 end
-
