@@ -10,6 +10,7 @@ Rails.application.routes.draw do
 
   # Sponsor directory — city, route/type, rating, revoked
   get "sponsors",                          to: "sponsors#index",   as: :sponsors
+  get "sponsors/locations",                to: "sponsors#locations", as: :locations_sponsors
   get "sponsors/a-rated",                  to: "sponsors#a_rated", as: :a_rated_sponsors
   get "sponsors/revoked",                  to: "sponsors#revoked", as: :revoked_sponsors
   get "sponsors/city/:city",               to: "sponsors#city",    as: :city_sponsors

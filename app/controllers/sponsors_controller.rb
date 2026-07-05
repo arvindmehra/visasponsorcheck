@@ -4,13 +4,30 @@ class SponsorsController < ApplicationController
   # GET /sponsors
   def index
     @cities = Company.distinct_cities.first(50) # Top 50 cities for internal links
-    @routes = Company.distinct_routes
+    @visa_routes = Company.distinct_routes
     @active_count = Company.active_sponsors.count
 
     set_meta_tags(
       title: "UK Visa Sponsor List #{Date.current.year} | Register of Licensed Sponsors",
       description: "Browse the full register of #{number_with_delimiter(@active_count)} licensed UK visa sponsors. Search by city, visa route (Skilled Worker, Health & Care), or rating.",
       canonical: sponsors_url
+    )
+  end
+
+  # GET /sponsors/locations
+  def locations
+    @cities = Company.distinct_cities
+    @grouped_cities = @cities.map do |slug|
+      name = slug.split("-").map(&:capitalize).join(" ")
+      { name: name, slug: slug }
+    end.sort_by { |c| c[:name] }.group_by { |c| c[:name][0].upcase }
+
+    @active_count = Company.active_sponsors.count
+
+    set_meta_tags(
+      title: "UK Visa Sponsor Directory by Location | Licensed Companies A-Z",
+      description: "Find licensed UK visa sponsors sorted alphabetically by city, town, or region. Browse and filter companies across all UK locations.",
+      canonical: locations_sponsors_url
     )
   end
 

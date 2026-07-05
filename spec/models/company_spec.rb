@@ -215,6 +215,21 @@ RSpec.describe Company, type: :model do
       end
     end
 
+    describe ".top_cities" do
+      it "returns the top cities by company record count in descending order" do
+        # Existing setup in this describe block has london_company and manchester_company (1 each)
+        # Let's create more companies
+        create(:company, town: "London") # London now has 2
+        create(:company, town: "Birmingham") # Birmingham has 1
+        create(:company, town: "Manchester") # Manchester now has 2
+        create_list(:company, 2, town: "London") # London now has 4
+
+        # Expected counts: London (4), Manchester (2), Birmingham (1)
+        expect(Company.top_cities(2)).to eq(["london", "manchester"])
+        expect(Company.top_cities(3)).to eq(["london", "manchester", "birmingham"])
+      end
+    end
+
     describe ".distinct_routes" do
       it "returns active routes sorted" do
         expect(Company.distinct_routes).to eq(["Skilled Worker", "Temporary Worker"])

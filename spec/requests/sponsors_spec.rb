@@ -18,6 +18,19 @@ RSpec.describe "Sponsors Directory", type: :request do
     end
   end
 
+  describe "GET /sponsors/locations" do
+    it "renders the locations directory page successfully with grouped lists" do
+      get locations_sponsors_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Browse by Location")
+      expect(response.body).to include("Jump to Letter")
+      # London and Leeds should be formatted and grouped under their respective letter headers
+      expect(response.body).to include("London")
+      expect(response.body).to include("Leeds")
+      expect(response.body).to include("id=\"letter-L\"")
+    end
+  end
+
   describe "GET /sponsors/city/:city" do
     context "when sponsors exist in the city" do
       it "renders the city page successfully" do

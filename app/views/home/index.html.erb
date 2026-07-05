@@ -109,18 +109,18 @@
           <%= link_to city_name, city_sponsors_path(city: city_slug),
                 class: "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 shadow-sm" %>
         <% end %>
-        <%= link_to "View all cities →", sponsors_path,
+        <%= link_to "View all locations (A-Z) →", locations_sponsors_path,
               class: "rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm text-indigo-600 hover:bg-indigo-100 transition-colors" %>
       </div>
     </div>
   <% end %>
 
   <!-- Browse by Visa Route -->
-  <% if @routes.any? %>
+  <% if @visa_routes.any? %>
     <div class="mt-10">
       <h2 class="text-xl font-bold text-slate-900 mb-5">Browse by Visa Route</h2>
       <div class="flex flex-wrap gap-2">
-        <% @routes.each do |route| %>
+        <% @visa_routes.each do |route| %>
           <% route_slug = route.downcase.gsub(/\s+/, "-") %>
           <%= link_to route, route_sponsors_path(route: route_slug),
                 class: "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 shadow-sm" %>

@@ -98,6 +98,17 @@ class Company < ApplicationRecord
       .sort
   end
 
+  # Returns the top cities by company record count in descending order
+  def self.top_cities(limit = 10)
+    where.not(town_normalised: [ nil, "" ])
+      .where("town_normalised ~ '^[a-z][a-z -]+$'")  # only clean alpha slugs
+      .where("LENGTH(town_normalised) >= 2")
+      .group(:town_normalised)
+      .order(Arel.sql("count(*) DESC, town_normalised ASC"))
+      .limit(limit)
+      .pluck(:town_normalised)
+  end
+
   # Returns all distinct visa routes with active sponsors
   def self.distinct_routes
     SponsorLicence.active.distinct.pluck(:route).sort
