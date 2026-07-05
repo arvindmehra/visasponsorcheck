@@ -102,10 +102,66 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <!-- Logo / Link to Home -->
-          <div class="flex items-center">
+          <div class="flex items-center flex-1">
             <a href="/" class="flex items-center gap-2.5 group" id="nav-logo-link">
               <%= image_tag 'logo-transparent.png', class: "h-10 w-auto flex-shrink-0 object-contain group-hover:scale-105 transition-all duration-300", alt: "VisaSponsorUK Logo" %>
             </a>
+            <% unless current_page?(root_path) %>
+              <div class="ml-6 flex-1 max-w-md hidden sm:block" data-controller="search">
+                <%= form_with url: search_path, method: :get, 
+                              class: "relative w-full", 
+                              data: { 
+                                search_target: "form", 
+                                action: "submit->search#submit turbo:submit-end->search#finish" 
+                              } do |f| %>
+                  <div class="relative">
+                    <!-- Input Field -->
+                    <%= f.search_field :q, 
+                                       placeholder: "Search company by name...", 
+                                       class: "block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 pl-4 pr-12 text-sm text-slate-950 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-200",
+                                       data: { 
+                                         search_target: "input",
+                                         action: "input->search#perform keydown.down->search#navigateDown keydown.up->search#navigateUp keydown.esc->search#closeDropdown keydown.enter->search#enterPressed"
+                                       },
+                                       value: params[:q],
+                                       autocomplete: "off",
+                                       role: "combobox",
+                                       aria: {
+                                         expanded: "false",
+                                         autocomplete: "list",
+                                         controls: "typeahead-listbox"
+                                       },
+                                       id: "search-input-field-header" %>
+
+                    <!-- Spinner / Loader -->
+                    <div class="absolute inset-y-0 right-9 flex items-center pointer-events-none">
+                      <svg class="animate-spin h-4 w-4 text-indigo-650 opacity-0 transition-opacity duration-200" 
+                           data-search_target="spinner" 
+                           fill="none" 
+                           viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+
+                    <!-- Search Button -->
+                    <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-indigo-600 transition-colors" aria-label="Submit Search">
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+
+                    <!-- Typeahead Dropdown -->
+                    <div class="absolute left-0 right-0 z-50 mt-2 hidden rounded-xl border border-slate-100 bg-white/95 backdrop-blur-md shadow-xl max-h-[300px] overflow-hidden"
+                         data-search-target="dropdown">
+                      <%= turbo_frame_tag "typeahead_results" do %>
+                        <!-- Suggestions will load here -->
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
           </div>
 
         </div>

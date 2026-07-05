@@ -24,17 +24,10 @@
                     action: "submit->search#submit turbo:submit-end->search#finish" 
                   } do |f| %>
       <div class="relative">
-        <!-- Search Icon -->
-        <div class="pointer-events-none absolute inset-y-0 left-4 flex items-center pr-3">
-          <svg class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
-          </svg>
-        </div>
-
         <!-- Input Field -->
         <%= f.search_field :q, 
                            placeholder: "Search company by name (e.g. Google, Nvidia)", 
-                           class: "block w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-12 text-base text-slate-950 placeholder-slate-400 shadow-lg focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-300",
+                           class: "block w-full rounded-2xl border border-slate-200 bg-white py-4 pl-5 pr-16 text-base text-slate-950 placeholder-slate-400 shadow-lg focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-300",
                            data: { 
                              search_target: "input",
                              action: "input->search#perform keydown.down->search#navigateDown keydown.up->search#navigateUp keydown.esc->search#closeDropdown keydown.enter->search#enterPressed"
@@ -49,7 +42,7 @@
                            id: "search-input-field" %>
 
         <!-- Spinner / Loader -->
-        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+        <div class="absolute inset-y-0 right-12 flex items-center pointer-events-none">
           <svg class="animate-spin h-5 w-5 text-indigo-650 opacity-0 transition-opacity duration-200" 
                data-search_target="spinner" 
                fill="none" 
@@ -58,6 +51,13 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         </div>
+
+        <!-- Search Button -->
+        <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 hover:text-indigo-600 transition-colors" aria-label="Submit Search">
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+          </svg>
+        </button>
 
         <!-- Typeahead Dropdown -->
         <div class="absolute left-0 right-0 z-50 mt-3 hidden rounded-2xl border border-slate-100 bg-white/95 backdrop-blur-md shadow-2xl shadow-slate-200/80 max-h-[380px] overflow-hidden"

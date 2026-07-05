@@ -50,7 +50,8 @@ export default class extends Controller {
     const isTypeaheadSubmit = this.formTarget.getAttribute("data-turbo-frame") === "typeahead_results"
     
     if (!isTypeaheadSubmit) {
-      this.formTarget.setAttribute("data-turbo-frame", "search_results")
+      const targetFrame = document.getElementById("search_results") ? "search_results" : "_top"
+      this.formTarget.setAttribute("data-turbo-frame", targetFrame)
       this.hideDropdown()
     }
   }
@@ -139,7 +140,8 @@ export default class extends Controller {
     }
 
     // If no option is selected, perform normal submit to main search_results frame
-    this.formTarget.setAttribute("data-turbo-frame", "search_results")
+    const targetFrame = document.getElementById("search_results") ? "search_results" : "_top"
+    this.formTarget.setAttribute("data-turbo-frame", targetFrame)
     this.hideDropdown()
     this.formTarget.requestSubmit()
   }
