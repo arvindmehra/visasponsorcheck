@@ -174,24 +174,66 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-200 bg-white py-10 mt-auto shadow-inner shadow-slate-50/50">
+    <footer class="border-t border-slate-200 bg-white py-12 mt-auto shadow-sm">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
-          <div class="flex items-center gap-3">
-            <%= image_tag 'logo-transparent.png', class: "flex-shrink-0 object-contain", style: "height: 28px; width: auto;", alt: "VisaSponsorUK Logo" %>
-            <p class="text-xs text-slate-500">
-              © <%= Time.current.year %> VisaSponsorUK. All rights reserved.
+        
+        <!-- Top Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-100">
+          
+          <!-- Column 1: Brand & Tagline -->
+          <div class="md:col-span-1 space-y-4">
+            <div class="flex items-center gap-2.5">
+              <%= image_tag 'logo-transparent.png', class: "h-8 w-auto flex-shrink-0 object-contain", alt: "VisaSponsorUK Logo" %>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed max-w-sm">
+              Verify registered UK companies holding licensed visa sponsor status. Sourced regularly from the official GOV.UK sponsor logs.
             </p>
           </div>
-          <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-400">
-            <%= link_to "Browse Sponsors", sponsors_path, class: "hover:text-slate-600 transition-colors" %>
-            <%= link_to "FAQ", faq_path, class: "hover:text-slate-600 transition-colors" %>
-            <span>Data sourced from <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener noreferrer nofollow" class="underline hover:text-slate-600">GOV.UK</a> under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer nofollow" class="underline hover:text-slate-600">Open Government Licence</a>.</span>
+
+          <!-- Column 2: Navigation Links -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Navigation</h4>
+            <ul class="space-y-2 text-xs">
+              <li>
+                <%= link_to "Browse Sponsors", sponsors_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
+              </li>
+              <li>
+                <%= link_to "FAQ", faq_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
+              </li>
+            </ul>
           </div>
+
+          <!-- Column 3: Data Sources -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Official Data & Licensing</h4>
+            <ul class="space-y-2 text-xs">
+              <li>
+                <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener noreferrer nofollow" class="text-slate-500 hover:text-indigo-600 transition-colors inline-flex items-center gap-1">
+                  <span>GOV.UK Sponsors Register</span>
+                  <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer nofollow" class="text-slate-500 hover:text-indigo-600 transition-colors inline-flex items-center gap-1">
+                  <span>Open Government Licence</span>
+                  <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+
         </div>
-        <p class="mt-4 text-center text-xs text-slate-400">
-          Not affiliated with the UK Home Office, UKVI, or any government body. Data is updated regularly from the official register.
-        </p>
+
+        <!-- Bottom Row -->
+        <div class="pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <p class="text-[10px] text-slate-400 leading-relaxed max-w-2xl order-2 md:order-1">
+            Disclaimer: VisaSponsorUK is an independent informational resource and is not affiliated, endorsed, or connected with the UK Home Office, UKVI, or any official government agency. All data is updated regularly from the official register but is provided as-is.
+          </p>
+          <p class="text-xs text-slate-500 shrink-0 order-1 md:order-2">
+            &copy; <%= Time.current.year %> VisaSponsorUK. All rights reserved.
+          </p>
+        </div>
+
       </div>
     </footer>
   </body>
