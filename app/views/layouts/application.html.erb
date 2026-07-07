@@ -58,7 +58,7 @@
       <script async src="https://www.googletagmanager.com/gtag/js?id=<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>"></script>
       <script>
         gtag('js', new Date());
-        gtag('config', '<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>');
+        gtag('config', '<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>', { send_page_view: false });
       </script>
     <% end %>
 
@@ -236,5 +236,21 @@
 
       </div>
     </footer>
+    <!-- Cookie Consent Banner (Heidi Health inspired premium banner) -->
+    <div data-controller="consent" class="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-5 shadow-xl hidden" data-consent-target="banner">
+      <h3 class="text-sm font-bold text-slate-900 mb-1.5">Cookie Preferences</h3>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        We use cookies to improve your experience, measure performance, and personalize advertisements. Learn more in our Privacy Policy.
+      </p>
+      <div class="flex gap-2.5">
+        <button data-action="click->consent#acceptAll" class="flex-1 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors shadow-sm">
+          Accept All
+        </button>
+        <button data-action="click->consent#declineAll" class="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+          Decline
+        </button>
+      </div>
+    </div>
+
   </body>
 </html>
