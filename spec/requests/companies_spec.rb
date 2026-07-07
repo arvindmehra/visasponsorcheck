@@ -12,7 +12,7 @@ RSpec.describe "Companies", type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include("BOLTWHIZ LIMITED")
       expect(response.body).to include("Skilled Worker")
-      expect(response.body).to include("is an A-rated UK visa sponsor")
+      expect(response.body).to include("A-rated")
     end
   end
 

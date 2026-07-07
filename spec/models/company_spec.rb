@@ -245,20 +245,5 @@ RSpec.describe Company, type: :model do
         expect(company.city_slug).to eq("london")
       end
     end
-
-    describe "#seo_summary" do
-      it "generates an informative summary for active sponsors" do
-        company.save!
-        create(:sponsor_licence, company: company, rating: "A", route: "Skilled Worker", status: "active", last_seen_at: Time.utc(2026, 6, 1))
-        expect(company.seo_summary).to include("Acme Ltd is an A-rated UK visa sponsor based in London, Greater London")
-        expect(company.seo_summary).to include("licensed to sponsor workers on the Skilled Worker route")
-        expect(company.seo_summary).to include("last verified against the GOV.UK register in June 2026")
-      end
-
-      it "generates a summary for removed sponsors" do
-        company.save!
-        expect(company.seo_summary).to eq("Acme Ltd was previously listed on the UK visa sponsor register but has since been removed.")
-      end
-    end
   end
 end

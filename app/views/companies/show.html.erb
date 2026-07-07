@@ -13,7 +13,7 @@
         "addressLocality": "<%= @company.town %>",
         "addressCountry": "GB"
       },
-      "description": "<%= @company.seo_summary.gsub('"', '\"') %>"
+      "description": "<%= company_summary_paragraph(@company, @sponsor_licences).gsub('"', '\\"') %>"
     },
     {
       "@type": "BreadcrumbList",
@@ -115,11 +115,7 @@
             <% end %>
           </p>
         <% end %>
-
-        <!-- Auto-generated SEO summary (unique content per page) -->
-        <p class="mt-4 text-sm text-slate-500 leading-relaxed max-w-2xl">
-          <%= @company.seo_summary %>
-        </p>
+        
       </div>
     </div>
   </div>
@@ -130,6 +126,10 @@
     <div class="lg:col-span-2 space-y-6">
       <div class="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm shadow-slate-100/40">
         <h2 class="text-xl font-bold text-slate-900 mb-6">Registered Visa Licences</h2>
+
+        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+          <%= company_summary_paragraph(@company, @sponsor_licences) %>
+        </p>
 
         <div class="overflow-hidden">
           <table class="min-w-full divide-y divide-slate-200">

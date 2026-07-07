@@ -140,24 +140,6 @@ class Company < ApplicationRecord
     town_normalised.presence
   end
 
-  # Auto-generated unique summary sentence for SEO (prevents thin content flag)
-  def seo_summary
-    parts = []
-    licences = sponsor_licences.active.order(:route)
-    if licences.any?
-      rating  = licences.first.rating
-      routes  = licences.pluck(:route).uniq.to_sentence
-      city    = location.presence || "the UK"
-      last_ok = licences.maximum(:last_seen_at)&.strftime("%B %Y")
-      parts << "#{name} is #{rating == 'A' ? 'an A-rated' : 'a B-rated'} UK visa sponsor based in #{city},"
-      parts << "licensed to sponsor workers on the #{routes} route#{'s' if licences.size > 1}."
-      parts << "Their licence was last verified against the GOV.UK register in #{last_ok}." if last_ok
-    else
-      parts << "#{name} was previously listed on the UK visa sponsor register but has since been removed."
-    end
-    parts.join(" ")
-  end
-
   # -----------------------------------------------------------------------
   # FriendlyId
   # -----------------------------------------------------------------------

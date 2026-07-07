@@ -1,3 +1,36 @@
+require 'sitemap_generator'
+
+# Custom adapter to perform atomic writes, avoiding a transient state where
+# the file is partially written while crawlers fetch it.
+class ::SitemapGenerator::AtomicFileAdapter < ::SitemapGenerator::FileAdapter
+  def write(location, raw_data)
+    # Ensure that the directory exists
+    dir = location.directory
+    if !File.exist?(dir)
+      FileUtils.mkdir_p(dir)
+    elsif !File.directory?(dir)
+      raise SitemapError.new("#{dir} should be a directory!")
+    end
+
+    # Define a temporary path in the same directory
+    dest_path = location.path
+    temp_path = "#{dest_path}.tmp"
+
+    # Write to the temp file
+    stream = open(temp_path, 'wb')
+    if location.path.to_s =~ /.gz$/
+      gzip(stream, raw_data)
+    else
+      plain(stream, raw_data)
+    end
+
+    # Atomically rename/move the temp file to the destination path
+    File.rename(temp_path, dest_path)
+  end
+end
+
+::SitemapGenerator::Sitemap.adapter = ::SitemapGenerator::AtomicFileAdapter.new
+
 SitemapGenerator::Sitemap.default_host = "https://visasponsoruk.com"
 SitemapGenerator::Sitemap.sitemaps_host = "https://visasponsoruk.com"
 SitemapGenerator::Sitemap.public_path  = "public/"
