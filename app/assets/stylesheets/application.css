@@ -8,3 +8,87 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Custom Design Overrides (Heidi Health Look and Feel) */
+
+body {
+  background-color: #FAF8F5 !important; /* Heidi Health warm cream/beige background */
+  color: #1c1917 !important; /* Muted stone dark gray instead of cold black/slate */
+}
+
+/* Base header adjustments */
+h1, h2, h3, h4, h5, h6 {
+  color: #0c1c18 !important; /* Warm deep forest charcoal */
+  letter-spacing: -0.01em !important;
+}
+
+/* Interactive colors */
+a, 
+.text-indigo-655,
+.text-indigo-600,
+.text-indigo-650,
+.text-indigo-700 {
+  color: #1066FF !important; /* Vibrant interactive blue */
+}
+a:hover,
+.hover\:text-indigo-600:hover,
+.hover\:text-indigo-800:hover {
+  color: #004BD3 !important; /* Darker blue on hover */
+}
+
+.bg-indigo-600,
+.bg-indigo-700 {
+  background-color: #1066FF !important;
+}
+.hover\:bg-indigo-700:hover {
+  background-color: #004BD3 !important;
+}
+
+.bg-indigo-50 {
+  background-color: #E6EFFF !important;
+}
+.text-indigo-700 {
+  color: #1066FF !important;
+}
+.border-indigo-150 {
+  border-color: #C2DBFF !important;
+}
+
+/* Focus and ring styles */
+.focus\:border-indigo-500:focus {
+  border-color: #1066FF !important;
+}
+.focus\:ring-indigo-500:focus {
+  --tw-ring-color: #1066FF !important;
+}
+
+/* Premium smooth transitions for boxes/cards */
+.rounded-2xl.border,
+.rounded-3xl.border,
+.bg-white.p-6,
+.bg-white.p-8,
+.rounded-2xl.bg-white {
+  background-color: #FFFFFF !important;
+  border-color: #ECEAE4 !important; /* Soft warm border */
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: transform, box-shadow;
+}
+
+/* Box hover states */
+.rounded-2xl.border:hover,
+.rounded-3xl.border:hover,
+.bg-white.p-6:hover,
+.bg-white.p-8:hover,
+.rounded-2xl.bg-white:hover {
+  transform: translateY(-4px) scale(1.002);
+  border-color: #C2DBFF !important; /* Soft interactive blue border */
+  box-shadow: 0 20px 30px -10px rgba(16, 102, 255, 0.08), 
+              0 10px 15px -5px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Fix table row hover bg */
+tr.group:hover {
+  background-color: #F8F6F0 !important; /* Soft warm tint */
+}
