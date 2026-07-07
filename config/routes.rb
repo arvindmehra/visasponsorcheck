@@ -28,6 +28,9 @@ Rails.application.routes.draw do
   get "sitemap.xml.gz", to: redirect("/sitemaps/sitemap.xml.gz")
 
 
+  # Jobs UI Dashboard
+  mount MissionControl::Jobs::Engine, at: "/jobs"
+
   # Root path
   root "home#index"
 end

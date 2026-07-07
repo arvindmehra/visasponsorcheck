@@ -78,4 +78,7 @@ Rails.application.configure do
 
   # Allow Docker bridge network gateway to access web console in development
   config.web_console.permissions = "192.168.0.0/16"
+
+  # Disable HTTP Basic Authentication for Mission Control Jobs in development
+  config.mission_control.jobs.http_basic_auth_enabled = false
 end
