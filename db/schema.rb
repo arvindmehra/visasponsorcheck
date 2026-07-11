@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_03_181905) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_11_155932) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -34,6 +34,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_181905) do
     t.index ["slug"], name: "index_companies_on_slug", unique: true
     t.index ["town"], name: "index_companies_on_town"
     t.index ["town_normalised"], name: "index_companies_on_town_normalised"
+  end
+
+  create_table "company_profiles", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.string "company_status"
+    t.string "company_type"
+    t.datetime "created_at", null: false
+    t.date "date_of_creation"
+    t.datetime "enriched_at"
+    t.integer "sic_code"
+    t.string "sic_code_description"
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_company_profiles_on_company_id", unique: true
+    t.index ["sic_code"], name: "index_company_profiles_on_sic_code"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -205,6 +219,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_181905) do
     t.index ["status"], name: "index_sponsor_licences_on_status"
   end
 
+  add_foreign_key "company_profiles", "companies"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
