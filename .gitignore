@@ -39,3 +39,4 @@
 
 # Ignore SimpleCov coverage reports
 /coverage
+coverage
