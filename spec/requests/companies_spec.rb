@@ -14,6 +14,29 @@ RSpec.describe "Companies", type: :request do
       expect(response.body).to include("Skilled Worker")
       expect(response.body).to include("A-rated")
     end
+
+    context "when the company has a profile" do
+      before do
+        company.update!(company_number: "03900676", enriched_at: Time.current)
+        company.create_company_profile!(
+          company_status: "active",
+          company_type: "ltd",
+          date_of_creation: Date.new(2016, 7, 26),
+          sic_code: 62090,
+          sic_code_description: "Other information technology service activities",
+          enriched_at: Time.current
+        )
+      end
+
+      it "displays the company profile fields in the details card" do
+        get company_path(company)
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("Active")
+        expect(response.body).to include("Private Limited Company")
+        expect(response.body).to include("26 July 2016")
+        expect(response.body).to include("62090 - Other information technology service activities")
+      end
+    end
   end
 
   describe "GET /companies/:id (legacy route)" do

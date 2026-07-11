@@ -17,6 +17,50 @@
           </p>
         </div>
       <% end %>
+
+      <% profile = company.company_profile %>
+      <% if profile&.company_status.present? %>
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Company Status</span>
+          <p class="mt-1">
+            <% status_classes = case profile.company_status
+               when "active" then "bg-green-100 text-green-800"
+               when "dissolved", "liquidation" then "bg-red-100 text-red-800"
+               else "bg-slate-100 text-slate-700"
+               end %>
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize <%= status_classes %>">
+              <%= profile.company_status.humanize %>
+            </span>
+          </p>
+        </div>
+      <% end %>
+
+      <% if profile&.company_type.present? %>
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Company Type</span>
+          <p class="text-sm text-slate-700 mt-1 font-medium">
+            <%= profile.company_type_label %>
+          </p>
+        </div>
+      <% end %>
+
+      <% if profile&.date_of_creation.present? %>
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Incorporated On</span>
+          <p class="text-sm text-slate-700 mt-1 font-medium">
+            <%= profile.date_of_creation.strftime("%-d %B %Y") %>
+          </p>
+        </div>
+      <% end %>
+
+      <% if profile&.sic_display.present? %>
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Nature of Business (SIC)</span>
+          <p class="text-sm text-slate-700 mt-1 font-medium leading-relaxed">
+            <%= profile.sic_display %>
+          </p>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>

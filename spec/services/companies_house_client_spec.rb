@@ -95,4 +95,75 @@ RSpec.describe CompaniesHouseClient do
       end
     end
   end
+
+  describe ".fetch_profile" do
+    let(:company_number) { "3900676" }
+    let(:api_key) { "test_api_key" }
+
+    before do
+      allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :api_key).and_return(api_key)
+      allow(Rails.application.credentials).to receive(:dig).with(:companies_house, :dev_api_key).and_return(nil)
+    end
+
+    it "returns nil when company_number is blank" do
+      expect(described_class.fetch_profile(nil)).to be_nil
+      expect(described_class.fetch_profile("")).to be_nil
+    end
+
+    context "when Companies House returns 200 success" do
+      let(:response_body) do
+        {
+          company_status: "active",
+          type: "ltd",
+          date_of_creation: "2016-07-26",
+          sic_codes: [ "62090", "62020" ]
+        }.to_json
+      end
+
+      it "returns the profile details, zero-padding the company number" do
+        mock_response = double(code: "200", body: response_body)
+        expect_any_instance_of(Net::HTTP).to receive(:request) do |_, request|
+          expect(request.path).to include("03900676")
+          mock_response
+        end
+
+        result = described_class.fetch_profile(company_number)
+        expect(result).to eq({
+          company_status: "active",
+          company_type: "ltd",
+          date_of_creation: "2016-07-26",
+          sic_codes: [ "62090", "62020" ]
+        })
+      end
+    end
+
+    context "when Companies House returns 404 not found" do
+      it "returns nil and logs a warning" do
+        mock_response = double(code: "404")
+        expect_any_instance_of(Net::HTTP).to receive(:request).and_return(mock_response)
+        expect(Rails.logger).to receive(:warn).with(/not found/)
+
+        expect(described_class.fetch_profile(company_number)).to be_nil
+      end
+    end
+
+    context "when Companies House returns 429 rate limit" do
+      it "returns nil and logs error" do
+        mock_response = double(code: "429")
+        expect_any_instance_of(Net::HTTP).to receive(:request).and_return(mock_response)
+        expect(Rails.logger).to receive(:error).with(/Rate Limit exceeded/)
+
+        expect(described_class.fetch_profile(company_number)).to be_nil
+      end
+    end
+
+    context "when connection timeout occurs" do
+      it "handles the error gracefully and returns nil" do
+        expect_any_instance_of(Net::HTTP).to receive(:request).and_raise(Timeout::Error.new("Timeout"))
+        expect(Rails.logger).to receive(:error).with(/connection failed/)
+
+        expect(described_class.fetch_profile(company_number)).to be_nil
+      end
+    end
+  end
 end
