@@ -17,7 +17,7 @@ class ::SitemapGenerator::AtomicFileAdapter < ::SitemapGenerator::FileAdapter
     temp_path = "#{dest_path}.tmp"
 
     # Write to the temp file
-    stream = open(temp_path, "wb")
+    stream = File.open(temp_path, "wb")
     if location.path.to_s =~ /.gz$/
       gzip(stream, raw_data)
     else
