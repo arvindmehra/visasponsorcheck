@@ -125,11 +125,17 @@
     <!-- Left Column: Licence details (2/3 width) -->
     <div class="lg:col-span-2 space-y-6">
       <div class="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm shadow-slate-100/40">
-        <h2 class="text-xl font-bold text-slate-900 mb-6">Registered Visa Licences</h2>
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Company Summary</h2>
 
-        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-          <%= company_summary_paragraph(@company, @sponsor_licences) %>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+          <%= company_licence_summary_paragraph(@company, @sponsor_licences) %>
         </p>
+
+        <% if (profile_paragraph = company_profile_paragraph(@company)).present? %>
+          <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+            <%= profile_paragraph %>
+          </p>
+        <% end %>
 
         <div class="overflow-hidden">
           <table class="min-w-full divide-y divide-slate-200">
