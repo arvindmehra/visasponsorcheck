@@ -1,5 +1,8 @@
 module SponsorsHelper
-  def company_summary_paragraph(company, licences = company.sponsor_licences)
+  # Base paragraph built from the company's sponsor licence data (rating, routes, status).
+  # Rotates across three templates keyed off company.id to avoid duplicate-content text
+  # across the many companies that share similar licence data.
+  def company_licence_summary_paragraph(company, licences = company.sponsor_licences)
     active_licences = licences.select { |l| l.status == "active" }
     all_licences = licences.to_a
     last_seen = all_licences.map(&:last_seen_at).compact.max || company.updated_at
@@ -38,5 +41,34 @@ module SponsorsHelper
         "Based in #{city}, #{company.name} no longer holds an active sponsor licence on the UK visa register. This licence is currently inactive (removed). Data sourced from the UK Home Office Register of Licensed Sponsors, last verified on #{formatted_date}."
       end
     end
+  end
+
+  # Separate, readable paragraph built purely from Companies House profile data
+  # (incorporation date, company type, nature of business, current status).
+  # Returns nil when the company has no enriched profile, so callers can skip
+  # rendering an empty paragraph.
+  def company_profile_paragraph(company)
+    profile = company.company_profile
+    return nil unless profile&.company_status.present?
+
+    sentences = []
+
+    incorporation_bits = []
+    incorporation_bits << "was incorporated on #{profile.date_of_creation.strftime('%-d %B %Y')}" if profile.date_of_creation.present?
+    incorporation_bits << "is registered as a #{profile.company_type_label}" if profile.company_type.present?
+    sentences << "According to Companies House, #{company.name} #{incorporation_bits.join(' and ')}." if incorporation_bits.any?
+
+    sentences << "Its registered nature of business is #{profile.sic_code_description}." if profile.sic_code_description.present?
+    sentences << "Companies House currently lists its status as #{profile.company_status.humanize.downcase}."
+
+    sentences.join(" ")
+  end
+
+  # Combined single-string summary (licence paragraph + profile paragraph), for contexts
+  # that need one string field, e.g. structured data / meta descriptions.
+  def company_summary_paragraph(company, licences = company.sponsor_licences)
+    base = company_licence_summary_paragraph(company, licences)
+    profile_text = company_profile_paragraph(company)
+    profile_text.present? ? "#{base} #{profile_text}" : base
   end
 end
