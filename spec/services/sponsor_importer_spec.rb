@@ -58,6 +58,31 @@ RSpec.describe SponsorImporter do
       expect(log.removed_licences).to eq(0)
     end
 
+    it "enqueues a CompanyEnrichmentJob for each newly created company" do
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "BOLTWHIZ LIMITED",Dunfermline,Scotland,Worker (A rating),Skilled Worker
+        "Bossmans Retail Ltd",Abergavenny,,Worker (A rating),Skilled Worker
+      CSV
+      temp_csv.rewind
+
+      expect {
+        SponsorImporter.call
+      }.to have_enqueued_job(CompanyEnrichmentJob).exactly(2).times
+
+      # Re-importing the same companies should not enqueue new enrichment jobs
+      temp_csv.truncate(0)
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "BOLTWHIZ LIMITED",Dunfermline,Scotland,Worker (B rating),Skilled Worker
+      CSV
+      temp_csv.rewind
+
+      expect {
+        SponsorImporter.call
+      }.not_to have_enqueued_job(CompanyEnrichmentJob)
+    end
+
     it "is idempotent on consecutive runs with the same data" do
       temp_csv.write(<<~CSV)
         Organisation Name,Town/City,County,Type & Rating,Route
