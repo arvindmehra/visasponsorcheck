@@ -10,7 +10,7 @@ namespace :companies do
     sleep_interval = ENV.fetch("SLEEP_INTERVAL", "0.5").to_f
     batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
 
-    companies = Company.where.not(company_number: [nil, ""])
+    companies = Company.where.not(company_number: [ nil, "" ])
                        .left_joins(:company_profile)
                        .where(company_profiles: { id: nil })
 
@@ -54,7 +54,7 @@ namespace :companies do
     batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
 
     companies = Company.where(enriched_at: nil)
-                       .where(company_number: [nil, ""])
+                       .where(company_number: [ nil, "" ])
 
     total = companies.count
     puts "Found #{total} companies with no enrichment data."
