@@ -5,13 +5,22 @@
 #   RATE_LIMIT_BACKOFF=300 RATE_LIMIT_MAX_RETRIES=5 bin/rails companies:backfill_profiles  # override 429 backoff/retry
 #
 # In Docker: docker exec visasponsoruk-web bin/rails companies:backfill_profiles
+
+# Shared pacing/backoff config for both tasks below, read from ENV so it can be
+# tuned per-run without editing this file.
+def enrichment_task_options
+  [
+    ENV.fetch("SLEEP_INTERVAL", "0.5").to_f,
+    ENV.fetch("BATCH_SIZE", "100").to_i,
+    ENV.fetch("RATE_LIMIT_BACKOFF", "61").to_f,
+    ENV.fetch("RATE_LIMIT_MAX_RETRIES", "5").to_i
+  ]
+end
+
 namespace :companies do
   desc "Backfill company profiles for companies that already have a company_number but no profile data"
   task backfill_profiles: :environment do
-    sleep_interval = ENV.fetch("SLEEP_INTERVAL", "0.5").to_f
-    batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
-    rate_limit_backoff = ENV.fetch("RATE_LIMIT_BACKOFF", "300").to_f
-    rate_limit_max_retries = ENV.fetch("RATE_LIMIT_MAX_RETRIES", "5").to_i
+    sleep_interval, batch_size, rate_limit_backoff, rate_limit_max_retries = enrichment_task_options
 
     companies = Company.where.not(company_number: [ nil, "" ])
                        .left_joins(:company_profile)
@@ -64,10 +73,7 @@ namespace :companies do
 
   desc "Enrich companies that have no company data at all (no company_number)"
   task enrich_missing: :environment do
-    sleep_interval = ENV.fetch("SLEEP_INTERVAL", "0.5").to_f
-    batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
-    rate_limit_backoff = ENV.fetch("RATE_LIMIT_BACKOFF", "300").to_f
-    rate_limit_max_retries = ENV.fetch("RATE_LIMIT_MAX_RETRIES", "5").to_i
+    sleep_interval, batch_size, rate_limit_backoff, rate_limit_max_retries = enrichment_task_options
 
     companies = Company.where(enriched_at: nil)
                        .where(company_number: [ nil, "" ])
