@@ -1,0 +1,7 @@
+<%= turbo_frame_tag "company_profile_summary_#{company.id}" do %>
+  <% if (profile_paragraph = company_profile_paragraph(company)).present? %>
+    <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+      <%= profile_paragraph %>
+    </p>
+  <% end %>
+<% end %>

@@ -74,6 +74,45 @@ RSpec.describe "Companies", type: :request do
         expect(response.body).to include("Companies House")
         expect(response.body).not_to include("Company Details")
       end
+
+      it "synchronously enriches the company profile in the same request, with no reload needed" do
+        expect(CompanyEnricher).to receive(:enrich!).and_wrap_original do |method, company|
+          company.update!(company_number: "03900676", registered_office_address: "123 Street", enriched_at: Time.current)
+          company
+        end
+        allow(CompaniesHouseClient).to receive(:fetch_profile).with("03900676").and_return({
+          company_status: "active",
+          company_type: "ltd",
+          date_of_creation: "2016-07-26",
+          sic_codes: [ "62090" ]
+        })
+
+        get enrich_company_path(company)
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("Active")
+        expect(response.body).to include("Private Limited Company")
+        expect(company.reload.company_profile).to be_present
+      end
+
+      it "returns the profile summary partial when card: profile_summary is requested" do
+        expect(CompanyEnricher).to receive(:enrich!).and_wrap_original do |method, company|
+          company.update!(company_number: "03900676", enriched_at: Time.current)
+          company
+        end
+        allow(CompaniesHouseClient).to receive(:fetch_profile).with("03900676").and_return({
+          company_status: "active",
+          company_type: "ltd",
+          date_of_creation: "2016-07-26",
+          sic_codes: [ "62090" ]
+        })
+
+        get enrich_company_path(company, card: :profile_summary)
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("company_profile_summary_#{company.id}")
+        expect(response.body).to include("According to Companies House")
+      end
     end
 
     context "when company is already enriched" do
@@ -97,6 +136,20 @@ RSpec.describe "Companies", type: :request do
         expect(response).to have_http_status(:success)
         expect(response.body).to include("External Resources")
         expect(response.body).to include("Companies House")
+      end
+
+      it "still enriches the company profile even though the company itself was already enriched" do
+        allow(CompaniesHouseClient).to receive(:fetch_profile).with("99999999").and_return({
+          company_status: "dissolved",
+          company_type: "ltd",
+          date_of_creation: "2010-01-01",
+          sic_codes: [ "62090" ]
+        })
+
+        get enrich_company_path(company, card: :profile_summary)
+
+        expect(response).to have_http_status(:success)
+        expect(company.reload.company_profile.company_status).to eq("dissolved")
       end
     end
   end

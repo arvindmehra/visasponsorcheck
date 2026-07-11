@@ -46,17 +46,22 @@ class CompaniesController < ApplicationController
   def enrich
     @company = Company.friendly.find(params[:id])
     CompanyEnricher.enrich!(@company) unless @company.enriched_at.present?
+    CompanyProfileEnricher.enrich!(@company)
 
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.replace("company_details_#{@company.id}", partial: "companies/details_card", locals: { company: @company }),
-          turbo_stream.replace("company_external_#{@company.id}", partial: "companies/external_resources_card", locals: { company: @company })
+          turbo_stream.replace("company_external_#{@company.id}", partial: "companies/external_resources_card", locals: { company: @company }),
+          turbo_stream.replace("company_profile_summary_#{@company.id}", partial: "companies/profile_summary", locals: { company: @company })
         ]
       end
       format.html do
-        if params[:card].to_s == "external"
+        case params[:card].to_s
+        when "external"
           render partial: "companies/external_resources_card", locals: { company: @company }
+        when "profile_summary"
+          render partial: "companies/profile_summary", locals: { company: @company }
         else
           render partial: "companies/details_card", locals: { company: @company }
         end

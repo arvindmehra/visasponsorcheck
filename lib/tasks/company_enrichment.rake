@@ -1,3 +1,9 @@
+# Usage:
+#   bin/rails companies:backfill_profiles                       # companies with a company_number but no profile
+#   bin/rails companies:enrich_missing                           # companies with no company_number at all
+#   SLEEP_INTERVAL=1.0 BATCH_SIZE=50 bin/rails companies:backfill_profiles   # override rate-limit pacing / batch size
+#
+# In Docker: docker exec visasponsoruk-web bin/rails companies:backfill_profiles
 namespace :companies do
   desc "Backfill company profiles for companies that already have a company_number but no profile data"
   task backfill_profiles: :environment do
