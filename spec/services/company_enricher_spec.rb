@@ -51,6 +51,15 @@ RSpec.describe CompanyEnricher do
           expect(result).to eq(company)
         end
       end
+
+      context "and Companies House is rate limiting" do
+        it "propagates the RateLimitError instead of marking the company enriched" do
+          expect(CompaniesHouseClient).to receive(:search_by_name).and_raise(CompaniesHouseClient::RateLimitError)
+
+          expect { described_class.enrich!(company) }.to raise_error(CompaniesHouseClient::RateLimitError)
+          expect(company.reload.enriched_at).to be_nil
+        end
+      end
     end
   end
 end

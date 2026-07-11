@@ -77,5 +77,16 @@ RSpec.describe CompanyProfileEnricher do
         expect(result).to eq(company)
       end
     end
+
+    context "when Companies House is rate limiting" do
+      before do
+        allow(CompaniesHouseClient).to receive(:fetch_profile).and_raise(CompaniesHouseClient::RateLimitError)
+      end
+
+      it "propagates the RateLimitError instead of marking the profile enriched" do
+        expect { described_class.enrich!(company) }.to raise_error(CompaniesHouseClient::RateLimitError)
+        expect(company.reload.company_profile).to be_nil
+      end
+    end
   end
 end

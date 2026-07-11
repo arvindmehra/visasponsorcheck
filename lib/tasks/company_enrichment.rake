@@ -2,6 +2,7 @@
 #   bin/rails companies:backfill_profiles                       # companies with a company_number but no profile
 #   bin/rails companies:enrich_missing                           # companies with no company_number at all
 #   SLEEP_INTERVAL=1.0 BATCH_SIZE=50 bin/rails companies:backfill_profiles   # override rate-limit pacing / batch size
+#   RATE_LIMIT_BACKOFF=300 RATE_LIMIT_MAX_RETRIES=5 bin/rails companies:backfill_profiles  # override 429 backoff/retry
 #
 # In Docker: docker exec visasponsoruk-web bin/rails companies:backfill_profiles
 namespace :companies do
@@ -9,6 +10,8 @@ namespace :companies do
   task backfill_profiles: :environment do
     sleep_interval = ENV.fetch("SLEEP_INTERVAL", "0.5").to_f
     batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
+    rate_limit_backoff = ENV.fetch("RATE_LIMIT_BACKOFF", "300").to_f
+    rate_limit_max_retries = ENV.fetch("RATE_LIMIT_MAX_RETRIES", "5").to_i
 
     companies = Company.where.not(company_number: [ nil, "" ])
                        .left_joins(:company_profile)
@@ -16,7 +19,7 @@ namespace :companies do
 
     total = companies.count
     puts "Found #{total} companies with company_number but no profile data."
-    puts "Sleep interval: #{sleep_interval}s | Batch size: #{batch_size}"
+    puts "Sleep interval: #{sleep_interval}s | Batch size: #{batch_size} | Rate limit backoff: #{rate_limit_backoff}s (max #{rate_limit_max_retries} retries)"
     puts "-" * 60
 
     success = 0
@@ -24,8 +27,10 @@ namespace :companies do
 
     companies.find_each(batch_size: batch_size).with_index do |company, index|
       print "[#{index + 1}/#{total}] #{company.name} (#{company.company_number})... "
+      attempts = 0
 
       begin
+        attempts += 1
         CompanyProfileEnricher.enrich!(company)
         profile = company.reload.company_profile
 
@@ -34,6 +39,15 @@ namespace :companies do
           success += 1
         else
           puts "✗ No profile data returned"
+          failed += 1
+        end
+      rescue CompaniesHouseClient::RateLimitError
+        if attempts <= rate_limit_max_retries
+          puts "⏳ rate limited, waiting #{rate_limit_backoff}s before retrying (attempt #{attempts}/#{rate_limit_max_retries})..."
+          sleep(rate_limit_backoff)
+          retry
+        else
+          puts "✗ Still rate limited after #{attempts} attempts, skipping for now"
           failed += 1
         end
       rescue => e
@@ -52,13 +66,15 @@ namespace :companies do
   task enrich_missing: :environment do
     sleep_interval = ENV.fetch("SLEEP_INTERVAL", "0.5").to_f
     batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
+    rate_limit_backoff = ENV.fetch("RATE_LIMIT_BACKOFF", "300").to_f
+    rate_limit_max_retries = ENV.fetch("RATE_LIMIT_MAX_RETRIES", "5").to_i
 
     companies = Company.where(enriched_at: nil)
                        .where(company_number: [ nil, "" ])
 
     total = companies.count
     puts "Found #{total} companies with no enrichment data."
-    puts "Sleep interval: #{sleep_interval}s | Batch size: #{batch_size}"
+    puts "Sleep interval: #{sleep_interval}s | Batch size: #{batch_size} | Rate limit backoff: #{rate_limit_backoff}s (max #{rate_limit_max_retries} retries)"
     puts "-" * 60
 
     success = 0
@@ -66,8 +82,11 @@ namespace :companies do
 
     companies.find_each(batch_size: batch_size).with_index do |company, index|
       print "[#{index + 1}/#{total}] #{company.name}... "
+      attempts = 0
 
       begin
+        attempts += 1
+
         # Step 1: Search by name to get company_number
         CompanyEnricher.enrich!(company)
         company.reload
@@ -86,6 +105,15 @@ namespace :companies do
           end
         else
           puts "✗ No company_number found"
+          failed += 1
+        end
+      rescue CompaniesHouseClient::RateLimitError
+        if attempts <= rate_limit_max_retries
+          puts "⏳ rate limited, waiting #{rate_limit_backoff}s before retrying (attempt #{attempts}/#{rate_limit_max_retries})..."
+          sleep(rate_limit_backoff)
+          retry
+        else
+          puts "✗ Still rate limited after #{attempts} attempts, skipping for now"
           failed += 1
         end
       rescue => e

@@ -3,6 +3,11 @@ require "uri"
 require "json"
 
 class CompaniesHouseClient
+  # Raised on a 429 response so callers (e.g. bulk rake tasks) can distinguish
+  # "temporarily rate limited" from a genuine no-match/not-found result and
+  # back off + retry instead of silently treating the company as processed.
+  class RateLimitError < StandardError; end
+
   LIVE_URL = "https://api.company-information.service.gov.uk".freeze
   SANDBOX_URL = "https://api-sandbox.company-information.service.gov.uk".freeze
 
@@ -76,7 +81,7 @@ class CompaniesHouseClient
       end
     elsif response.code == "429"
       Rails.logger.error("Companies House API Rate Limit exceeded (429) for: #{name}")
-      nil
+      raise RateLimitError, "Rate limit exceeded for: #{name}"
     else
       Rails.logger.error("Companies House API returned error #{response.code} for: #{name}. Body: #{response.body}")
       nil
@@ -131,7 +136,7 @@ class CompaniesHouseClient
       nil
     elsif response.code == "429"
       Rails.logger.error("Companies House API Rate Limit exceeded (429) for profile: #{padded_number}")
-      nil
+      raise RateLimitError, "Rate limit exceeded for profile: #{padded_number}"
     else
       Rails.logger.error("Companies House API profile returned error #{response.code} for: #{padded_number}. Body: #{response.body}")
       nil

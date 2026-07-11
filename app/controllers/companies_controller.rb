@@ -45,8 +45,12 @@ class CompaniesController < ApplicationController
 
   def enrich
     @company = Company.friendly.find(params[:id])
-    CompanyEnricher.enrich!(@company) unless @company.enriched_at.present?
-    CompanyProfileEnricher.enrich!(@company)
+    begin
+      CompanyEnricher.enrich!(@company) unless @company.enriched_at.present?
+      CompanyProfileEnricher.enrich!(@company)
+    rescue CompaniesHouseClient::RateLimitError => e
+      Rails.logger.warn("Enrichment skipped due to rate limiting: #{e.message}")
+    end
 
     respond_to do |format|
       format.turbo_stream do

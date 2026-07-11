@@ -25,6 +25,8 @@ class CompanyProfileEnricher
     end
 
     company
+  rescue CompaniesHouseClient::RateLimitError
+    raise
   rescue => e
     Rails.logger.error("Profile enrichment failed for #{company.name} (#{company.company_number}): #{e.message}")
     company

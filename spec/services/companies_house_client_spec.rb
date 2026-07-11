@@ -77,12 +77,12 @@ RSpec.describe CompaniesHouseClient do
     end
 
     context "when Companies House returns 429 rate limit" do
-      it "returns nil and logs error" do
+      it "logs an error and raises RateLimitError so callers can back off and retry" do
         mock_response = double(code: "429")
         expect_any_instance_of(Net::HTTP).to receive(:request).and_return(mock_response)
         expect(Rails.logger).to receive(:error).with(/Rate Limit exceeded/)
 
-        expect(described_class.search_by_name(company_name)).to be_nil
+        expect { described_class.search_by_name(company_name) }.to raise_error(CompaniesHouseClient::RateLimitError)
       end
     end
 
@@ -148,12 +148,12 @@ RSpec.describe CompaniesHouseClient do
     end
 
     context "when Companies House returns 429 rate limit" do
-      it "returns nil and logs error" do
+      it "logs an error and raises RateLimitError so callers can back off and retry" do
         mock_response = double(code: "429")
         expect_any_instance_of(Net::HTTP).to receive(:request).and_return(mock_response)
         expect(Rails.logger).to receive(:error).with(/Rate Limit exceeded/)
 
-        expect(described_class.fetch_profile(company_number)).to be_nil
+        expect { described_class.fetch_profile(company_number) }.to raise_error(CompaniesHouseClient::RateLimitError)
       end
     end
 
