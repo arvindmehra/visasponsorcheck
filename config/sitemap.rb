@@ -1,4 +1,4 @@
-require 'sitemap_generator'
+require "sitemap_generator"
 
 # Custom adapter to perform atomic writes, avoiding a transient state where
 # the file is partially written while crawlers fetch it.
@@ -17,7 +17,7 @@ class ::SitemapGenerator::AtomicFileAdapter < ::SitemapGenerator::FileAdapter
     temp_path = "#{dest_path}.tmp"
 
     # Write to the temp file
-    stream = open(temp_path, 'wb')
+    stream = File.open(temp_path, "wb")
     if location.path.to_s =~ /.gz$/
       gzip(stream, raw_data)
     else

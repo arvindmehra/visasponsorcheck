@@ -131,10 +131,10 @@
           <%= company_licence_summary_paragraph(@company, @sponsor_licences) %>
         </p>
 
-        <% if (profile_paragraph = company_profile_paragraph(@company)).present? %>
-          <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-            <%= profile_paragraph %>
-          </p>
+        <% if @company.enriched_at.present? %>
+          <%= render partial: 'companies/profile_summary', locals: { company: @company } %>
+        <% else %>
+          <%= turbo_frame_tag "company_profile_summary_#{@company.id}", src: enrich_company_path(@company, card: :profile_summary), loading: :lazy %>
         <% end %>
 
         <div class="overflow-hidden">

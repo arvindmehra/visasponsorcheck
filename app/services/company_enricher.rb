@@ -12,11 +12,6 @@ class CompanyEnricher
         registered_office_address: result[:address],
         enriched_at: Time.current
       )
-
-      # 3. Enqueue background job to fetch detailed profile data (status, type, SIC, etc.)
-      if result[:company_number].present?
-        CompanyProfileEnrichJob.perform_later(company.id)
-      end
     else
       company.update(
         enriched_at: Time.current
@@ -29,4 +24,3 @@ class CompanyEnricher
     company
   end
 end
-

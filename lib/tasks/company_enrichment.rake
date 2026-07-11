@@ -1,10 +1,16 @@
+# Usage:
+#   bin/rails companies:backfill_profiles                       # companies with a company_number but no profile
+#   bin/rails companies:enrich_missing                           # companies with no company_number at all
+#   SLEEP_INTERVAL=1.0 BATCH_SIZE=50 bin/rails companies:backfill_profiles   # override rate-limit pacing / batch size
+#
+# In Docker: docker exec visasponsoruk-web bin/rails companies:backfill_profiles
 namespace :companies do
   desc "Backfill company profiles for companies that already have a company_number but no profile data"
   task backfill_profiles: :environment do
     sleep_interval = ENV.fetch("SLEEP_INTERVAL", "0.5").to_f
     batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
 
-    companies = Company.where.not(company_number: [nil, ""])
+    companies = Company.where.not(company_number: [ nil, "" ])
                        .left_joins(:company_profile)
                        .where(company_profiles: { id: nil })
 
@@ -48,7 +54,7 @@ namespace :companies do
     batch_size = ENV.fetch("BATCH_SIZE", "100").to_i
 
     companies = Company.where(enriched_at: nil)
-                       .where(company_number: [nil, ""])
+                       .where(company_number: [ nil, "" ])
 
     total = companies.count
     puts "Found #{total} companies with no enrichment data."

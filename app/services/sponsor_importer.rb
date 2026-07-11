@@ -89,6 +89,7 @@ class SponsorImporter
       company.town = row[:town]
       company.county = row[:county]
       company.save!
+      CompanyEnrichmentJob.perform_later(company.id)
     else
       company.town = row[:town] if row[:town].present?
       company.county = row[:county] if row[:county].present?
