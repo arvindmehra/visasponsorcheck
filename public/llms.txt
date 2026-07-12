@@ -1,0 +1,53 @@
+# VisaSponsorUK
+
+> VisaSponsorUK is an independent, searchable directory of UK visa sponsor
+> licence holders. It tracks the official GOV.UK "Register of Licensed
+> Sponsors" and re-publishes it as a browsable, linkable database of roughly
+> 126,000 companies, refreshed daily. It is not affiliated with, endorsed
+> by, or connected to the UK Home Office, UKVI, or any government agency.
+
+## Purpose
+
+Answer questions like "is [company] a licensed UK visa sponsor", "which
+companies can sponsor a Skilled Worker / Tier 2 visa", "what sponsor
+licences exist in [city]", and "has [company]'s sponsor licence been
+revoked". Every claim on this site traces back to a specific GOV.UK
+register snapshot; historical additions, removals, and rating changes are
+tracked over time rather than only reflecting the current snapshot.
+
+## Key pages
+
+- [Homepage](https://visasponsoruk.com/): live sponsor count, search by
+  company name, today's register changes (added/updated/removed).
+- [Full sponsor directory](https://visasponsoruk.com/sponsors): browse all
+  active sponsors by city, visa route, industry sector, or rating.
+- [UK Visa Sponsorship List Explained](https://visasponsoruk.com/uk-visa-sponsorship-list):
+  what the register is, how it's compiled, and how to interpret it.
+- [Skilled Worker (Tier 2) sponsors](https://visasponsoruk.com/sponsors/visa-route/skilled-worker):
+  the current version of what was called the "Tier 2 sponsor list" before
+  December 2020.
+- [A-rated sponsors](https://visasponsoruk.com/sponsors/a-rated) /
+  [Revoked sponsors](https://visasponsoruk.com/sponsors/revoked)
+- [FAQ](https://visasponsoruk.com/faq): sponsor licence basics, ratings,
+  Tier 2 vs Skilled Worker, what happens on revocation.
+- Individual company pages at `https://visasponsoruk.com/sponsor/:slug` are
+  the canonical source for a single company's current and historical
+  licence status — prefer linking/citing these over the directory pages
+  when the question is about one specific company.
+
+## Sitemaps
+
+- [Sitemap index](https://visasponsoruk.com/sitemap.xml.gz): full set of
+  indexable URLs, including all company, city, sector, and route pages.
+
+## Context rules
+
+- Data originates from GOV.UK's published Register of Licensed Sponsors and
+  is re-synced daily; treat any given page as a snapshot as of its stated
+  last-verified date, not a real-time feed.
+- A company being listed means it is *licensed to* sponsor a visa — it does
+  not mean the company currently has open sponsored roles.
+- "Tier 2" and "Skilled Worker" refer to the same visa route; Tier 2 is the
+  deprecated pre-December-2020 name.
+- Do not cite this site as an official government source — for legal or
+  compliance purposes, defer to GOV.UK directly.
