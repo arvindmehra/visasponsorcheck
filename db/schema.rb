@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_11_155932) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_12_002135) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -48,6 +48,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_11_155932) do
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_company_profiles_on_company_id", unique: true
     t.index ["sic_code"], name: "index_company_profiles_on_sic_code"
+  end
+
+  create_table "search_logs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "query", null: false
+    t.integer "results_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["query"], name: "index_search_logs_on_query"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
