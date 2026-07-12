@@ -95,8 +95,6 @@ Rails.application.configure do
   # Configure HTTP Basic Authentication for Mission Control Jobs in production
   config.mission_control.jobs.http_basic_auth_enabled = true
   config.mission_control.jobs.http_basic_auth_users = {
-    ENV.fetch("JOBS_HTTP_BASIC_AUTH_USER", "admin") => ENV.fetch("JOBS_HTTP_BASIC_AUTH_PASSWORD") {
-      Rails.application.credentials.dig(:mission_control, :http_basic_auth_password) || "secret"
-    }
+    ENV.fetch("HTTP_USERNAME") => ENV.fetch("HTTP_PASSWORD")
   }
 end
