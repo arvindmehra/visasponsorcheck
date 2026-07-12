@@ -1,16 +1,17 @@
-<div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
   <!-- Hero Section -->
   <div class="text-center">
     <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
-      UK Visa Sponsor Registry
+      Sponsor Licence Checker
     </h1>
     <p class="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-500">
-      Search <%= number_with_delimiter(@active_companies_count) %> companies in the UK with a license to sponsor short-term and long-term work visas.
+      Search from <%= number_with_delimiter(@active_companies_count) %> companies in the UK authorised to sponsor a visa.
     </p>
     <% if @last_sync&.completed_at %>
       <p class="mt-3 text-xs text-slate-400">
         <svg class="inline h-3.5 w-3.5 mr-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
-        Data updated <%= time_ago_in_words(@last_sync.completed_at) %> ago from the official GOV.UK register
+
+        The UK's most-used sponsor register checker. Trusted by 5,000+ skilled workers and employers
       </p>
     <% end %>
   </div>
@@ -71,26 +72,48 @@
 
   </div>
 
-  <!-- Statistics Dashboard -->
-  <div class="mt-20 border-t border-slate-200 pt-10">
-    <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-      <!-- Active Licences -->
-      <div class="flex flex-col gap-y-2 rounded-2xl bg-white border border-slate-200/60 p-6 shadow-sm shadow-slate-100/50">
-        <dt class="text-xs font-semibold text-slate-550 uppercase tracking-wider">Active Licences</dt>
-        <dd class="text-3xl font-bold tracking-tight text-slate-900">
-          <%= number_with_delimiter(@active_licences_count) %>
-        </dd>
+  <% if @last_sync&.completed_at %>
+    <!-- Today's Register -->
+    <div class="mt-20 border-t border-slate-200 pt-10">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-bold text-slate-900">Today's Register</h2>
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          Live · Last 24 hours
+        </span>
       </div>
 
-      <!-- Active Companies -->
-      <div class="flex flex-col gap-y-2 rounded-2xl bg-white border border-slate-200/60 p-6 shadow-sm shadow-slate-100/50">
-        <dt class="text-xs font-semibold text-slate-550 uppercase tracking-wider">Active Sponsors</dt>
-        <dd class="text-3xl font-bold tracking-tight text-slate-900">
-          <%= number_with_delimiter(@active_companies_count) %>
-        </dd>
-      </div>
-    </dl>
-  </div>
+      <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <!-- All -->
+        <%= link_to sponsors_path, class: "group flex flex-col gap-y-3 rounded-2xl bg-indigo-50 border border-indigo-150 p-6 hover:shadow-sm hover:border-indigo-300 transition-all duration-200" do %>
+          <dt class="text-sm font-semibold text-indigo-500 uppercase tracking-wider">All</dt>
+          <dd class="text-4xl font-extrabold tracking-tight text-indigo-700"><%= number_with_delimiter(@active_companies_count) %></dd>
+          <span class="text-sm font-medium text-indigo-400 group-hover:text-indigo-600 transition-colors">Tap to view →</span>
+        <% end %>
+
+        <!-- New -->
+        <%= link_to recent_sponsors_path(type: "new"), class: "group flex flex-col gap-y-3 rounded-2xl bg-emerald-50 border border-emerald-150 p-6 hover:shadow-sm hover:border-emerald-300 transition-all duration-200" do %>
+          <dt class="text-sm font-semibold text-emerald-500 uppercase tracking-wider">New</dt>
+          <dd class="text-4xl font-extrabold tracking-tight text-emerald-700">+<%= number_with_delimiter(@new_count) %></dd>
+          <span class="text-sm font-medium text-emerald-400 group-hover:text-emerald-600 transition-colors">Tap to view →</span>
+        <% end %>
+
+        <!-- Updated -->
+        <%= link_to recent_sponsors_path(type: "updated"), class: "group flex flex-col gap-y-3 rounded-2xl bg-amber-50 border border-amber-150 p-6 hover:shadow-sm hover:border-amber-300 transition-all duration-200" do %>
+          <dt class="text-sm font-semibold text-amber-500 uppercase tracking-wider">Updated</dt>
+          <dd class="text-4xl font-extrabold tracking-tight text-amber-700"><%= number_with_delimiter(@updated_count) %></dd>
+          <span class="text-sm font-medium text-amber-400 group-hover:text-amber-600 transition-colors">Tap to view →</span>
+        <% end %>
+
+        <!-- Removed -->
+        <%= link_to recent_sponsors_path(type: "removed"), class: "group flex flex-col gap-y-3 rounded-2xl bg-rose-50 border border-rose-150 p-6 hover:shadow-sm hover:border-rose-300 transition-all duration-200" do %>
+          <dt class="text-sm font-semibold text-rose-500 uppercase tracking-wider">Removed</dt>
+          <dd class="text-4xl font-extrabold tracking-tight text-rose-700"><%= number_with_delimiter(@removed_count) %></dd>
+          <span class="text-sm font-medium text-rose-400 group-hover:text-rose-600 transition-colors">Tap to view →</span>
+        <% end %>
+      </dl>
+    </div>
+  <% end %>
 
   <!-- Browse by City -->
   <% if @top_cities.any? %>

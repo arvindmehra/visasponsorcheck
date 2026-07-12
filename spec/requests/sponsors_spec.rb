@@ -119,6 +119,98 @@ RSpec.describe "Sponsors Directory", type: :request do
     end
   end
 
+  describe "GET /sponsors/recent/:type" do
+    let!(:import_log) { create(:sponsor_import_log) }
+
+    context "when the type is unknown" do
+      it "returns a 404 not found status" do
+        get recent_sponsors_path(type: "bogus")
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context "when no sync has ever completed" do
+      it "returns a 404 not found status" do
+        SponsorImportLog.destroy_all
+        get recent_sponsors_path(type: "new")
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context "with a company added in the last 24 hours" do
+      let!(:added_event) do
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log,
+                                       event_type: "added", occurred_at: 2.hours.ago)
+      end
+
+      it "shows the added company under 'new'" do
+        get recent_sponsors_path(type: "new")
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("New Sponsors")
+        expect(response.body).to include("Alpha Ltd")
+        expect(response.body).to include("Added as a licensed sponsor")
+      end
+    end
+
+    context "with a rating change in the last 24 hours" do
+      let!(:rating_event) do
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log,
+                                       event_type: "rating_changed", old_value: "B", new_value: "A", occurred_at: 2.hours.ago)
+      end
+
+      it "shows the change with its human-readable description under 'updated'" do
+        get recent_sponsors_path(type: "updated")
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("Updated Sponsors")
+        expect(response.body).to include("Alpha Ltd")
+        expect(response.body).to include("Rating changed")
+      end
+
+      it "does not show it under 'new' or 'removed'" do
+        get recent_sponsors_path(type: "new")
+        expect(response.body).not_to include("Alpha Ltd")
+
+        get recent_sponsors_path(type: "removed")
+        expect(response.body).not_to include("Alpha Ltd")
+      end
+    end
+
+    context "with a company removed in the last 24 hours" do
+      let!(:removed_event) do
+        create(:sponsor_change_event, company: leeds_company, sponsor_import_log: import_log,
+                                       event_type: "removed", occurred_at: 2.hours.ago)
+      end
+
+      it "shows the removed company" do
+        get recent_sponsors_path(type: "removed")
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("Removed Sponsors")
+        expect(response.body).to include("Beta Ltd")
+      end
+    end
+
+    context "with a change older than 24 hours" do
+      let!(:stale_event) do
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log,
+                                       event_type: "added", occurred_at: 25.hours.ago)
+      end
+
+      it "excludes it from the results" do
+        get recent_sponsors_path(type: "new")
+        expect(response).to have_http_status(:success)
+        expect(response.body).not_to include("Alpha Ltd")
+      end
+    end
+
+    context "when the type is valid but there were no matching changes" do
+      it "renders an empty state instead of 404ing" do
+        get recent_sponsors_path(type: "removed")
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("No removed sponsors in the last 24 hours")
+      end
+    end
+  end
+
   describe "GET /sponsors/a-rated" do
     it "renders the A-rated list successfully" do
       get a_rated_sponsors_path

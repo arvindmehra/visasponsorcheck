@@ -91,20 +91,5 @@
     </div>
   </section>
 
-  <!-- Browse by Rating / Status -->
-  <section>
-    <h2 class="text-2xl font-bold text-slate-900 mb-6">Browse by Rating &amp; Status</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
-      <%= link_to a_rated_sponsors_path,
-            class: "rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 hover:bg-emerald-100 transition-colors" do %>
-        <div class="font-bold text-emerald-700 text-sm mb-1">A-Rated Sponsors</div>
-        <div class="text-xs text-emerald-600">Clean compliance record with UKVI</div>
-      <% end %>
-      <%= link_to revoked_sponsors_path,
-            class: "rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 hover:bg-slate-100 transition-colors" do %>
-        <div class="font-bold text-slate-700 text-sm mb-1">Revoked Licences</div>
-        <div class="text-xs text-slate-500">Companies removed from the register</div>
-      <% end %>
-    </div>
-  </section>
+
 </div>

@@ -8,6 +8,7 @@ VisaSponsorUK is a Ruby on Rails 8 application that tracks and monitors UK-licen
 
 - [What the App Does](#what-the-app-does)
 - [Tech Stack](#tech-stack)
+- [Useful Links](#useful-links)
 - [Prerequisites](#prerequisites)
 - [Option A — Local Development (Recommended)](#option-a--local-development-recommended)
 - [Option B — Docker Development](#option-b--docker-development)
@@ -47,6 +48,34 @@ VisaSponsorUK is a Ruby on Rails 8 application that tracks and monitors UK-licen
 | Frontend | Hotwire (Turbo + Stimulus) |
 | HTTP Proxy | Thruster (production only) |
 | Deployment | Kamal 2 |
+
+---
+
+## Useful Links
+
+### Local development
+
+| Link | Purpose |
+| :--- | :--- |
+| http://localhost:3000 | The app itself |
+| http://localhost:3000/jobs | [Mission Control](https://github.com/rails/mission_control-jobs) — Solid Queue background job dashboard |
+| http://localhost:3000/pghero | [PgHero](https://github.com/ankane/pghero) — Postgres query performance dashboard ([one-time setup required](#query-stats-pghero)) |
+| http://localhost:3000/up | Health check endpoint (also used by Kamal's proxy healthcheck) |
+
+### Production
+
+| Link | Purpose |
+| :--- | :--- |
+| https://visasponsoruk.com | Live site |
+| https://visasponsoruk.com/jobs | Mission Control Jobs dashboard — protected by HTTP Basic Auth (`HTTP_USERNAME` / `HTTP_PASSWORD`, see [Deployment](#deployment)) |
+| https://visasponsoruk.com/pghero | PgHero dashboard — same HTTP Basic Auth credentials |
+| https://visasponsoruk.com/up | Health check endpoint |
+
+### Data source
+
+| Link | Purpose |
+| :--- | :--- |
+| [GOV.UK Register of Licensed Sponsors](https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers) | Official source this app scrapes and syncs from daily — see [`SponsorCsvDownloader::GOV_UK_URL`](app/services/sponsor_csv_downloader.rb) |
 
 ---
 

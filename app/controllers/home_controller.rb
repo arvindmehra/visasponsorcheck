@@ -1,11 +1,17 @@
 class HomeController < ApplicationController
   def index
-    @active_licences_count  = SponsorLicence.active.count
     @active_companies_count = Company.active_sponsors.count
     @last_sync              = SponsorImportLog.done.recent.first
     @top_cities             = Company.top_cities(10)
     @visa_routes            = Company.top_routes(5)
     @top_sectors            = SicSector.ranked(limit: 8, only_populated: true)
+
+    if @last_sync
+      recent_events   = SponsorChangeEvent.where(occurred_at: 24.hours.ago..)
+      @new_count      = recent_events.additions.count
+      @updated_count  = recent_events.changes_only.count
+      @removed_count  = recent_events.removals.count
+    end
 
     set_meta_tags(
       title: "UK Visa Sponsor Register #{Date.current.year} | Search Licensed Sponsors",

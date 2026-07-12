@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get "sponsors/visa-route/:route",         to: "sponsors#route",   as: :visa_route_sponsors
   get "sponsors/sectors",                  to: "sponsors#sectors", as: :sectors_sponsors
   get "sponsors/sector/:sector",           to: "sponsors#sector",  as: :sector_sponsors
+  get "sponsors/recent/:type",             to: "sponsors#recent",  as: :recent_sponsors
 
   # Company pages — keyword-rich /sponsor/:slug URL
   get "sponsor/:id",                       to: "companies#show",   as: :company

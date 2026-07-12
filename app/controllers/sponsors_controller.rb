@@ -141,6 +141,47 @@ class SponsorsController < ApplicationController
     )
   end
 
+  RECENT_TYPES = {
+    "new" => { event_scope: :additions, label: "New" },
+    "updated" => { event_scope: :changes_only, label: "Updated" },
+    "removed" => { event_scope: :removals, label: "Removed" }
+  }.freeze
+
+  # GET /sponsors/recent/:type (type: new | updated | removed)
+  # Shows licence changes from the last 24 hours — matching the counts shown
+  # in the homepage's "Today's Register" cards. "Updated" is any change
+  # except added/removed (rating, status, route, licence type).
+  def recent
+    @type = params[:type].to_s
+    type_config = RECENT_TYPES[@type]
+
+    if type_config.nil?
+      render file: "public/404.html", status: :not_found and return
+    end
+
+    @last_sync = SponsorImportLog.done.recent.first
+
+    if @last_sync.nil?
+      render file: "public/404.html", status: :not_found and return
+    end
+
+    @label = type_config[:label]
+    events_scope = SponsorChangeEvent.where(occurred_at: 24.hours.ago..).public_send(type_config[:event_scope])
+
+    @pagy, @events = pagy(events_scope.includes(:company).recent, limit: 50)
+    @count = events_scope.count
+
+    title = "#{@label} Sponsors — Last 24 Hours | UK Visa Sponsor Register"
+    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    canonical_url = @pagy.page > 1 ? recent_sponsors_url(type: @type, page: @pagy.page) : recent_sponsors_url(type: @type)
+
+    set_meta_tags(
+      title: title,
+      description: "#{number_with_delimiter(@count)} UK visa sponsor licences were #{@type} in the last 24 hours.",
+      canonical: canonical_url
+    )
+  end
+
   # GET /sponsors/a-rated
   def a_rated
     @pagy, @companies = pagy(
