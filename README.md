@@ -13,6 +13,7 @@ VisaSponsorUK is a Ruby on Rails 8 application that tracks and monitors UK-licen
 - [Option B — Docker Development](#option-b--docker-development)
 - [Option C — Docker Production Testing](#option-c--docker-production-testing)
 - [Database Commands](#database-commands)
+- [Query Stats (PgHero)](#query-stats-pghero)
 - [Background Jobs](#background-jobs)
 - [Triggering a Sync Manually](#triggering-a-sync-manually)
 - [Running Tests](#running-tests)
@@ -290,6 +291,60 @@ export DATABASE_PASSWORD=your_postgres_password
 
 ---
 
+## Query Stats (PgHero)
+
+[PgHero](https://github.com/ankane/pghero) is mounted at `/pghero` and gives visibility into slow/frequent queries. It relies on Postgres's `pg_stat_statements` extension, which is **not enabled by default** and requires a one-time setup per environment.
+
+> [!NOTE]
+> `shared_preload_libraries` only takes effect after a Postgres **restart**, not just `CREATE EXTENSION`. The steps below account for that.
+
+### Docker Dev / Docker Prod Testing
+
+The `postgres` service in [compose.yml](compose.yml) already sets `command: postgres -c shared_preload_libraries=pg_stat_statements`, so a normal `up` picks it up. If you're enabling this for the first time on an existing container, force it to recreate:
+
+```bash
+# Recreate Postgres so the new command takes effect
+docker compose -f compose.yml -f compose.dev.yml up -d --force-recreate postgres
+
+# Create the extension (swap db name for _production if using Option C)
+docker compose -f compose.yml -f compose.dev.yml exec postgres \
+  psql -U visasponsoruk -d visasponsoruk_development -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
+
+# Run the pghero_query_stats table migration
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:migrate
+
+# Capture stats manually
+docker compose -f compose.yml -f compose.dev.yml exec web bin/rails pghero:capture_query_stats
+```
+
+For Option C (no `compose.dev.yml` override), drop the `-f compose.dev.yml` flag from each command.
+
+### Production (Kamal)
+
+Postgres runs as a Kamal accessory ([config/deploy.yml](config/deploy.yml)), which also sets `cmd: postgres -c shared_preload_libraries=pg_stat_statements`.
+
+```bash
+# Recreates the postgres accessory container (data persists — it's a host bind mount)
+kamal accessory reboot postgres
+
+# Create the extension
+kamal accessory exec postgres -i "psql -U visasponsoruk -d visasponsoruk_production -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'"
+
+# Run the pghero_query_stats table migration
+kamal app exec --reuse "bin/rails db:migrate"
+
+# Capture stats manually
+kamal app exec --reuse "bin/rails pghero:capture_query_stats"
+```
+
+> ⚠️ `kamal accessory reboot` briefly stops and recreates the Postgres container. Data on disk is untouched (bind-mounted), but expect a few seconds of DB downtime.
+
+### Automatic capture
+
+Once enabled, stats are captured automatically every 30 minutes via Solid Queue — see [Recurring schedule](#recurring-schedule) below. No further action needed after the one-time setup.
+
+---
+
 ## Background Jobs
 
 Jobs use **Solid Queue** — stored in the primary PostgreSQL database (no Redis required).
@@ -303,6 +358,7 @@ Jobs use **Solid Queue** — stored in the primary PostgreSQL database (no Redis
 [config/recurring.yml](config/recurring.yml):
 - `sponsor_sync` — runs `SponsorSyncJob` at **2:00 AM daily**
 - `clear_solid_queue_finished_jobs` — cleans finished jobs **every hour**
+- `pghero_capture_query_stats` — captures PgHero query stats **every 30 minutes** (requires `pg_stat_statements` — see [Query Stats (PgHero)](#query-stats-pghero))
 
 ### Workers
 

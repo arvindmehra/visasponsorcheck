@@ -14,6 +14,7 @@ services:
   postgres:
     image: postgres:16
     container_name: visasponsoruk-postgres
+    command: postgres -c shared_preload_libraries=pg_stat_statements
     environment:
       POSTGRES_DB: visasponsoruk_production
       POSTGRES_USER: visasponsoruk
@@ -45,6 +46,8 @@ services:
       RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
       COMPANIES_HOUSE_API_KEY: "${COMPANIES_HOUSE_API_KEY}"
       COMPANIES_HOUSE_SANDBOX: "${COMPANIES_HOUSE_SANDBOX}"
+      PGHERO_USERNAME: "${PGHERO_USERNAME}"
+      PGHERO_PASSWORD: "${PGHERO_PASSWORD}"
       DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_production"
     ports:
       - "80:80"   # Thruster listens on 80 inside the container

@@ -62,6 +62,10 @@ gem "thruster", require: false
 # Deploy with Kamal [https://kamal-deploy.org]
 gem "kamal", require: false
 
+# Production database performance monitoring
+gem "pghero"
+gem "pg_query", ">= 2"
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 

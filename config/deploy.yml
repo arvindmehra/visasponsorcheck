@@ -61,6 +61,7 @@ accessories:
     image: postgres:16
     host: 167.99.201.191   # ← Same Droplet IP as above
     port: "127.0.0.1:5432:5432"   # Only accessible locally (not exposed to internet)
+    cmd: postgres -c shared_preload_libraries=pg_stat_statements
     env:
       clear:
         POSTGRES_DB: visasponsoruk_production
