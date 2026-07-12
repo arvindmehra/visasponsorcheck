@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Pulls a snapshot of the production database and restores it locally.
+#
+# Usage:
+#   bin/sync_prod_db            # restores into local native Postgres (visasponsoruk_development)
+#   bin/sync_prod_db --docker   # restores into the Docker dev Postgres container
+#   bin/sync_prod_db --keep-dump  # don't delete the dump file afterwards
+#
+# Reads the droplet host, accessory container name, and DB credentials
+# straight out of config/deploy.yml so it stays in sync automatically.
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+TARGET="local"
+KEEP_DUMP=false
+for arg in "$@"; do
+  case "$arg" in
+    --docker) TARGET="docker" ;;
+    --keep-dump) KEEP_DUMP=true ;;
+    *) echo "Unknown option: $arg" >&2; exit 1 ;;
+  esac
+done
+
+read -r SERVICE DROPLET_HOST PROD_DB PROD_USER <<< "$(ruby -ryaml -e '
+  config = YAML.load_file("config/deploy.yml")
+  pg = config["accessories"]["postgres"]
+  puts [config["service"], pg["host"], pg["env"]["clear"]["POSTGRES_DB"], pg["env"]["clear"]["POSTGRES_USER"]].join(" ")
+')"
+POSTGRES_CONTAINER="${SERVICE}-postgres"
+
+DUMP_PATH="tmp/prod_dump_$(date +%Y%m%d%H%M%S).dump"
+
+echo "This will pull a snapshot of PRODUCTION (${PROD_DB} on ${DROPLET_HOST})"
+echo "and OVERWRITE your local ${TARGET} development database with it."
+read -r -p "Type 'yes' to continue: " CONFIRM
+if [[ "$CONFIRM" != "yes" ]]; then
+  echo "Aborted."
+  exit 1
+fi
+
+echo "==> Dumping production database..."
+ssh "root@${DROPLET_HOST}" \
+  "docker exec ${POSTGRES_CONTAINER} pg_dump -U ${PROD_USER} -d ${PROD_DB} -Fc --no-owner --no-privileges" \
+  > "$DUMP_PATH"
+echo "==> Dump saved to ${DUMP_PATH} ($(du -h "$DUMP_PATH" | cut -f1))"
+
+if [[ "$TARGET" == "docker" ]]; then
+  echo "==> Restoring into Docker dev Postgres (visasponsoruk_development)..."
+  docker compose -f compose.yml -f compose.dev.yml cp "$DUMP_PATH" postgres:/tmp/prod_dump.dump
+  docker compose -f compose.yml -f compose.dev.yml exec postgres \
+    pg_restore -U visasponsoruk -d visasponsoruk_development \
+    --clean --if-exists --no-owner --no-privileges /tmp/prod_dump.dump
+  docker compose -f compose.yml -f compose.dev.yml exec postgres rm /tmp/prod_dump.dump
+  echo "==> Running pending migrations..."
+  docker compose -f compose.yml -f compose.dev.yml exec web bin/rails db:migrate
+else
+  echo "==> Restoring into local Postgres (visasponsoruk_development)..."
+  PGPASSWORD="${DATABASE_PASSWORD:-}" pg_restore \
+    -h "${DATABASE_HOST:-localhost}" -p "${DATABASE_PORT:-5432}" \
+    -U "${DATABASE_USERNAME:-$USER}" -d visasponsoruk_development \
+    --clean --if-exists --no-owner --no-privileges "$DUMP_PATH"
+  echo "==> Running pending migrations..."
+  bin/rails db:migrate
+fi
+
+if [[ "$KEEP_DUMP" == false ]]; then
+  rm "$DUMP_PATH"
+  echo "==> Removed local dump file (pass --keep-dump to retain it)."
+fi
+
+echo "==> Done. Local development database now mirrors production."

@@ -4,7 +4,8 @@ class HomeController < ApplicationController
     @active_companies_count = Company.active_sponsors.count
     @last_sync              = SponsorImportLog.done.recent.first
     @top_cities             = Company.top_cities(10)
-    @visa_routes            = Company.distinct_routes
+    @visa_routes            = Company.top_routes(5)
+    @top_sectors            = SicSector.ranked(limit: 8, only_populated: true)
 
     set_meta_tags(
       title: "UK Visa Sponsor Register #{Date.current.year} | Search Licensed Sponsors",

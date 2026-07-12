@@ -53,13 +53,37 @@
     </div>
   </section>
 
+  <!-- Browse by Sector -->
+  <section class="mb-14">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-slate-900">Browse by Sector</h2>
+      <%= link_to sectors_sponsors_path, class: "text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1" do %>
+        <span>View All Sectors</span>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      <% end %>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <% @top_sectors.each do |sector| %>
+        <%= link_to sector_sponsors_path(sector: sector[:key]),
+              class: "rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-3" do %>
+          <span><%= sector[:name] %></span>
+          <span class="shrink-0 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-bold text-indigo-700 border border-indigo-150">
+            <%= number_with_delimiter(sector[:count]) %>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
   <!-- Browse by Visa Route -->
   <section class="mb-14">
     <h2 class="text-2xl font-bold text-slate-900 mb-6">Browse by Visa Route</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
       <% @visa_routes.each do |route| %>
         <% route_slug = route.downcase.gsub(/\s+/, "-") %>
-        <%= link_to route_sponsors_path(route: route_slug),
+        <%= link_to visa_route_sponsors_path(route: route_slug),
               class: "rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-all duration-200" do %>
           <%= route %>
         <% end %>

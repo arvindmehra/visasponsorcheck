@@ -3,14 +3,29 @@
 {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": "<%= @route_name %> Visa Sponsors UK",
-  "url": "<%= visa_route_sponsors_url(route: @route_slug) %>",
+  "name": "<%= @sector_name %> Visa Sponsors",
+  "description": "<%= number_with_delimiter(@count) %> companies in the <%= @sector_name %> sector licensed to sponsor UK work visas.",
+  "url": "<%= sector_sponsors_url(sector: @sector_key) %>",
   "breadcrumb": {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
       { "@type": "ListItem", "position": 2, "name": "Sponsors", "item": "<%= sponsors_url %>" },
-      { "@type": "ListItem", "position": 3, "name": "<%= @route_name %>", "item": "<%= visa_route_sponsors_url(route: @route_slug) %>" }
+      { "@type": "ListItem", "position": 3, "name": "<%= @sector_name %>", "item": "<%= sector_sponsors_url(sector: @sector_key) %>" }
+    ]
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": <%= @count %>,
+    "itemListElement": [
+      <% @companies.each_with_index do |company, i| %>
+      {
+        "@type": "ListItem",
+        "position": <%= @pagy.offset + i + 1 %>,
+        "name": "<%= company.name.gsub('"', '\"') %>",
+        "url": "<%= company_url(company) %>"
+      }<%= "," unless i == @companies.size - 1 %>
+      <% end %>
     ]
   }
 }
@@ -20,8 +35,8 @@
 <% if Rails.env.production? %>
   <script>
     gtag('event', 'filter_applied', {
-      filter_type: 'route',
-      filter_value: '<%= j @route_name %>'
+      filter_type: 'sector',
+      filter_value: '<%= j @sector_name %>'
     });
   </script>
 <% end %>
@@ -34,24 +49,29 @@
     <span class="mx-2 text-slate-300">›</span>
     <%= link_to "Sponsors", sponsors_path, class: "hover:text-indigo-600 transition-colors" %>
     <span class="mx-2 text-slate-300">›</span>
-    <span class="text-slate-800"><%= @route_name %></span>
+    <%= link_to "Sectors", sectors_sponsors_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800"><%= @sector_name %></span>
   </nav>
 
   <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
-    <%= @route_name %> Visa Sponsors UK
+    <%= @sector_name %> Visa Sponsors
   </h1>
   <p class="text-lg text-slate-500 mb-10">
-    <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> UK companies are licensed to sponsor
-    workers on the <%= @route_name %> visa route.
-    Data sourced from the official GOV.UK register of licensed sponsors.
+    There are <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> companies in the <%= @sector_name %> sector
+    licensed to sponsor short-term and long-term UK work visas, including the
+    Skilled Worker, Health &amp; Care Worker, and other UKVI visa routes.
+    <%= "Showing page #{@pagy.page} of #{@pagy.last}." if @pagy.last > 1 %>
   </p>
 
+  <!-- Sponsor List -->
   <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-8">
     <table class="min-w-full divide-y divide-slate-200">
       <thead class="bg-slate-50">
         <tr class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
           <th scope="col" class="px-6 py-4">Company</th>
-          <th scope="col" class="px-4 py-4">Location</th>
+          <th scope="col" class="px-4 py-4">Nature of Business</th>
+          <th scope="col" class="px-4 py-4">Routes</th>
           <th scope="col" class="px-4 py-4">Rating</th>
         </tr>
       </thead>
@@ -64,17 +84,16 @@
               <% end %>
             </td>
             <td class="px-4 py-4 text-sm text-slate-500">
-              <% if company.city_slug.present? %>
-                <%= link_to company.location, city_sponsors_path(city: company.city_slug), class: "hover:text-indigo-600 transition-colors" %>
-              <% else %>
-                <span class="text-slate-400">—</span>
-              <% end %>
+              <%= company.company_profile&.sic_code_description %>
+            </td>
+            <td class="px-4 py-4 text-sm text-slate-500">
+              <%= company.sponsor_licences.active.pluck(:route).uniq.join(", ") %>
             </td>
             <td class="px-4 py-4">
-              <% licence = company.sponsor_licences.active.where(route: @route_name).first %>
-              <% if licence %>
-                <span class="inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold border <%= licence.rating == 'A' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700' %>">
-                  <%= licence.rating %>
+              <% rating = company.sponsor_licences.active.first&.rating %>
+              <% if rating %>
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold border <%= rating == 'A' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700' %>">
+                  <%= rating %>
                 </span>
               <% end %>
             </td>
@@ -84,6 +103,7 @@
     </table>
   </div>
 
+  <!-- Pagination -->
   <% if @pagy.last > 1 %>
     <nav class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm mt-8 border-t border-slate-200 pt-6" aria-label="Pagination">
       <div class="text-slate-500">
