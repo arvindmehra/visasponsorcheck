@@ -1,0 +1,33 @@
+services:
+  datadog:
+    container_name: dd-agent
+    image: registry.datadoghq.com/agent:7
+    pid: host
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=uk1.datadoghq.com
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_APM_RECEIVER_SOCKET=/var/run/datadog/apm.socket
+      - DD_DOGSTATSD_SOCKET=/var/run/datadog/dsd.socket
+      - DD_PROFILING_ENABLED=auto
+      - DD_DATA_STREAMS_ENABLED=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_AUTO_MULTI_LINE_DETECTION=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE_LOGS=name:dd-agent
+      - DD_ENV=prod
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/datadog:/var/run/datadog
+      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
+
+  web:
+    environment:
+      - DD_AGENT_HOST=datadog
+      - DD_TRACE_AGENT_PORT=8126
+      - DD_ENV=prod
