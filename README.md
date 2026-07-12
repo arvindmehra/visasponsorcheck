@@ -327,8 +327,8 @@ Postgres runs as a Kamal accessory ([config/deploy.yml](config/deploy.yml)), whi
 # Recreates the postgres accessory container (data persists — it's a host bind mount)
 kamal accessory reboot postgres
 
-# Create the extension
-kamal accessory exec postgres -i "psql -U visasponsoruk -d visasponsoruk_production -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'"
+# Create the extension (--reuse runs it in the existing running container, not a throwaway one)
+kamal accessory exec postgres -i --reuse "psql -U visasponsoruk -d visasponsoruk_production -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'"
 
 # Run the pghero_query_stats table migration
 kamal app exec --reuse "bin/rails db:migrate"
@@ -426,6 +426,8 @@ Deployment uses **Kamal 2** onto a DigitalOcean Droplet with PostgreSQL running 
 # Export secrets on your local machine before deploying
 export KAMAL_REGISTRY_PASSWORD="your_docker_hub_password"
 export DB_PASSWORD="your_db_password"
+export HTTP_USERNAME="your_pghero_dashboard_username"   # protects /pghero with HTTP Basic Auth
+export HTTP_PASSWORD="your_pghero_dashboard_password"
 
 # First-time server setup (installs Docker, starts all containers)
 kamal setup

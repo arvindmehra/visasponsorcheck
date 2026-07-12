@@ -78,8 +78,8 @@ services:
       COMPANIES_HOUSE_DEV_API_KEY: "${COMPANIES_HOUSE_DEV_API_KEY}"
       COMPANIES_HOUSE_SANDBOX: "${COMPANIES_HOUSE_SANDBOX}"
       DATABASE_URL: "postgresql://visasponsoruk:localpassword@postgres:5432/visasponsoruk_development"
-      PGHERO_USERNAME: "${PGHERO_USERNAME}"
-      PGHERO_PASSWORD: "${PGHERO_PASSWORD}"
+      HTTP_USERNAME: "${HTTP_USERNAME}"
+      HTTP_PASSWORD: "${HTTP_PASSWORD}"
       
     volumes:
       - ./app:/rails/app
