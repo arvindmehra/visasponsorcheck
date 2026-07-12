@@ -235,6 +235,49 @@ RSpec.describe Company, type: :model do
         expect(Company.distinct_routes).to eq([ "Skilled Worker", "Temporary Worker" ])
       end
     end
+
+    describe ".top_routes" do
+      it "returns the top routes by distinct active-company count, descending" do
+        # Existing setup: london_company has 1 Skilled Worker licence, manchester_company has 1 Temporary Worker licence
+        extra_company = create(:company, town: "Bristol")
+        create(:sponsor_licence, company: extra_company, status: "active", rating: "A", route: "Skilled Worker")
+
+        # Skilled Worker (2 companies) should outrank Temporary Worker (1 company)
+        expect(Company.top_routes(1)).to eq([ "Skilled Worker" ])
+        expect(Company.top_routes(2)).to eq([ "Skilled Worker", "Temporary Worker" ])
+      end
+
+      it "does not double-count a company with multiple licences for the same route family" do
+        create(:sponsor_licence, company: london_company, status: "active", rating: "B", route: "Health and Care Worker")
+
+        expect(Company.top_routes(3)).to include("Skilled Worker", "Temporary Worker", "Health and Care Worker")
+      end
+    end
+
+    describe ".by_sector" do
+      before do
+        london_company.create_company_profile!(sic_code: 62012, enriched_at: Time.current) # information-communication
+        manchester_company.create_company_profile!(sic_code: 46350, enriched_at: Time.current) # wholesale-trade
+      end
+
+      it "returns companies whose SIC code falls in the sector's division range" do
+        expect(Company.by_sector("information-communication")).to include(london_company)
+        expect(Company.by_sector("information-communication")).not_to include(manchester_company)
+
+        expect(Company.by_sector("wholesale-trade")).to include(manchester_company)
+        expect(Company.by_sector("wholesale-trade")).not_to include(london_company)
+      end
+
+      it "returns none for an unknown sector key" do
+        expect(Company.by_sector("not-a-real-sector")).to be_empty
+      end
+
+      it "does not double-count a company with multiple active licences" do
+        create(:sponsor_licence, company: london_company, status: "active", rating: "A", route: "Health and Care Worker")
+
+        expect(Company.by_sector("information-communication").count).to eq(1)
+      end
+    end
   end
 
   describe "instance helpers" do

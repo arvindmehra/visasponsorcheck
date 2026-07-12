@@ -45,12 +45,13 @@ SitemapGenerator::Sitemap.create do
   add "/faq",       changefreq: "monthly", priority: 0.7
   add "/sponsors/a-rated",  changefreq: "weekly", priority: 0.8
   add "/sponsors/revoked",  changefreq: "weekly", priority: 0.7
+  add "/sponsors/sectors",  changefreq: "weekly", priority: 0.8
 
   # Visa route pages
   puts "Adding route pages..."
   SponsorLicence.active.distinct.pluck(:route).sort.each do |route|
     route_slug = route.downcase.gsub(/\s+/, "-")
-    add "/sponsors/route/#{route_slug}", changefreq: "weekly", priority: 0.8
+    add "/sponsors/visa-route/#{route_slug}", changefreq: "weekly", priority: 0.8
   end
 
   # City pages — only cities with 3+ active sponsors (quality threshold)
@@ -66,6 +67,13 @@ SitemapGenerator::Sitemap.create do
     .each do |city_slug|
       add "/sponsors/city/#{city_slug}", changefreq: "weekly", priority: 0.8
     end
+
+  # Industry sector pages — only sectors with 3+ active sponsors (quality threshold)
+  puts "Adding sector pages..."
+  SicSector.ranked(only_populated: true).each do |sector|
+    next if sector[:count] < 3
+    add "/sponsors/sector/#{sector[:key]}", changefreq: "weekly", priority: 0.8
+  end
 
   # Individual company pages — batched for memory efficiency
   puts "Adding company pages..."

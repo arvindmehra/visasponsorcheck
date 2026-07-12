@@ -31,6 +31,20 @@ RSpec.describe "Sponsors Directory", type: :request do
     end
   end
 
+  describe "GET /sponsors/routes" do
+    it "renders the routes directory page successfully with grouped lists" do
+      get visa_routes_sponsors_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Browse by Visa Route")
+      expect(response.body).to include("Jump to Letter")
+      # Skilled Worker and Temporary Worker should be formatted and grouped under their respective letter headers
+      expect(response.body).to include("Skilled Worker")
+      expect(response.body).to include("Temporary Worker")
+      expect(response.body).to include("id=\"letter-S\"")
+      expect(response.body).to include("id=\"letter-T\"")
+    end
+  end
+
   describe "GET /sponsors/city/:city" do
     context "when sponsors exist in the city" do
       it "renders the city page successfully" do
@@ -53,7 +67,7 @@ RSpec.describe "Sponsors Directory", type: :request do
   describe "GET /sponsors/route/:route" do
     context "when sponsors exist for the route" do
       it "renders the route page successfully" do
-        get route_sponsors_path(route: "skilled-worker")
+        get visa_route_sponsors_path(route: "skilled-worker")
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Skilled Worker Visa Sponsors UK")
         expect(response.body).to include("Alpha Ltd")
@@ -62,7 +76,44 @@ RSpec.describe "Sponsors Directory", type: :request do
 
     context "when no sponsors exist for the route" do
       it "returns a 404 not found status" do
-        get route_sponsors_path(route: "non-existent-route")
+        get visa_route_sponsors_path(route: "non-existent-route")
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe "GET /sponsors/sectors" do
+    it "renders the sectors directory page successfully" do
+      get sectors_sponsors_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Browse by Sector")
+    end
+  end
+
+  describe "GET /sponsors/sector/:sector" do
+    context "when sponsors exist in the sector" do
+      before do
+        london_company.create_company_profile!(sic_code: 62012, enriched_at: Time.current)
+      end
+
+      it "renders the sector page successfully" do
+        get sector_sponsors_path(sector: "information-communication")
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("Visa Sponsors")
+        expect(response.body).to include("Alpha Ltd")
+      end
+    end
+
+    context "when the sector key is unknown" do
+      it "returns a 404 not found status" do
+        get sector_sponsors_path(sector: "not-a-real-sector")
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context "when the sector is known but has no matching companies" do
+      it "returns a 404 not found status" do
+        get sector_sponsors_path(sector: "mining-quarrying")
         expect(response).to have_http_status(:not_found)
       end
     end

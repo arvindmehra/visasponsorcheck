@@ -74,6 +74,17 @@ class Company < ApplicationRecord
       .distinct
   }
 
+  # Filter by SIC industry sector key (see SicSector)
+  scope :by_sector, ->(sector_key) {
+    division_range = SicSector.division_range(sector_key)
+    return none unless division_range
+
+    joins(:sponsor_licences, :company_profile)
+      .where(sponsor_licences: { status: "active" })
+      .where("company_profiles.sic_code / 1000 BETWEEN ? AND ?", division_range.first, division_range.last)
+      .distinct
+  }
+
   # All active A-rated sponsors
   scope :a_rated, -> {
     joins(:sponsor_licences)
@@ -113,6 +124,16 @@ class Company < ApplicationRecord
   # Returns all distinct visa routes with active sponsors
   def self.distinct_routes
     SponsorLicence.active.distinct.pluck(:route).sort
+  end
+
+  # Returns the top visa routes by distinct active-company count, descending
+  def self.top_routes(limit = 5)
+    joins(:sponsor_licences)
+      .where(sponsor_licences: { status: "active" })
+      .group("sponsor_licences.route")
+      .order(Arel.sql("COUNT(DISTINCT companies.id) DESC, sponsor_licences.route ASC"))
+      .limit(limit)
+      .pluck(Arel.sql("sponsor_licences.route"))
   end
 
   # -----------------------------------------------------------------------

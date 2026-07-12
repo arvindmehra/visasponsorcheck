@@ -14,7 +14,10 @@ Rails.application.routes.draw do
   get "sponsors/a-rated",                  to: "sponsors#a_rated", as: :a_rated_sponsors
   get "sponsors/revoked",                  to: "sponsors#revoked", as: :revoked_sponsors
   get "sponsors/city/:city",               to: "sponsors#city",    as: :city_sponsors
-  get "sponsors/route/:route",             to: "sponsors#route",   as: :route_sponsors
+  get "sponsors/visa-routes",               to: "sponsors#routes",  as: :visa_routes_sponsors
+  get "sponsors/visa-route/:route",         to: "sponsors#route",   as: :visa_route_sponsors
+  get "sponsors/sectors",                  to: "sponsors#sectors", as: :sectors_sponsors
+  get "sponsors/sector/:sector",           to: "sponsors#sector",  as: :sector_sponsors
 
   # Company pages — keyword-rich /sponsor/:slug URL
   get "sponsor/:id",                       to: "companies#show",   as: :company

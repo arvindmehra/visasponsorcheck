@@ -91,4 +91,12 @@ Rails.application.configure do
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # Configure HTTP Basic Authentication for Mission Control Jobs in production
+  config.mission_control.jobs.http_basic_auth_enabled = true
+  config.mission_control.jobs.http_basic_auth_users = {
+    ENV.fetch("JOBS_HTTP_BASIC_AUTH_USER", "admin") => ENV.fetch("JOBS_HTTP_BASIC_AUTH_PASSWORD") {
+      Rails.application.credentials.dig(:mission_control, :http_basic_auth_password) || "secret"
+    }
+  }
 end

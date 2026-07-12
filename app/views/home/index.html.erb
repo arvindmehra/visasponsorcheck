@@ -108,6 +108,21 @@
     </div>
   <% end %>
 
+  <!-- Browse by Sector -->
+  <% if @top_sectors.any? %>
+    <div class="mt-10">
+      <h2 class="text-xl font-bold text-slate-900 mb-5">Browse Visa Sponsors by Sector</h2>
+      <div class="flex flex-wrap gap-2">
+        <% @top_sectors.each do |sector| %>
+          <%= link_to sector[:name], sector_sponsors_path(sector: sector[:key]),
+                class: "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 shadow-sm" %>
+        <% end %>
+        <%= link_to "View all sectors →", sectors_sponsors_path,
+              class: "rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm text-indigo-600 hover:bg-indigo-100 transition-colors" %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Browse by Visa Route -->
   <% if @visa_routes.any? %>
     <div class="mt-10">
@@ -115,9 +130,11 @@
       <div class="flex flex-wrap gap-2">
         <% @visa_routes.each do |route| %>
           <% route_slug = route.downcase.gsub(/\s+/, "-") %>
-          <%= link_to route, route_sponsors_path(route: route_slug),
+          <%= link_to route, visa_route_sponsors_path(route: route_slug),
                 class: "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 shadow-sm" %>
         <% end %>
+        <%= link_to "View all visa routes →", visa_routes_sponsors_path,
+              class: "rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm text-indigo-600 hover:bg-indigo-100 transition-colors" %>
       </div>
     </div>
   <% end %>

@@ -5,6 +5,7 @@ class SponsorsController < ApplicationController
   def index
     @cities = Company.distinct_cities.first(50) # Top 50 cities for internal links
     @visa_routes = Company.distinct_routes
+    @top_sectors = SicSector.ranked(limit: 12, only_populated: true)
     @active_count = Company.active_sponsors.count
 
     set_meta_tags(
@@ -28,6 +29,22 @@ class SponsorsController < ApplicationController
       title: "UK Visa Sponsor Directory by Location | Licensed Companies A-Z",
       description: "Find licensed UK visa sponsors sorted alphabetically by city, town, or region. Browse and filter companies across all UK locations.",
       canonical: locations_sponsors_url
+    )
+  end
+
+  # GET /sponsors/routes
+  def routes
+    @visa_routes = Company.distinct_routes
+    @grouped_routes = @visa_routes.map do |route|
+      { name: route, slug: route.downcase.gsub(/\s+/, "-") }
+    end.group_by { |r| r[:name][0].upcase }
+
+    @active_count = Company.active_sponsors.count
+
+    set_meta_tags(
+      title: "UK Visa Sponsor Directory by Visa Route | Licensed Companies A-Z",
+      description: "Find licensed UK visa sponsors sorted alphabetically by visa route, from Skilled Worker to Health & Care Worker. Browse and filter companies by route type.",
+      canonical: visa_routes_sponsors_url
     )
   end
 
@@ -56,6 +73,47 @@ class SponsorsController < ApplicationController
     )
   end
 
+  # GET /sponsors/sectors
+  def sectors
+    @sectors = SicSector.ranked
+
+    set_meta_tags(
+      title: "UK Visa Sponsor Directory by Industry | Licensed Companies by Sector",
+      description: "Find licensed UK visa sponsors by industry sector, from Manufacturing to Software & IT. Browse companies grouped by their registered SIC code.",
+      canonical: sectors_sponsors_url
+    )
+  end
+
+  # GET /sponsors/sector/:sector
+  def sector
+    @sector_key  = params[:sector].to_s.downcase.strip
+    @sector_name = SicSector.name_for(@sector_key)
+
+    if @sector_name.nil?
+      render file: "public/404.html", status: :not_found and return
+    end
+
+    @pagy, @companies = pagy(
+      Company.by_sector(@sector_key).includes(:sponsor_licences, :company_profile).order(:name),
+      limit: 50
+    )
+    @count = Company.by_sector(@sector_key).count
+
+    if @count.zero?
+      render file: "public/404.html", status: :not_found and return
+    end
+
+    title = "#{@sector_name} Visa Sponsors UK | Licensed Sponsor Register"
+    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    canonical_url = @pagy.page > 1 ? sector_sponsors_url(sector: @sector_key, page: @pagy.page) : sector_sponsors_url(sector: @sector_key)
+
+    set_meta_tags(
+      title: title,
+      description: "#{number_with_delimiter(@count)} UK companies in the #{@sector_name} sector are licensed to sponsor work visas. Browse the full register of #{@sector_name} visa sponsors.",
+      canonical: canonical_url
+    )
+  end
+
   # GET /sponsors/route/:route
   def route
     @route_slug  = params[:route].to_s
@@ -74,7 +132,7 @@ class SponsorsController < ApplicationController
 
     title = "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register"
     title += " (Page #{@pagy.page})" if @pagy.page > 1
-    canonical_url = @pagy.page > 1 ? route_sponsors_url(route: @route_slug, page: @pagy.page) : route_sponsors_url(route: @route_slug)
+    canonical_url = @pagy.page > 1 ? visa_route_sponsors_url(route: @route_slug, page: @pagy.page) : visa_route_sponsors_url(route: @route_slug)
 
     set_meta_tags(
       title: title,
