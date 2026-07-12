@@ -15,7 +15,7 @@
 ## Credentials
 
 - Kamal decrypts `config/credentials.yml.enc` via `config/master.key` (the *default* credentials file) — not `config/credentials/production.yml.enc`. New production secrets (API keys, etc.) go in the default credentials file (`bin/rails credentials:edit`, no `--environment` flag) to actually be readable in production.
-- Pure infrastructure secrets that no Rails process ever reads (e.g. `DD_API_KEY` for the Datadog agent container) should stay as plain server-side env vars, matching how `.kamal/secrets` already treats `KAMAL_REGISTRY_PASSWORD`/`DB_PASSWORD` — don't route them through Rails credentials just for the sake of a single vault.
+- Pure infrastructure secrets that no Rails process ever reads (e.g. `DATADOG_API_KEY` for the Datadog agent container) should stay as plain server-side env vars, matching how `.kamal/secrets` already treats `KAMAL_REGISTRY_PASSWORD`/`DB_PASSWORD` — don't route them through Rails credentials just for the sake of a single vault.
 
 ## Git
 

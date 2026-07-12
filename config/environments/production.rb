@@ -97,8 +97,7 @@ Rails.application.configure do
   # boots the app at Docker build time, before real runtime secrets exist.
   unless ENV["SECRET_KEY_BASE_DUMMY"]
     config.mission_control.jobs.http_basic_auth_enabled = true
-    config.mission_control.jobs.http_basic_auth_users = {
-      ENV.fetch("HTTP_USERNAME") => ENV.fetch("HTTP_PASSWORD")
-    }
+    config.mission_control.jobs.http_basic_auth_user = ENV.fetch("HTTP_USERNAME")
+    config.mission_control.jobs.http_basic_auth_password = ENV.fetch("HTTP_PASSWORD")
   end
 end

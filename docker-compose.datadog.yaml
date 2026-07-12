@@ -4,7 +4,7 @@ services:
     image: registry.datadoghq.com/agent:7
     pid: host
     environment:
-      - DD_API_KEY=${DD_API_KEY}
+      - DATADOG_API_KEY=${DATADOG_API_KEY}
       - DD_SITE=uk1.datadoghq.com
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
       - DD_APM_ENABLED=true
