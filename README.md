@@ -377,15 +377,44 @@ kamal setup
 # Deploy new code
 git push && kamal deploy
 
-# Rails console on the live server
-kamal console
-
 # View live server logs
 kamal logs
 
 # Rollback to previous release
 kamal rollback
 ```
+
+### Production Troubleshooting & Operations
+
+#### 1. Running the Rails Console in Production
+* **From your local machine (via Kamal):**
+  ```bash
+  kamal app exec -i --reuse "bin/rails console"
+  ```
+* **Directly inside the Droplet (via SSH):**
+  ```bash
+  # First list running containers to find the web container name
+  docker ps
+  
+  # Then run the console inside it
+  docker exec -it <container_name> bin/rails console -e production
+  ```
+
+#### 2. Checking Droplet RAM and Disk Usage
+* **Disk Space (run inside SSH):**
+  ```bash
+  df -h
+  ```
+  *(Look for `/` mounted partition).*
+* **RAM/Memory Usage (run inside SSH):**
+  ```bash
+  free -h
+  ```
+* **Docker Container RAM/CPU Stats (run inside SSH):**
+  ```bash
+  docker stats
+  ```
+  *(Lists resource usage for all running containers).*
 
 ---
 
