@@ -107,6 +107,34 @@ RSpec.describe SponsorImporter do
       expect(log.removed_licences).to eq(0)
     end
 
+    it "saves cosmetic organisation_name drift without counting it as an updated licence or emitting an event" do
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "BOLTWHIZ LIMITED",Dunfermline,Scotland,Worker (A rating),Skilled Worker
+      CSV
+      temp_csv.rewind
+
+      SponsorImporter.call
+
+      # Only casing changed — rating/status/licence_type are all identical
+      temp_csv.truncate(0)
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "Boltwhiz Limited",Dunfermline,Scotland,Worker (A rating),Skilled Worker
+      CSV
+      temp_csv.rewind
+
+      expect {
+        SponsorImporter.call
+      }.not_to change(SponsorChangeEvent, :count)
+
+      licence = SponsorLicence.first
+      expect(licence.organisation_name).to eq("Boltwhiz Limited") # still saved
+
+      log = SponsorImportLog.last
+      expect(log.updated_licences).to eq(0)
+    end
+
     it "records events when a rating or type changes" do
       temp_csv.write(<<~CSV)
         Organisation Name,Town/City,County,Type & Rating,Route

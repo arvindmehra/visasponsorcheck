@@ -79,7 +79,7 @@
         <h2 class="text-lg font-bold text-slate-900">Today's Register</h2>
         <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
           <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Live · Last 24 hours
+          Live · Updated <%= @last_sync.completed_at.strftime("%-d %B %Y") %>
         </span>
       </div>
 

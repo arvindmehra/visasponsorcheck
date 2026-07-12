@@ -7,7 +7,7 @@ class HomeController < ApplicationController
     @top_sectors            = SicSector.ranked(limit: 8, only_populated: true)
 
     if @last_sync
-      recent_events   = SponsorChangeEvent.where(occurred_at: 24.hours.ago..)
+      recent_events   = SponsorChangeEvent.where(sponsor_import_log: @last_sync)
       @new_count      = recent_events.additions.count
       @updated_count  = recent_events.changes_only.count
       @removed_count  = recent_events.removals.count

@@ -137,10 +137,9 @@ RSpec.describe "Sponsors Directory", type: :request do
       end
     end
 
-    context "with a company added in the last 24 hours" do
+    context "with a company added in the latest sync" do
       let!(:added_event) do
-        create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log,
-                                       event_type: "added", occurred_at: 2.hours.ago)
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log, event_type: "added")
       end
 
       it "shows the added company under 'new'" do
@@ -152,10 +151,10 @@ RSpec.describe "Sponsors Directory", type: :request do
       end
     end
 
-    context "with a rating change in the last 24 hours" do
+    context "with a rating change in the latest sync" do
       let!(:rating_event) do
         create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log,
-                                       event_type: "rating_changed", old_value: "B", new_value: "A", occurred_at: 2.hours.ago)
+                                       event_type: "rating_changed", old_value: "B", new_value: "A")
       end
 
       it "shows the change with its human-readable description under 'updated'" do
@@ -175,10 +174,9 @@ RSpec.describe "Sponsors Directory", type: :request do
       end
     end
 
-    context "with a company removed in the last 24 hours" do
+    context "with a company removed in the latest sync" do
       let!(:removed_event) do
-        create(:sponsor_change_event, company: leeds_company, sponsor_import_log: import_log,
-                                       event_type: "removed", occurred_at: 2.hours.ago)
+        create(:sponsor_change_event, company: leeds_company, sponsor_import_log: import_log, event_type: "removed")
       end
 
       it "shows the removed company" do
@@ -189,13 +187,13 @@ RSpec.describe "Sponsors Directory", type: :request do
       end
     end
 
-    context "with a change older than 24 hours" do
+    context "with a change from an older sync" do
+      let!(:older_log) { create(:sponsor_import_log, created_at: 3.days.ago, started_at: 3.days.ago, completed_at: 3.days.ago) }
       let!(:stale_event) do
-        create(:sponsor_change_event, company: london_company, sponsor_import_log: import_log,
-                                       event_type: "added", occurred_at: 25.hours.ago)
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: older_log, event_type: "added")
       end
 
-      it "excludes it from the results" do
+      it "excludes it from the results, since only the latest sync counts" do
         get recent_sponsors_path(type: "new")
         expect(response).to have_http_status(:success)
         expect(response.body).not_to include("Alpha Ltd")
@@ -206,7 +204,7 @@ RSpec.describe "Sponsors Directory", type: :request do
       it "renders an empty state instead of 404ing" do
         get recent_sponsors_path(type: "removed")
         expect(response).to have_http_status(:success)
-        expect(response.body).to include("No removed sponsors in the last 24 hours")
+        expect(response.body).to include("No removed sponsors in this update")
       end
     end
   end

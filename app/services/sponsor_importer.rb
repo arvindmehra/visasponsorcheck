@@ -180,7 +180,13 @@ class SponsorImporter
             occurred_at: import_log.started_at
           )
         end
-        :updated
+
+        # Only count/report a licence as "updated" when something meaningful
+        # changed (status/rating/licence type — i.e. something that emitted a
+        # SponsorChangeEvent above). Cosmetic drift in the GOV.UK CSV, like
+        # organisation_name casing/whitespace, still gets saved but shouldn't
+        # inflate the "Updated" count with nothing to show for it.
+        (was_removed || rating_changed || licence_type_changed) ? :updated : nil
       else
         licence.update_columns(last_seen_at: import_log.started_at)
         nil

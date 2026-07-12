@@ -3,8 +3,8 @@
 {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": "<%= @label %> Sponsors — Last 24 Hours",
-  "description": "<%= number_with_delimiter(@count) %> UK visa sponsor licences were <%= @type %> in the last 24 hours.",
+  "name": "<%= @label %> Sponsors — <%= @last_sync.completed_at.strftime("%-d %B %Y") %> Register Update",
+  "description": "<%= number_with_delimiter(@count) %> UK visa sponsor licences were <%= @type %> in the most recent register update.",
   "url": "<%= recent_sponsors_url(type: @type) %>",
   "breadcrumb": {
     "@type": "BreadcrumbList",
@@ -34,7 +34,7 @@
   </h1>
   <p class="text-lg text-slate-500 mb-10">
     <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> licence <%= @count == 1 ? "change" : "changes" %>
-    in the last 24 hours.
+    from the register update on <%= @last_sync.completed_at.strftime("%-d %B %Y") %>.
     <%= "Showing page #{@pagy.page} of #{@pagy.last}." if @pagy.last > 1 %>
   </p>
 
@@ -112,8 +112,8 @@
   <% else %>
     <!-- Empty State -->
     <div class="text-center py-16 rounded-2xl border border-dashed border-slate-350 bg-slate-50/50">
-      <h3 class="text-sm font-bold text-slate-800">No <%= @label.downcase %> sponsors in the last 24 hours</h3>
-      <p class="mt-1.5 text-xs text-slate-500">There were no <%= @type %> licences in the last 24 hours.</p>
+      <h3 class="text-sm font-bold text-slate-800">No <%= @label.downcase %> sponsors in this update</h3>
+      <p class="mt-1.5 text-xs text-slate-500">The register update on <%= @last_sync.completed_at.strftime("%-d %B %Y") %> had no <%= @type %> licences.</p>
     </div>
   <% end %>
 </div>
