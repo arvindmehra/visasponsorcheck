@@ -10,10 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_12_114337) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_13_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
 
   create_table "companies", force: :cascade do |t|
@@ -31,6 +30,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_12_114337) do
     t.datetime "updated_at", null: false
     t.string "website_url"
     t.index ["company_number"], name: "index_companies_on_company_number"
+    t.index ["name"], name: "index_companies_on_name"
     t.index ["name_normalised"], name: "index_companies_on_name_normalised", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_companies_on_slug", unique: true
     t.index ["town"], name: "index_companies_on_town"
@@ -235,6 +235,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_12_114337) do
     t.index ["company_id"], name: "index_sponsor_licences_on_company_id"
     t.index ["licence_type"], name: "index_sponsor_licences_on_licence_type"
     t.index ["rating"], name: "index_sponsor_licences_on_rating"
+    t.index ["route", "status"], name: "index_sponsor_licences_on_route_and_status"
     t.index ["route"], name: "index_sponsor_licences_on_route"
     t.index ["status"], name: "index_sponsor_licences_on_status"
   end

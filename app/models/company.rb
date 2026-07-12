@@ -68,10 +68,14 @@ class Company < ApplicationRecord
   }
 
   # Filter by visa route (e.g. "Skilled Worker")
+  #
+  # No .distinct needed: sponsor_licences has a unique index on
+  # [company_id, route], so for one fixed route a company can only match
+  # once. Adding .distinct here forces Postgres/Rails into a much slower
+  # query plan for no behavioral benefit.
   scope :by_route, ->(route) {
     joins(:sponsor_licences)
       .where(sponsor_licences: { status: "active", route: route })
-      .distinct
   }
 
   # Filter by SIC industry sector key (see SicSector)
@@ -185,15 +189,26 @@ class Company < ApplicationRecord
   # -----------------------------------------------------------------------
 
   def active_sponsor?
-    sponsor_licences.active.any?
+    active_licences.any?
   end
 
+  # Scoping a loaded association (e.g. `.active`) always issues a fresh
+  # query, ignoring `includes(:sponsor_licences)` — filtering the loaded
+  # records in Ruby instead avoids N+1s on index pages.
   def active_licences
-    sponsor_licences.active
+    if association(:sponsor_licences).loaded?
+      sponsor_licences.select(&:active?)
+    else
+      sponsor_licences.active
+    end
   end
 
   def routes
-    sponsor_licences.active.pluck(:route).uniq.sort
+    active_licences.map(&:route).uniq.sort
+  end
+
+  def active_licence_for_route(route)
+    active_licences.find { |l| l.route == route }
   end
 
   # Returns "London" or "London, England" depending on what's available
