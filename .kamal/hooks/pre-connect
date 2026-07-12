@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# Validates that all secrets required by .kamal/secrets are present in the
+# environment before Kamal connects to any host. Unlike .kamal/secrets
+# (parsed by the `dotenv` gem, which silently substitutes missing vars with
+# an empty string), this runs as a real script, so `set -euo pipefail` and
+# explicit checks actually abort the deploy with a clear message.
+
+set -euo pipefail
+
+missing=()
+
+for var in KAMAL_REGISTRY_PASSWORD DB_PASSWORD DB_NAME DATADOG_API_KEY HTTP_USERNAME HTTP_PASSWORD; do
+  if [ -z "${!var:-}" ]; then
+    missing+=("$var")
+  fi
+done
+
+if [ ${#missing[@]} -gt 0 ]; then
+  echo "Missing required environment variable(s) before deploying: ${missing[*]}" >&2
+  echo "Export them in your shell first, e.g.: export ${missing[0]}=\"...\"" >&2
+  exit 1
+fi
