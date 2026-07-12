@@ -136,6 +136,18 @@ class Company < ApplicationRecord
       .pluck(Arel.sql("sponsor_licences.route"))
   end
 
+  # Returns the top cities for a single visa route, by active-company count
+  def self.top_cities_for_route(route, limit = 5)
+    joins(:sponsor_licences)
+      .where(sponsor_licences: { status: "active", route: route })
+      .where.not(town_normalised: [ nil, "" ])
+      .where("town_normalised ~ '^[a-z][a-z -]+$'")
+      .group(:town_normalised)
+      .order(Arel.sql("count(*) DESC, town_normalised ASC"))
+      .limit(limit)
+      .pluck(:town_normalised)
+  end
+
   # -----------------------------------------------------------------------
   # Instance helpers
   # -----------------------------------------------------------------------

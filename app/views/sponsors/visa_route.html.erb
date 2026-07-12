@@ -4,6 +4,7 @@
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "<%= @route_name %> Visa Sponsors UK",
+  <% if @is_skilled_worker %>"alternateName": "Tier 2 Sponsor List",<% end %>
   "url": "<%= visa_route_sponsors_url(route: @route_slug) %>",
   "breadcrumb": {
     "@type": "BreadcrumbList",
@@ -15,6 +16,40 @@
   }
 }
 </script>
+<% if @is_skilled_worker %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Tier 2 still a valid UK visa category?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Tier 2 (General) was replaced by the Skilled Worker visa in December 2020 under the UK's points-based immigration system. Any company that held a Tier 2 sponsor licence automatically had it converted to a Skilled Worker licence — the route is the same, only the name changed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do people still search for 'Tier 2 sponsor list'?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "'Tier 2' was the official term for over a decade, so it's still widely used in job adverts, recruiter language, and everyday conversation even though GOV.UK now only refers to 'Skilled Worker'. This page — the Skilled Worker sponsor list — is the current version of what used to be called the Tier 2 sponsor list."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I find Tier 2 sponsors today?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Search this page, which lists every UK company currently licensed on the Skilled Worker route (the successor to Tier 2), sourced directly from the official GOV.UK register of licensed sponsors."
+      }
+    }
+  ]
+}
+</script>
+<% end %>
 <% end %>
 
 <% if Rails.env.production? %>
@@ -38,13 +73,71 @@
   </nav>
 
   <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
-    <%= @route_name %> Visa Sponsors UK
+    <% if @is_skilled_worker %>
+      Skilled Worker (Tier 2) Visa Sponsors UK
+    <% else %>
+      <%= @route_name %> Visa Sponsors UK
+    <% end %>
   </h1>
   <p class="text-lg text-slate-500 mb-10">
-    <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> UK companies are licensed to sponsor
-    workers on the <%= @route_name %> visa route.
-    Data sourced from the official GOV.UK register of licensed sponsors.
+    <% if @is_skilled_worker %>
+      <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> UK companies hold a Skilled Worker sponsor licence —
+      also known as the <strong class="text-slate-700">Tier 2 sponsor list</strong>, its official name before December 2020.
+      Data sourced from the official GOV.UK register of licensed sponsors.
+    <% else %>
+      <strong class="text-slate-700"><%= number_with_delimiter(@count) %></strong> UK companies are licensed to sponsor
+      workers on the <%= @route_name %> visa route.
+      Data sourced from the official GOV.UK register of licensed sponsors.
+    <% end %>
   </p>
+
+  <% if @is_skilled_worker %>
+    <div class="rounded-2xl border border-indigo-100 bg-indigo-50 p-8 mb-10">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">Tier 2 Sponsor List: What Changed</h2>
+      <div class="space-y-4 text-slate-600 leading-relaxed">
+        <p>
+          The <strong class="text-slate-800">Tier 2 (General)</strong> visa was renamed the
+          <strong class="text-slate-800">Skilled Worker</strong> visa in December 2020, when the UK moved to its
+          post-Brexit points-based immigration system. It's the same sponsorship route under a new name — every
+          company that held a Tier 2 licence had it automatically converted to a Skilled Worker licence, and no
+          separate "Tier 2 register" exists any more.
+        </p>
+        <p>
+          That means this page — the Skilled Worker sponsor list below — is the current, up-to-date equivalent of
+          what recruiters, job adverts, and candidates still often call the "Tier 2 sponsor list".
+        </p>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <% if @rating_breakdown.present? %>
+          <div class="rounded-xl border border-indigo-150 bg-white p-5">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Rating Breakdown</h3>
+            <dl class="space-y-1.5 text-sm">
+              <% @rating_breakdown.sort.each do |rating, count| %>
+                <div class="flex items-center justify-between">
+                  <dt class="text-slate-600">Rating <%= rating %></dt>
+                  <dd class="font-semibold text-slate-900"><%= number_with_delimiter(count) %> companies</dd>
+                </div>
+              <% end %>
+            </dl>
+          </div>
+        <% end %>
+
+        <% if @top_cities_for_route.present? %>
+          <div class="rounded-xl border border-indigo-150 bg-white p-5">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Top Cities</h3>
+            <div class="flex flex-wrap gap-1.5">
+              <% @top_cities_for_route.each do |city_slug| %>
+                <% city_name = city_slug.split(" ").map(&:capitalize).join(" ") %>
+                <%= link_to city_name, city_sponsors_path(city: city_slug),
+                      class: "rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-colors" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-8">
     <table class="min-w-full divide-y divide-slate-200">

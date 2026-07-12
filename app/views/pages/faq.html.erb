@@ -98,7 +98,8 @@
       },
       {
         q: "What is the difference between Skilled Worker and Tier 2 visa?",
-        a: "The Skilled Worker visa replaced the old Tier 2 (General) visa in December 2020. They are essentially the same route under a new name following the post-Brexit points-based immigration system. Employers who previously held Tier 2 sponsorship licences had their licences automatically converted. The terms 'Tier 2 sponsor list' and 'Skilled Worker sponsor list' refer to the same register."
+        a: "The Skilled Worker visa replaced the old Tier 2 (General) visa in December 2020. They are essentially the same route under a new name following the post-Brexit points-based immigration system. Employers who previously held Tier 2 sponsorship licences had their licences automatically converted. The terms 'Tier 2 sponsor list' and 'Skilled Worker sponsor list' refer to the same register.",
+        links: [ { text: "View the Tier 2 / Skilled Worker sponsor list →", path: visa_route_sponsors_path(route: "skilled-worker") } ]
       },
       {
         q: "How do I check if a company can sponsor a UK visa?",
@@ -106,7 +107,8 @@
       },
       {
         q: "What is the register of licensed sponsors?",
-        a: "The Register of Licensed Sponsors is an official list published by the UK Home Office containing all organisations approved to sponsor workers on UK work visas. The register is updated regularly and includes company name, licence type, rating (A or B), and the visa routes they are approved for. It is the authoritative source and is available on GOV.UK."
+        a: "The Register of Licensed Sponsors is an official list published by the UK Home Office containing all organisations approved to sponsor workers on UK work visas. The register is updated regularly and includes company name, licence type, rating (A or B), and the visa routes they are approved for. It is the authoritative source and is available on GOV.UK.",
+        links: [ { text: "Read our full guide to the UK visa sponsorship list →", path: sponsorship_list_guide_path } ]
       },
       {
         q: "What happens if a sponsor licence is revoked?",
@@ -122,6 +124,13 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="faq-<%= i + 1 %>">
         <h2 class="text-lg font-bold text-slate-900 mb-3"><%= faq[:q] %></h2>
         <p class="text-slate-600 leading-relaxed"><%= faq[:a] %></p>
+        <% if faq[:links].present? %>
+          <div class="mt-3 space-y-1">
+            <% faq[:links].each do |link| %>
+              <%= link_to link[:text], link[:path], class: "block text-sm font-semibold text-indigo-600 hover:underline" %>
+            <% end %>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </div>

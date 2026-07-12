@@ -40,9 +40,10 @@ SitemapGenerator::Sitemap.compress = true
 
 SitemapGenerator::Sitemap.create do
   # Static pages
-  add "/",          changefreq: "daily",   priority: 1.0
-  add "/sponsors",  changefreq: "weekly",  priority: 0.9
-  add "/faq",       changefreq: "monthly", priority: 0.7
+  add "/",                          changefreq: "daily",   priority: 1.0
+  add "/sponsors",                  changefreq: "weekly",  priority: 0.9
+  add "/uk-visa-sponsorship-list",  changefreq: "weekly",  priority: 0.9
+  add "/faq",                       changefreq: "monthly", priority: 0.7
   add "/sponsors/a-rated",  changefreq: "weekly", priority: 0.8
   add "/sponsors/revoked",  changefreq: "weekly", priority: 0.7
   add "/sponsors/sectors",  changefreq: "weekly", priority: 0.8

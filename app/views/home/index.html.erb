@@ -159,6 +159,9 @@
         <%= link_to "View all visa routes →", visa_routes_sponsors_path,
               class: "rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm text-indigo-600 hover:bg-indigo-100 transition-colors" %>
       </div>
+      <p class="mt-3 text-xs text-slate-400">
+        Looking for the <%= link_to "Tier 2 sponsor list", visa_route_sponsors_path(route: "skilled-worker"), class: "text-indigo-600 hover:underline font-medium" %>? It's now called Skilled Worker — same register, new name.
+      </p>
     </div>
   <% end %>
 </div>

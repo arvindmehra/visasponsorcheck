@@ -26,9 +26,12 @@
   </nav>
 
   <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">UK Visa Sponsor Directory</h1>
-  <p class="text-lg text-slate-500 mb-12 max-w-3xl">
+  <p class="text-lg text-slate-500 mb-3 max-w-3xl">
     Browse <%= number_with_delimiter(@active_count) %> companies licensed by UKVI to sponsor UK work visas.
     Filter by city, visa route (Skilled Worker, Health &amp; Care, and more), or rating.
+  </p>
+  <p class="text-sm text-slate-400 mb-12 max-w-3xl">
+    New to sponsorship? <%= link_to "Read our guide on how the UK visa sponsorship list works", sponsorship_list_guide_path, class: "text-indigo-600 hover:underline font-medium" %>.
   </p>
 
   <!-- Browse by City -->

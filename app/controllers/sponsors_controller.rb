@@ -10,7 +10,7 @@ class SponsorsController < ApplicationController
 
     set_meta_tags(
       title: "UK Visa Sponsor List #{Date.current.year} | Register of Licensed Sponsors",
-      description: "Browse the full register of #{number_with_delimiter(@active_count)} licensed UK visa sponsors. Search by city, visa route (Skilled Worker, Health & Care), or rating.",
+      description: "Browse the full list of #{number_with_delimiter(@active_count)} companies that can sponsor a UK visa. Search by city, visa route (Skilled Worker, Health & Care), or rating.",
       canonical: sponsors_url
     )
   end
@@ -130,15 +130,30 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
-    title = "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register"
+    @is_skilled_worker = @route_name == "Skilled Worker"
+
+    if @is_skilled_worker
+      @rating_breakdown = SponsorLicence.active.where(route: @route_name).group(:rating).count
+      @top_cities_for_route = Company.top_cities_for_route(@route_name)
+    end
+
+    title = @is_skilled_worker ? "Skilled Worker (Tier 2) Visa Sponsors UK | Licensed Sponsor Register" : "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register"
     title += " (Page #{@pagy.page})" if @pagy.page > 1
     canonical_url = @pagy.page > 1 ? visa_route_sponsors_url(route: @route_slug, page: @pagy.page) : visa_route_sponsors_url(route: @route_slug)
 
+    description = if @is_skilled_worker
+      "#{number_with_delimiter(@count)} UK companies hold a Skilled Worker sponsor licence — also known as the Tier 2 sponsor list. Full register of Skilled Worker (Tier 2) sponsors from the official GOV.UK list."
+    else
+      "#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list."
+    end
+
     set_meta_tags(
       title: title,
-      description: "#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list.",
+      description: description,
       canonical: canonical_url
     )
+
+    render "visa_route"
   end
 
   RECENT_TYPES = {

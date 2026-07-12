@@ -69,8 +69,17 @@ RSpec.describe "Sponsors Directory", type: :request do
       it "renders the route page successfully" do
         get visa_route_sponsors_path(route: "skilled-worker")
         expect(response).to have_http_status(:success)
-        expect(response.body).to include("Skilled Worker Visa Sponsors UK")
+        expect(response.body).to include("Skilled Worker (Tier 2) Visa Sponsors UK")
+        expect(response.body).to include("Tier 2 Sponsor List: What Changed")
         expect(response.body).to include("Alpha Ltd")
+      end
+    end
+
+    context "GET /sponsors/visa-route/tier-2" do
+      it "redirects permanently to the canonical Skilled Worker route page" do
+        get "/sponsors/visa-route/tier-2"
+        expect(response).to have_http_status(:moved_permanently)
+        expect(response).to redirect_to("/sponsors/visa-route/skilled-worker")
       end
     end
 
