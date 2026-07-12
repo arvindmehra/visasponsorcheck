@@ -94,6 +94,7 @@
 
     <!-- Per-page structured data (BreadcrumbList, FAQPage, ItemList etc.) -->
     <%= yield :structured_data %>
+    <%= Sentry.get_trace_propagation_meta.html_safe %>
   </head>
 
   <body class="flex min-h-full flex-col bg-slate-50 text-slate-700">
