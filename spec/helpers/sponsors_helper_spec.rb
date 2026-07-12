@@ -144,4 +144,40 @@ RSpec.describe SponsorsHelper, type: :helper do
       expect(paragraph).to eq("Companies House currently lists its status as dissolved.")
     end
   end
+
+  describe "#company_expanded_profile_paragraphs" do
+    let(:company) { create(:company, id: 7, name: "Delta Corp", town: "Bristol") }
+
+    context "when the company has an active licence" do
+      let!(:licence) { create(:sponsor_licence, company: company, route: "Skilled Worker", status: "active") }
+
+      it "returns regional, industry, and verification paragraphs with real data interpolated" do
+        paragraphs = helper.company_expanded_profile_paragraphs(company, [ licence ])
+
+        expect(paragraphs.size).to eq(3)
+        expect(paragraphs[0]).to include("Delta Corp").and include("Bristol")
+        expect(paragraphs[1]).to include("Delta Corp").and include("Skilled Worker")
+        expect(paragraphs[2]).to include("Delta Corp").and include("currently shown as active")
+      end
+
+      it "combined with the base licence summary, comfortably clears 250 words" do
+        base = helper.company_licence_summary_paragraph(company, [ licence ])
+        expanded = helper.company_expanded_profile_paragraphs(company, [ licence ])
+        total_words = ([ base ] + expanded).join(" ").split.size
+
+        expect(total_words).to be >= 250
+      end
+    end
+
+    context "when the company has no active licence (removed)" do
+      let!(:licence) { create(:sponsor_licence, company: company, route: "Skilled Worker", status: "removed") }
+
+      it "skips the industry paragraph but still returns regional and verification paragraphs" do
+        paragraphs = helper.company_expanded_profile_paragraphs(company, [ licence ])
+
+        expect(paragraphs.size).to eq(2)
+        expect(paragraphs.last).to include("currently shown as removed")
+      end
+    end
+  end
 end

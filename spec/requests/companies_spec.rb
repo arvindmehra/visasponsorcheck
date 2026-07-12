@@ -39,6 +39,22 @@ RSpec.describe "Companies", type: :request do
     end
   end
 
+  describe "GET /sponsor/:id related sponsors" do
+    let!(:same_city_company) { create(:company, name: "CITYMATE LIMITED", town: company.town) }
+    let!(:same_city_licence) { create(:sponsor_licence, company: same_city_company, route: "Temporary Worker", status: "active") }
+
+    let!(:same_route_company) { create(:company, name: "ROUTEMATE LIMITED", town: "Manchester") }
+    let!(:same_route_licence) { create(:sponsor_licence, company: same_route_company, route: "Skilled Worker", status: "active") }
+
+    it "shows other companies in the same city and on the same visa route, but not itself" do
+      get company_path(company)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Related Sponsors")
+      expect(response.body).to include("CITYMATE LIMITED")
+      expect(response.body).to include("ROUTEMATE LIMITED")
+    end
+  end
+
   describe "GET /companies/:id (legacy route)" do
     it "redirects to the new /sponsor/:id route with a 301" do
       get "/companies/#{company.slug}"

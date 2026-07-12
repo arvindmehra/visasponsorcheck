@@ -10,14 +10,21 @@ class SponsorsController < ApplicationController
 
     set_meta_tags(
       title: "UK Visa Sponsor List #{Date.current.year} | Register of Licensed Sponsors",
-      description: "Browse the full register of #{number_with_delimiter(@active_count)} licensed UK visa sponsors. Search by city, visa route (Skilled Worker, Health & Care), or rating.",
+      description: "Browse the full list of #{number_with_delimiter(@active_count)} companies that can sponsor a UK visa. Search by city, visa route (Skilled Worker, Health & Care), or rating.",
       canonical: sponsors_url
     )
   end
 
   # GET /sponsors/locations
+  # Paginated (500 cities/page) rather than rendering the entire A-Z city
+  # directory in one response — with 1,000+ distinct towns in the register,
+  # an un-paginated page here was pushing well past a sane HTML payload size
+  # and risked truncation by crawlers.
   def locations
-    @cities = Company.distinct_cities
+    all_city_slugs = Company.distinct_cities
+    @total_cities_count = all_city_slugs.size
+    @pagy, @cities = pagy_array(all_city_slugs, limit: 500)
+
     @grouped_cities = @cities.map do |slug|
       name = slug.split("-").map(&:capitalize).join(" ")
       { name: name, slug: slug }
@@ -25,10 +32,14 @@ class SponsorsController < ApplicationController
 
     @active_count = Company.active_sponsors.count
 
+    base_title = "UK Visa Sponsor Directory by Location | Licensed Companies A-Z"
+    base_description = "Find licensed UK visa sponsors sorted alphabetically by city, town, or region. Browse and filter companies across all UK locations."
+    canonical_url = @pagy.page > 1 ? locations_sponsors_url(page: @pagy.page) : locations_sponsors_url
+
     set_meta_tags(
-      title: "UK Visa Sponsor Directory by Location | Licensed Companies A-Z",
-      description: "Find licensed UK visa sponsors sorted alphabetically by city, town, or region. Browse and filter companies across all UK locations.",
-      canonical: locations_sponsors_url
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
+      canonical: canonical_url
     )
   end
 
@@ -62,13 +73,13 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
-    title = "Visa Sponsors in #{@city_name} | UK Sponsor Licence List"
-    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    base_title = "Visa Sponsors in #{@city_name} | UK Sponsor Licence List"
+    base_description = "#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}."
     canonical_url = @pagy.page > 1 ? city_sponsors_url(city: @city_slug, page: @pagy.page) : city_sponsors_url(city: @city_slug)
 
     set_meta_tags(
-      title: title,
-      description: "#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}.",
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
       canonical: canonical_url
     )
   end
@@ -103,13 +114,13 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
-    title = "#{@sector_name} Visa Sponsors UK | Licensed Sponsor Register"
-    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    base_title = "#{@sector_name} Visa Sponsors UK | Licensed Sponsor Register"
+    base_description = "#{number_with_delimiter(@count)} UK companies in the #{@sector_name} sector are licensed to sponsor work visas. Browse the full register of #{@sector_name} visa sponsors."
     canonical_url = @pagy.page > 1 ? sector_sponsors_url(sector: @sector_key, page: @pagy.page) : sector_sponsors_url(sector: @sector_key)
 
     set_meta_tags(
-      title: title,
-      description: "#{number_with_delimiter(@count)} UK companies in the #{@sector_name} sector are licensed to sponsor work visas. Browse the full register of #{@sector_name} visa sponsors.",
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
       canonical: canonical_url
     )
   end
@@ -130,15 +141,29 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
-    title = "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register"
-    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    @is_skilled_worker = @route_name == "Skilled Worker"
+
+    if @is_skilled_worker
+      @rating_breakdown = SponsorLicence.active.where(route: @route_name).group(:rating).count
+      @top_cities_for_route = Company.top_cities_for_route(@route_name)
+    end
+
+    base_title = @is_skilled_worker ? "Skilled Worker (Tier 2) Visa Sponsors UK | Licensed Sponsor Register" : "#{@route_name} Visa Sponsors UK | Licensed Sponsor Register"
     canonical_url = @pagy.page > 1 ? visa_route_sponsors_url(route: @route_slug, page: @pagy.page) : visa_route_sponsors_url(route: @route_slug)
 
+    base_description = if @is_skilled_worker
+      "#{number_with_delimiter(@count)} UK companies hold a Skilled Worker sponsor licence — also known as the Tier 2 sponsor list. Full register of Skilled Worker (Tier 2) sponsors from the official GOV.UK list."
+    else
+      "#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list."
+    end
+
     set_meta_tags(
-      title: title,
-      description: "#{number_with_delimiter(@count)} UK companies licensed to sponsor #{@route_name} visas. Full register of #{@route_name} sponsors from the official GOV.UK list.",
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
       canonical: canonical_url
     )
+
+    render "visa_route"
   end
 
   RECENT_TYPES = {
@@ -173,13 +198,13 @@ class SponsorsController < ApplicationController
     @pagy, @events = pagy(events_scope.includes(:company).recent, limit: 50)
     @count = events_scope.count
 
-    title = "#{@label} Sponsors — #{@last_sync.completed_at.strftime('%-d %B %Y')} Register Update"
-    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    base_title = "#{@label} Sponsors — #{@last_sync.completed_at.strftime('%-d %B %Y')} Register Update"
+    base_description = "#{number_with_delimiter(@count)} UK visa sponsor licences were #{@type} in the #{@last_sync.completed_at.strftime('%-d %B %Y')} register update."
     canonical_url = @pagy.page > 1 ? recent_sponsors_url(type: @type, page: @pagy.page) : recent_sponsors_url(type: @type)
 
     set_meta_tags(
-      title: title,
-      description: "#{number_with_delimiter(@count)} UK visa sponsor licences were #{@type} in the #{@last_sync.completed_at.strftime('%-d %B %Y')} register update.",
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
       canonical: canonical_url
     )
   end
@@ -192,13 +217,13 @@ class SponsorsController < ApplicationController
     )
     @count = Company.a_rated.count
 
-    title = "A-Rated UK Visa Sponsors List | Top Rated Sponsor Licences"
-    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    base_title = "A-Rated UK Visa Sponsors List | Top Rated Sponsor Licences"
+    base_description = "#{number_with_delimiter(@count)} UK companies hold an A-rated sponsor licence. A-rated sponsors have a clean compliance record with UKVI. Browse the full A-rated sponsor list."
     canonical_url = @pagy.page > 1 ? a_rated_sponsors_url(page: @pagy.page) : a_rated_sponsors_url
 
     set_meta_tags(
-      title: title,
-      description: "#{number_with_delimiter(@count)} UK companies hold an A-rated sponsor licence. A-rated sponsors have a clean compliance record with UKVI. Browse the full A-rated sponsor list.",
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
       canonical: canonical_url
     )
   end
@@ -211,13 +236,13 @@ class SponsorsController < ApplicationController
     )
     @count = Company.revoked.count
 
-    title = "Revoked Sponsor Licences UK | Removed from Register"
-    title += " (Page #{@pagy.page})" if @pagy.page > 1
+    base_title = "Revoked Sponsor Licences UK | Removed from Register"
+    base_description = "#{number_with_delimiter(@count)} companies have had their UK sponsor licence revoked or removed. Check our revoked sponsor licence list sourced from GOV.UK."
     canonical_url = @pagy.page > 1 ? revoked_sponsors_url(page: @pagy.page) : revoked_sponsors_url
 
     set_meta_tags(
-      title: title,
-      description: "#{number_with_delimiter(@count)} companies have had their UK sponsor licence revoked or removed. Check our revoked sponsor licence list sourced from GOV.UK.",
+      title: helpers.paginated_meta_title(base_title, @pagy),
+      description: helpers.paginated_meta_description(base_description, @pagy),
       canonical: canonical_url
     )
   end

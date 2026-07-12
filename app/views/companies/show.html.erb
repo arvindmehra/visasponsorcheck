@@ -131,6 +131,12 @@
           <%= company_licence_summary_paragraph(@company, @sponsor_licences) %>
         </p>
 
+        <% company_expanded_profile_paragraphs(@company, @sponsor_licences).each do |paragraph| %>
+          <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+            <%= paragraph %>
+          </p>
+        <% end %>
+
         <% if @company.enriched_at.present? %>
           <%= render partial: 'companies/profile_summary', locals: { company: @company } %>
         <% else %>
@@ -212,6 +218,7 @@
         <% end %>
       <% end %>
 
+      <%= render partial: "companies/related_sponsors", locals: { related_companies: @related_companies } %>
     </div>
   </div>
 </div>

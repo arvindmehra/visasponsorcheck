@@ -34,7 +34,17 @@ registry:
 # ── Proxy (Thruster → Traefik) ─────────────────────────────
 proxy:
   ssl: true
-  host: visasponsoruk.com          # ← Replace with your domain
+  # Both the apex and www domains must be listed here so kamal-proxy (a)
+  # accepts requests for either Host header instead of refusing/timing out
+  # on www, and (b) requests a Let's Encrypt cert covering both. The actual
+  # www → apex 301 redirect is handled at the Rails routing layer (see the
+  # `constraints(host: ...)` block at the top of config/routes.rb) — kamal-proxy
+  # itself has no generic redirect-rule feature. This only works once DNS has
+  # an A/CNAME record for www.visasponsoruk.com pointing at the same server;
+  # that DNS change has to be made with your registrar/DNS provider, not here.
+  hosts:
+    - visasponsoruk.com          # ← Replace with your domain
+    - www.visasponsoruk.com
   healthcheck:
     path: /up
     interval: 5

@@ -29,6 +29,29 @@ RSpec.describe "Sponsors Directory", type: :request do
       expect(response.body).to include("Leeds")
       expect(response.body).to include("id=\"letter-L\"")
     end
+
+    context "when there are more cities than fit on one page" do
+      before do
+        many_slugs = (1..501).map { |n| "city-#{n.to_s.rjust(3, '0')}" }
+        allow(Company).to receive(:distinct_cities).and_return(many_slugs)
+      end
+
+      it "paginates instead of rendering every city on one page" do
+        get locations_sponsors_path
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("501")
+        expect(response.body).to include("Page 1 of 2")
+        expect(response.body).to include("City 001")
+        expect(response.body).not_to include("City 501")
+      end
+
+      it "serves page 2 with the remaining cities and a distinct meta description" do
+        get locations_sponsors_path(page: 2)
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("City 501")
+        expect(response.body).to include("(Page 2 of 2)")
+      end
+    end
   end
 
   describe "GET /sponsors/routes" do
@@ -69,8 +92,17 @@ RSpec.describe "Sponsors Directory", type: :request do
       it "renders the route page successfully" do
         get visa_route_sponsors_path(route: "skilled-worker")
         expect(response).to have_http_status(:success)
-        expect(response.body).to include("Skilled Worker Visa Sponsors UK")
+        expect(response.body).to include("Skilled Worker (Tier 2) Visa Sponsors UK")
+        expect(response.body).to include("Tier 2 Sponsor List: What Changed")
         expect(response.body).to include("Alpha Ltd")
+      end
+    end
+
+    context "GET /sponsors/visa-route/tier-2" do
+      it "redirects permanently to the canonical Skilled Worker route page" do
+        get "/sponsors/visa-route/tier-2"
+        expect(response).to have_http_status(:moved_permanently)
+        expect(response).to redirect_to("/sponsors/visa-route/skilled-worker")
       end
     end
 

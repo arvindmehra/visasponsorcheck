@@ -6,8 +6,9 @@
         Browse by Location
       </h1>
       <p class="mt-3 text-base text-slate-500 leading-relaxed">
-        Find registered UK visa sponsors across <%= number_with_delimiter(@cities.size) %> cities, towns, and regions. 
+        Find registered UK visa sponsors across <%= number_with_delimiter(@total_cities_count) %> cities, towns, and regions.
         Select a location below to view active licensed companies.
+        <% if @pagy.last > 1 %>Showing page <%= @pagy.page %> of <%= @pagy.last %>.<% end %>
       </p>
     </div>
   </div>
@@ -84,6 +85,46 @@
       <p class="mt-1.5 text-xs text-slate-500">Try adjusting your search terms.</p>
     </div>
   </div>
+
+  <% if @pagy.last > 1 %>
+    <nav class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm mt-8 border-t border-slate-200 pt-6" aria-label="Pagination">
+      <div class="text-slate-500">
+        Showing <%= @pagy.from %>–<%= @pagy.to %> of <%= number_with_delimiter(@total_cities_count) %> locations (Page <%= @pagy.page %> of <%= @pagy.last %>)
+      </div>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <% if @pagy.prev %>
+          <%= link_to "← Previous", pagy_url_for(@pagy, @pagy.prev),
+                class: "inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors mr-1" %>
+        <% else %>
+          <span class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-100 bg-slate-50/50 px-3 text-sm font-medium text-slate-400 cursor-not-allowed mr-1">
+            ← Previous
+          </span>
+        <% end %>
+
+        <% @pagy.series.each do |item| %>
+          <% if item.is_a?(Integer) %>
+            <%= link_to item, pagy_url_for(@pagy, item),
+                  class: "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors" %>
+          <% elsif item.is_a?(String) %>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 border border-indigo-600 text-sm font-bold text-white shadow-sm" aria-current="page">
+              <%= item %>
+            </span>
+          <% elsif item == :gap %>
+            <span class="inline-flex h-9 w-9 items-center justify-center text-sm text-slate-400 font-medium">…</span>
+          <% end %>
+        <% end %>
+
+        <% if @pagy.next %>
+          <%= link_to "Next →", pagy_url_for(@pagy, @pagy.next),
+                class: "inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors ml-1" %>
+        <% else %>
+          <span class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-100 bg-slate-50/50 px-3 text-sm font-medium text-slate-400 cursor-not-allowed ml-1">
+            Next →
+          </span>
+        <% end %>
+      </div>
+    </nav>
+  <% end %>
 </div>
 
 <script>

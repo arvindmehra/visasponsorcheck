@@ -289,4 +289,37 @@ RSpec.describe Company, type: :model do
       end
     end
   end
+
+  describe ".related_to" do
+    let!(:target) { create(:company, name: "Target Ltd", town: "London") }
+    let!(:target_licence) { create(:sponsor_licence, company: target, route: "Skilled Worker", status: "active") }
+
+    let!(:same_city) { create(:company, name: "Same City Ltd", town: "London") }
+    let!(:same_city_licence) { create(:sponsor_licence, company: same_city, route: "Temporary Worker", status: "active") }
+
+    let!(:same_route) { create(:company, name: "Same Route Ltd", town: "Leeds") }
+    let!(:same_route_licence) { create(:sponsor_licence, company: same_route, route: "Skilled Worker", status: "active") }
+
+    let!(:unrelated) { create(:company, name: "Unrelated Ltd", town: "Bristol") }
+    let!(:unrelated_licence) { create(:sponsor_licence, company: unrelated, route: "Temporary Worker", status: "active") }
+
+    it "includes companies in the same city and companies on the same visa route, excluding itself and unrelated companies" do
+      related = Company.related_to(target, limit: 5)
+
+      expect(related).to include(same_city, same_route)
+      expect(related).not_to include(target, unrelated)
+    end
+
+    it "never returns more than the requested limit" do
+      related = Company.related_to(target, limit: 1)
+      expect(related.size).to eq(1)
+    end
+
+    it "does not duplicate a company that matches on both city and route" do
+      create(:sponsor_licence, company: same_city, route: "Skilled Worker", status: "active")
+
+      related = Company.related_to(target, limit: 5)
+      expect(related.count { |c| c.id == same_city.id }).to eq(1)
+    end
+  end
 end

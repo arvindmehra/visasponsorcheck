@@ -1,0 +1,158 @@
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "UK Visa Sponsorship List Explained",
+  "description": "What the UK visa sponsorship list is, how it's compiled, and how to find out which companies can sponsor you.",
+  "url": "<%= sponsorship_list_guide_url %>",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
+      { "@type": "ListItem", "position": 2, "name": "UK Visa Sponsorship List Explained", "item": "<%= sponsorship_list_guide_url %>" }
+    ]
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the UK visa sponsorship list?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The UK visa sponsorship list is the register of companies licensed by UKVI (UK Visas and Immigration) to sponsor overseas workers for a UK work visa. It's published by the Home Office as the Register of Licensed Sponsors and updated regularly. VisaSponsorUK tracks this register daily and lets you search it directly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many companies are on the UK sponsorship list?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The register currently lists a fluctuating number of active UK visa sponsors — companies are added and removed daily as licences are granted, suspended, or revoked. Our homepage shows the current live count, sourced from the most recent GOV.UK register update."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is being on the sponsorship list the same as offering a job with visa sponsorship?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Being on the register only means a company is legally permitted to sponsor workers — it doesn't mean every vacancy at that company comes with sponsorship, or that the company is currently sponsoring anyone. Always confirm sponsorship directly with the employer for the specific role."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is the sponsorship list different from a jobs board?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A jobs board lists vacancies; the sponsorship list is a compliance register of employers UKVI has approved to sponsor visas. It doesn't contain job listings — it tells you whether a given company is legally able to sponsor a visa at all, which you can then use alongside job listings from that employer."
+      }
+    }
+  ]
+}
+</script>
+<% end %>
+
+<div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">UK Visa Sponsorship List Explained</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-4">
+    UK Visa Sponsorship List Explained
+  </h1>
+  <p class="text-lg text-slate-500 mb-10">
+    What "sponsorship" actually means, where the list comes from, and how to check whether a specific company
+    is a genuine, currently-licensed UK visa sponsor.
+  </p>
+
+  <!-- What is sponsorship -->
+  <div class="space-y-4 text-slate-600 leading-relaxed mb-10">
+    <p>
+      A UK employer cannot simply offer to "sponsor" a work visa — they must first hold a
+      <strong class="text-slate-800">sponsor licence</strong> granted by UKVI. Every company that holds one appears
+      on the official <strong class="text-slate-800">Register of Licensed Sponsors</strong>, which is what people
+      usually mean by the "UK sponsorship list" or "UK sponsor list". Only companies on this register can legally
+      issue a Certificate of Sponsorship to an overseas worker.
+    </p>
+    <p>
+      VisaSponsorUK downloads and tracks this register from GOV.UK on a daily basis, so the counts below reflect
+      the most recent completed update<% if @last_sync&.completed_at %> — last synced <%= @last_sync.completed_at.strftime("%-d %B %Y") %><% end %>.
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="rounded-2xl border border-indigo-100 bg-indigo-50 p-8 mb-10">
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">The List, in Numbers</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="rounded-xl border border-indigo-150 bg-white p-5">
+        <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Active Sponsors</dt>
+        <dd class="text-2xl font-extrabold text-slate-900"><%= number_with_delimiter(@active_count) %></dd>
+      </div>
+      <% @rating_breakdown.sort.each do |rating, count| %>
+        <div class="rounded-xl border border-indigo-150 bg-white p-5">
+          <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Rating <%= rating %></dt>
+          <dd class="text-2xl font-extrabold text-slate-900"><%= number_with_delimiter(count) %></dd>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @top_routes.present? %>
+      <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Most Common Visa Routes</h3>
+      <div class="flex flex-wrap gap-2 mb-6">
+        <% @top_routes.each do |route| %>
+          <% route_slug = route.downcase.gsub(/\s+/, "-") %>
+          <%= link_to route, visa_route_sponsors_path(route: route_slug),
+                class: "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 shadow-sm" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @top_cities.present? %>
+      <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Top Cities for Sponsors</h3>
+      <div class="flex flex-wrap gap-2">
+        <% @top_cities.each do |city_slug| %>
+          <% city_name = city_slug.split(" ").map(&:capitalize).join(" ") %>
+          <%= link_to city_name, city_sponsors_path(city: city_slug),
+                class: "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 shadow-sm" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- How the list is compiled -->
+  <div class="space-y-4 text-slate-600 leading-relaxed mb-10">
+    <h2 class="text-2xl font-bold text-slate-900 mb-2">How This List Is Compiled</h2>
+    <p>
+      UKVI publishes the <%= trusted_external_link_to "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers", class: "text-indigo-600 hover:underline" do %>Register of Licensed Sponsors<% end %>
+      as a CSV file, refreshed on an ongoing basis. VisaSponsorUK imports this file daily, tracking every addition,
+      removal, and rating change so you can see not just who's currently licensed, but what's changed recently.
+    </p>
+    <p>
+      Being listed doesn't guarantee a company has an open sponsored role right now — it means UKVI has approved
+      them to sponsor workers if they choose to. Always confirm directly with an employer whether a specific
+      vacancy comes with visa sponsorship.
+    </p>
+  </div>
+
+  <!-- CTA -->
+  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-8 text-center">
+    <h2 class="text-xl font-bold text-slate-900 mb-3">Search the Full Sponsorship List</h2>
+    <p class="text-slate-500 mb-6">Look up a specific company, or browse the full register by city, visa route, or rating.</p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <%= link_to root_path, class: "inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition-colors" do %>
+        Search by Company Name
+      <% end %>
+      <%= link_to sponsors_path, class: "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors" do %>
+        Browse the Full Sponsor List
+      <% end %>
+    </div>
+  </div>
+</div>

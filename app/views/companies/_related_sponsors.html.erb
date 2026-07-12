@@ -1,0 +1,23 @@
+<% if related_companies.present? %>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100/40">
+    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Related Sponsors</h2>
+    <ul class="space-y-2.5">
+      <% related_companies.each do |related| %>
+        <% related_active_licences = related.sponsor_licences.to_a.select { |l| l.status == "active" } %>
+        <li>
+          <%= link_to company_path(related), class: "flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50/20 transition-colors group" do %>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate group-hover:text-indigo-600 transition-colors"><%= related.name %></p>
+              <p class="text-xs text-slate-500 mt-0.5 truncate">
+                <%= related.location.presence || "UK" %>
+                <% related_routes = related_active_licences.map(&:route).uniq.sort %>
+                <% if related_routes.any? %> · <%= related_routes.to_sentence %><% end %>
+              </p>
+            </div>
+            <%= sponsor_status_badge(related_active_licences.any?) %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

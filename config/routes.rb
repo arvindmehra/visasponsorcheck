@@ -1,4 +1,18 @@
 Rails.application.routes.draw do
+  # 301 redirect www.visasponsoruk.com -> visasponsoruk.com for every path.
+  # Must stay first in the file so it wins the match before any other route
+  # for requests carrying this Host header. Matches the exact production
+  # domain rather than a generic /\Awww\./ pattern — a generic prefix match
+  # also catches "www.example.com", which is Rails' default test-request
+  # host, and would silently redirect every request spec in the suite.
+  # Requires config/deploy.yml's proxy to accept the www host too (see that
+  # file) and a DNS record for www pointing at the same server — this route
+  # alone doesn't make www reachable, it only redirects it once traffic
+  # arrives.
+  constraints(host: "www.visasponsoruk.com") do
+    match "(*path)", to: redirect { |_params, request| request.url.sub("://www.", "://") }, via: :all
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -7,6 +21,7 @@ Rails.application.routes.draw do
 
   # FAQ + Static pages
   get "faq", to: "pages#faq", as: :faq
+  get "uk-visa-sponsorship-list", to: "pages#sponsorship_list_guide", as: :sponsorship_list_guide
 
   # Sponsor directory — city, route/type, rating, revoked
   get "sponsors",                          to: "sponsors#index",   as: :sponsors
@@ -15,6 +30,10 @@ Rails.application.routes.draw do
   get "sponsors/revoked",                  to: "sponsors#revoked", as: :revoked_sponsors
   get "sponsors/city/:city",               to: "sponsors#city",    as: :city_sponsors
   get "sponsors/visa-routes",               to: "sponsors#routes",  as: :visa_routes_sponsors
+  # "Tier 2" was the pre-Dec-2021 name for the Skilled Worker route — people
+  # still search/link with the old term. Redirect rather than duplicate the
+  # page, so ranking signal consolidates on the one canonical URL.
+  get "sponsors/visa-route/tier-2",         to: redirect("/sponsors/visa-route/skilled-worker"), as: :tier_2_sponsors_redirect
   get "sponsors/visa-route/:route",         to: "sponsors#route",   as: :visa_route_sponsors
   get "sponsors/sectors",                  to: "sponsors#sectors", as: :sectors_sponsors
   get "sponsors/sector/:sector",           to: "sponsors#sector",  as: :sector_sponsors
