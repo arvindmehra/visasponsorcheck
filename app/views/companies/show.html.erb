@@ -162,15 +162,7 @@
                     </span>
                   </td>
                   <td class="py-4 pl-3 text-right">
-                    <% if licence.active? %>
-                      <span class="inline-flex items-center text-xs font-semibold text-emerald-600">
-                        Active
-                      </span>
-                    <% else %>
-                      <span class="inline-flex items-center text-xs font-medium text-slate-400 line-through">
-                        Removed
-                      </span>
-                    <% end %>
+                    <%= sponsor_status_badge(licence.active?) %>
                   </td>
                 </tr>
               <% end %>

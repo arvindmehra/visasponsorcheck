@@ -73,6 +73,7 @@
           <th scope="col" class="px-4 py-4">Nature of Business</th>
           <th scope="col" class="px-4 py-4">Routes</th>
           <th scope="col" class="px-4 py-4">Rating</th>
+          <th scope="col" class="px-4 py-4">Status</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100">
@@ -96,6 +97,9 @@
                   <%= rating %>
                 </span>
               <% end %>
+            </td>
+            <td class="px-4 py-4">
+              <%= sponsor_status_badge(company.active_sponsor?) %>
             </td>
           </tr>
         <% end %>

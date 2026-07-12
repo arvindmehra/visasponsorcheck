@@ -50,6 +50,7 @@
           <th scope="col" class="px-6 py-4">Company</th>
           <th scope="col" class="px-4 py-4">Location</th>
           <th scope="col" class="px-4 py-4">Last Route</th>
+          <th scope="col" class="px-4 py-4">Status</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100">
@@ -58,12 +59,14 @@
             <td class="px-6 py-4">
               <%= link_to company_path(company), class: "font-semibold text-slate-700 hover:text-indigo-600 transition-colors" do %>
                 <%= company.name %>
-                <span class="ml-2 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 border border-slate-200">Removed</span>
               <% end %>
             </td>
             <td class="px-4 py-4 text-sm text-slate-500"><%= company.location || "—" %></td>
             <td class="px-4 py-4 text-sm text-slate-500 line-through">
               <%= company.sponsor_licences.pluck(:route).uniq.join(", ") %>
+            </td>
+            <td class="px-4 py-4">
+              <%= sponsor_status_badge(company.active_sponsor?) %>
             </td>
           </tr>
         <% end %>

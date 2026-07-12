@@ -1,4 +1,21 @@
 module SponsorsHelper
+  # Pill badge with a status dot, used for the "Status" column on every
+  # sponsor listing table (city/sector/route/a-rated/revoked) and the
+  # per-licence table on a company's show page.
+  def sponsor_status_badge(active)
+    if active
+      content_tag(:span, class: "inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200") do
+        concat content_tag(:span, "", class: "h-1.5 w-1.5 rounded-full bg-emerald-500")
+        concat "Active"
+      end
+    else
+      content_tag(:span, class: "inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500 border border-slate-200") do
+        concat content_tag(:span, "", class: "h-1.5 w-1.5 rounded-full bg-slate-400")
+        concat "Removed"
+      end
+    end
+  end
+
   # Base paragraph built from the company's sponsor licence data (rating, routes, status).
   # Rotates across three templates keyed off company.id to avoid duplicate-content text
   # across the many companies that share similar licence data.
