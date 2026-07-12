@@ -92,9 +92,13 @@ Rails.application.configure do
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
-  # Configure HTTP Basic Authentication for Mission Control Jobs in production
-  config.mission_control.jobs.http_basic_auth_enabled = true
-  config.mission_control.jobs.http_basic_auth_users = {
-    ENV.fetch("HTTP_USERNAME") => ENV.fetch("HTTP_PASSWORD")
-  }
+  # Configure HTTP Basic Authentication for Mission Control Jobs in production.
+  # Skipped when SECRET_KEY_BASE_DUMMY is set — that's how `assets:precompile`
+  # boots the app at Docker build time, before real runtime secrets exist.
+  unless ENV["SECRET_KEY_BASE_DUMMY"]
+    config.mission_control.jobs.http_basic_auth_enabled = true
+    config.mission_control.jobs.http_basic_auth_users = {
+      ENV.fetch("HTTP_USERNAME") => ENV.fetch("HTTP_PASSWORD")
+    }
+  end
 end
