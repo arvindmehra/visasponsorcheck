@@ -3,8 +3,7 @@
     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">External Resources</h3>
     <div class="flex flex-wrap text-sm font-medium" style="gap: 1.5rem; column-gap: 1.5rem; row-gap: 0.5rem;">
       <% if company.company_number.present? %>
-        <%= link_to "https://find-and-update.company-information.service.gov.uk/company/#{company.company_number}",
-              target: "_blank", rel: "noopener noreferrer nofollow",
+        <%= trusted_external_link_to "https://find-and-update.company-information.service.gov.uk/company/#{company.company_number}",
               class: "inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-800 transition-colors" do %>
           <span>Companies House</span>
           <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -12,8 +11,7 @@
           </svg>
         <% end %>
       <% else %>
-        <%= link_to "https://find-and-update.company-information.service.gov.uk/search?q=#{CGI.escape(company.name)}",
-              target: "_blank", rel: "noopener noreferrer nofollow",
+        <%= trusted_external_link_to "https://find-and-update.company-information.service.gov.uk/search?q=#{CGI.escape(company.name)}",
               class: "inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-800 transition-colors" do %>
           <span>Companies House</span>
           <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

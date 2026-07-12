@@ -148,6 +148,38 @@ class Company < ApplicationRecord
       .pluck(:town_normalised)
   end
 
+  # Up to `limit` other active sponsors related to this one — same city
+  # first (via the indexed town_normalised column), then topped up with
+  # same-visa-route sponsors (via the indexed route column) if the city
+  # doesn't yield enough on its own. Gives every company profile page
+  # several genuine outbound links instead of relying on a single "back to
+  # directory" link, so pages aren't orphaned dead ends.
+  def self.related_to(company, limit: 5)
+    related = []
+
+    if company.city_slug.present?
+      related += by_city(company.city_slug)
+        .where.not(id: company.id)
+        .includes(:sponsor_licences)
+        .order(:name)
+        .limit(limit)
+        .to_a
+    end
+
+    remaining = limit - related.size
+    primary_route = company.routes.first
+    if remaining > 0 && primary_route.present?
+      related += by_route(primary_route)
+        .where.not(id: related.map(&:id) + [ company.id ])
+        .includes(:sponsor_licences)
+        .order(:name)
+        .limit(remaining)
+        .to_a
+    end
+
+    related
+  end
+
   # -----------------------------------------------------------------------
   # Instance helpers
   # -----------------------------------------------------------------------

@@ -107,6 +107,31 @@ RSpec.describe SponsorImporter do
       expect(log.removed_licences).to eq(0)
     end
 
+    it "does not bump licence.updated_at (or company.updated_at) on a no-op re-sync, so sitemap <lastmod> reflects real changes only" do
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "BOLTWHIZ LIMITED",Dunfermline,Scotland,Worker (A rating),Skilled Worker
+      CSV
+      temp_csv.rewind
+
+      SponsorImporter.call
+
+      licence = SponsorLicence.last
+      company = Company.last
+      licence_updated_at_before = licence.updated_at
+      company_updated_at_before = company.updated_at
+
+      # Re-run with byte-for-byte identical data — nothing has actually changed
+      temp_csv.rewind
+      SponsorImporter.call
+
+      expect(licence.reload.updated_at).to eq(licence_updated_at_before)
+      expect(company.reload.updated_at).to eq(company_updated_at_before)
+      # last_seen_at is intentionally always refreshed to mark the licence as
+      # still-present in this sync, independently of updated_at
+      expect(licence.reload.last_seen_at).to be > licence_updated_at_before
+    end
+
     it "saves cosmetic organisation_name drift without counting it as an updated licence or emitting an event" do
       temp_csv.write(<<~CSV)
         Organisation Name,Town/City,County,Type & Rating,Route

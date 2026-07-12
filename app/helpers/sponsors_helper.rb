@@ -88,4 +88,39 @@ module SponsorsHelper
     profile_text = company_profile_paragraph(company)
     profile_text.present? ? "#{base} #{profile_text}" : base
   end
+
+  # Additional regional/industry/verification paragraphs for a company's show
+  # page, driven by the templates in config/locales/en.yml under
+  # "company_profile". These render synchronously (unlike the enrichment
+  # cards, which lazy-load via Turbo Frame and may not be present in the
+  # initial HTML crawlers see), so they carry the actual weight of pushing
+  # each profile page past a thin-content word count on their own.
+  #
+  # Rotated by company.id — deterministic per company, varied across the
+  # ~126,000 companies that would otherwise share near-identical copy.
+  def company_expanded_profile_paragraphs(company, licences = company.sponsor_licences)
+    active_licences = licences.select { |l| l.status == "active" }
+    city = company.location.presence || "the UK"
+
+    paragraphs = []
+
+    regional_template = I18n.t("company_profile.regional_context")[company.id % 4]
+    paragraphs << (regional_template % { company_name: company.name, city: city })
+
+    if active_licences.any?
+      route = active_licences.map(&:route).uniq.to_sentence
+      industry_template = I18n.t("company_profile.industry_context")[company.id % 4]
+      paragraphs << (industry_template % { company_name: company.name, route: route })
+    end
+
+    status_clause = if active_licences.any?
+      "#{company.name}'s licence is currently shown as active on our records."
+    else
+      "#{company.name}'s licence is currently shown as removed from the register on our records."
+    end
+    verification_template = I18n.t("company_profile.verification_note")[company.id % 3]
+    paragraphs << (verification_template % { status_clause: status_clause })
+
+    paragraphs
+  end
 end

@@ -17,6 +17,7 @@ class CompaniesController < ApplicationController
     if stale?(etag: cache_key, last_modified: last_modified, public: true)
       @sponsor_licences = @company.sponsor_licences.order(:route)
       @change_events = @company.sponsor_change_events.includes(:sponsor_import_log).recent
+      @related_companies = Company.related_to(@company, limit: 5)
 
       # Build keyword-rich meta tags from real data
       rating_label = @company.active_licences.first&.rating

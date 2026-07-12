@@ -1,4 +1,18 @@
 Rails.application.routes.draw do
+  # 301 redirect www.visasponsoruk.com -> visasponsoruk.com for every path.
+  # Must stay first in the file so it wins the match before any other route
+  # for requests carrying this Host header. Matches the exact production
+  # domain rather than a generic /\Awww\./ pattern — a generic prefix match
+  # also catches "www.example.com", which is Rails' default test-request
+  # host, and would silently redirect every request spec in the suite.
+  # Requires config/deploy.yml's proxy to accept the www host too (see that
+  # file) and a DNS record for www pointing at the same server — this route
+  # alone doesn't make www reachable, it only redirects it once traffic
+  # arrives.
+  constraints(host: "www.visasponsoruk.com") do
+    match "(*path)", to: redirect { |_params, request| request.url.sub("://www.", "://") }, via: :all
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 

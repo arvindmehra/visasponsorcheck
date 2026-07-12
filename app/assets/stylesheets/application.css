@@ -23,14 +23,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Interactive colors */
-a, 
+a:not(.text-white),
 .text-indigo-655,
 .text-indigo-600,
 .text-indigo-650,
 .text-indigo-700 {
   color: #1066FF !important; /* Vibrant interactive blue */
 }
-a:hover,
+a:not(.text-white):hover,
 .hover\:text-indigo-600:hover,
 .hover\:text-indigo-800:hover {
   color: #004BD3 !important; /* Darker blue on hover */

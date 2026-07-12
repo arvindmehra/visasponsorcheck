@@ -12,7 +12,7 @@ RSpec.describe "Search Flow", type: :system, js: true do
   it "allows a user to search for a company name and view details" do
     visit root_path
 
-    expect(page).to have_content("UK Visa Sponsor Registry")
+    expect(page).to have_content("Sponsor Licence Checker")
 
     # Perform search
     fill_in "search-input-field", with: "Google"

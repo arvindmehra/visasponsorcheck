@@ -131,7 +131,7 @@
   <div class="space-y-4 text-slate-600 leading-relaxed mb-10">
     <h2 class="text-2xl font-bold text-slate-900 mb-2">How This List Is Compiled</h2>
     <p>
-      UKVI publishes the <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener noreferrer nofollow" class="text-indigo-600 hover:underline">Register of Licensed Sponsors</a>
+      UKVI publishes the <%= trusted_external_link_to "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers", class: "text-indigo-600 hover:underline" do %>Register of Licensed Sponsors<% end %>
       as a CSV file, refreshed on an ongoing basis. VisaSponsorUK imports this file daily, tracking every addition,
       removal, and rating change so you can see not just who's currently licensed, but what's changed recently.
     </p>
@@ -147,7 +147,7 @@
     <h2 class="text-xl font-bold text-slate-900 mb-3">Search the Full Sponsorship List</h2>
     <p class="text-slate-500 mb-6">Look up a specific company, or browse the full register by city, visa route, or rating.</p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <%= link_to root_path, class: "inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors" do %>
+      <%= link_to root_path, class: "inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition-colors" do %>
         Search by Company Name
       <% end %>
       <%= link_to sponsors_path, class: "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors" do %>
