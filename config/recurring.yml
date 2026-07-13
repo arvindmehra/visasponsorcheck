@@ -16,7 +16,7 @@ production:
 
   sponsor_sync:
     class: SponsorSyncJob
-    schedule: at 2am every day
+    schedule: at 10am every day
 
   pghero_capture_query_stats:
     command: "PgHero.capture_query_stats"
