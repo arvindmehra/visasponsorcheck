@@ -252,5 +252,43 @@ RSpec.describe SponsorImporter do
       # Clean up error file
       File.delete(error_file_path) if File.exist?(error_file_path)
     end
+
+    it "imports rows on the Global Business Mobility: UK Expansion Worker route (Provisional, no A/B rating)" do
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "EXPANSION LTD",London,,"Worker (UK Expansion Worker: Provisional )","Global Business Mobility: UK Expansion Worker"
+      CSV
+      temp_csv.rewind
+
+      expect {
+        SponsorImporter.call
+      }.to change(SponsorLicence, :count).by(1)
+
+      licence = SponsorLicence.find_by(organisation_name: "EXPANSION LTD")
+      expect(licence.rating).to eq("Provisional")
+      expect(licence.licence_type).to eq("Worker")
+      expect(licence.status).to eq("active")
+
+      log = SponsorImportLog.last
+      expect(log.error_message).to be_nil
+    end
+
+    it "imports rows with a sub-tier rating annotation like 'A (Premium)'" do
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "PREMIUM SPONSOR LTD",London,,"Worker (A (Premium))","Skilled Worker"
+      CSV
+      temp_csv.rewind
+
+      expect {
+        SponsorImporter.call
+      }.to change(SponsorLicence, :count).by(1)
+
+      licence = SponsorLicence.find_by(organisation_name: "PREMIUM SPONSOR LTD")
+      expect(licence.rating).to eq("A")
+
+      log = SponsorImportLog.last
+      expect(log.error_message).to be_nil
+    end
   end
 end

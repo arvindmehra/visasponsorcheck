@@ -18,6 +18,11 @@ FactoryBot.define do
       rating { "B" }
     end
 
+    trait :provisional do
+      rating { "Provisional" }
+      route  { "Global Business Mobility: UK Expansion Worker" }
+    end
+
     trait :removed do
       status { "removed" }
     end

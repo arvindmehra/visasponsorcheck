@@ -29,7 +29,7 @@ module SponsorsHelper
     if active_licences.any?
       ratings = active_licences.map(&:rating).uniq.sort
       rating_phrase = if ratings.size == 1
-        "#{ratings.first == 'A' ? 'an A-rated' : 'a B-rated'}"
+        rating_word(ratings.first)
       else
         "#{ratings.to_sentence}-rated"
       end
@@ -122,5 +122,33 @@ module SponsorsHelper
     paragraphs << (verification_template % { status_clause: status_clause })
 
     paragraphs
+  end
+
+  # Short descriptive phrase for a licence rating, used in generated summary
+  # text. "Provisional" licences (Global Business Mobility: UK Expansion
+  # Worker route) aren't A/B rated at all, so they get their own phrasing
+  # rather than being lumped in with "B-rated".
+  def rating_word(rating)
+    case rating
+    when "A" then "an A-rated"
+    when "B" then "a B-rated"
+    else "a Provisional"
+    end
+  end
+
+  # Rating badge — a small square for the standard A/B letter grades, or a
+  # wider pill for non-letter ratings like "Provisional" (the Global Business
+  # Mobility: UK Expansion Worker route, which GOV.UK doesn't give an A/B
+  # compliance rating at all). Used everywhere a licence's rating is shown:
+  # city/sector/route listing tables and the company show page.
+  def rating_badge(rating)
+    case rating
+    when "A"
+      content_tag(:span, "A", class: "inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold border bg-emerald-50 border-emerald-200 text-emerald-700")
+    when "B"
+      content_tag(:span, "B", class: "inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold border bg-amber-50 border-amber-200 text-amber-700")
+    else
+      content_tag(:span, rating, class: "inline-flex h-6 items-center justify-center rounded-md px-2 text-xs font-bold border bg-slate-50 border-slate-200 text-slate-600 whitespace-nowrap")
+    end
   end
 end

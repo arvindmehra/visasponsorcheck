@@ -47,6 +47,26 @@ RSpec.describe SponsorLicence, type: :model do
     it "returns nil for unrecognised format" do
       expect(described_class.parse_type_and_rating("Unknown format")).to be_nil
     end
+
+    it "parses a sub-tier annotated rating, discarding the sub-tier" do
+      result = described_class.parse_type_and_rating("Worker (A (Premium))")
+      expect(result).to eq({ licence_type: "Worker", rating: "A" })
+    end
+
+    it "parses a sub-tier annotated rating for Temporary Worker" do
+      result = described_class.parse_type_and_rating("Temporary Worker (A (Premium))")
+      expect(result).to eq({ licence_type: "Temporary Worker", rating: "A" })
+    end
+
+    it "parses a sub-tier annotation with special characters" do
+      result = described_class.parse_type_and_rating("Worker (A (SME+))")
+      expect(result).to eq({ licence_type: "Worker", rating: "A" })
+    end
+
+    it "parses the Provisional format used by the UK Expansion Worker route (no letter grade)" do
+      result = described_class.parse_type_and_rating("Worker (UK Expansion Worker: Provisional )")
+      expect(result).to eq({ licence_type: "Worker", rating: "Provisional" })
+    end
   end
 
   describe "#active?" do

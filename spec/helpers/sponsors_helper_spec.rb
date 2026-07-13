@@ -145,6 +145,40 @@ RSpec.describe SponsorsHelper, type: :helper do
     end
   end
 
+  describe "#rating_word" do
+    it "returns the standard phrase for A" do
+      expect(helper.rating_word("A")).to eq("an A-rated")
+    end
+
+    it "returns the standard phrase for B" do
+      expect(helper.rating_word("B")).to eq("a B-rated")
+    end
+
+    it "does not call a Provisional licence B-rated" do
+      expect(helper.rating_word("Provisional")).to eq("a Provisional")
+    end
+  end
+
+  describe "#rating_badge" do
+    it "renders an emerald square for A" do
+      html = helper.rating_badge("A")
+      expect(html).to include("bg-emerald-50")
+      expect(html).to include(">A<")
+    end
+
+    it "renders an amber square for B" do
+      html = helper.rating_badge("B")
+      expect(html).to include("bg-amber-50")
+    end
+
+    it "renders a neutral pill (not amber/B styling) for Provisional" do
+      html = helper.rating_badge("Provisional")
+      expect(html).not_to include("bg-amber-50")
+      expect(html).to include("bg-slate-50")
+      expect(html).to include("Provisional")
+    end
+  end
+
   describe "#company_expanded_profile_paragraphs" do
     let(:company) { create(:company, id: 7, name: "Delta Corp", town: "Bristol") }
 

@@ -163,9 +163,7 @@
                     <%= licence.licence_type %>
                   </td>
                   <td class="py-4 px-3">
-                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-50 text-xs font-bold border border-indigo-150 text-indigo-700">
-                      <%= licence.rating %>
-                    </span>
+                    <%= rating_badge(licence.rating) %>
                   </td>
                   <td class="py-4 pl-3 text-right">
                     <%= sponsor_status_badge(licence.active?) %>

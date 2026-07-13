@@ -92,11 +92,7 @@
             </td>
             <td class="px-4 py-4">
               <% rating = company.active_licences.first&.rating %>
-              <% if rating %>
-                <span class="inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold border <%= rating == 'A' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700' %>">
-                  <%= rating %>
-                </span>
-              <% end %>
+              <%= rating_badge(rating) if rating %>
             </td>
             <td class="px-4 py-4">
               <%= sponsor_status_badge(company.active_sponsor?) %>

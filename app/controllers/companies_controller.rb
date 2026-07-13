@@ -27,8 +27,16 @@ class CompaniesController < ApplicationController
       title_str = "#{@company.name} — UK Visa Sponsor | #{city_label}"
       title_str = title_str.truncate(60)
 
+      rating_phrase = if rating_label.nil?
+        "Previously listed"
+      elsif rating_label == "Provisional"
+        "Provisional-status"
+      else
+        "#{rating_label}-rated"
+      end
+
       desc_str = "Check if #{@company.name} (#{city_label}) is a licensed UK visa sponsor. " \
-                 "#{rating_label ? "#{rating_label}-rated" : 'Previously listed'} sponsor for #{routes_label}. " \
+                 "#{rating_phrase} sponsor for #{routes_label}. " \
                  "Verified from the official GOV.UK register."
       desc_str = desc_str.truncate(155)
 

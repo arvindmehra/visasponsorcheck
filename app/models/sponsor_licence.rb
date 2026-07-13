@@ -5,10 +5,24 @@ class SponsorLicence < ApplicationRecord
 
   STATUSES       = %w[active removed].freeze
   LICENCE_TYPES  = [ "Worker", "Temporary Worker" ].freeze
-  RATINGS        = %w[A B].freeze
+  # "Provisional" covers routes GOV.UK doesn't give an A/B compliance rating
+  # at all (currently only Global Business Mobility: UK Expansion Worker) —
+  # see TYPE_RATING_REGEXES below.
+  RATINGS        = %w[A B Provisional].freeze
 
-  # Parsed from "Type & Rating" CSV column e.g. "Worker (A rating)"
-  TYPE_RATING_REGEX = /\A(.+?)\s*\(([AB])\s*rating\)\z/i
+  # Parsed from the "Type & Rating" CSV column. GOV.UK uses three shapes:
+  #   "Worker (A rating)"                        -> standard A/B rating
+  #   "Worker (A (Premium))"                      -> A/B rating with a sub-tier
+  #                                                  annotation we don't store
+  #   "Worker (UK Expansion Worker: Provisional)" -> no letter grade at all,
+  #                                                  currently only seen on
+  #                                                  the UK Expansion Worker
+  #                                                  route
+  TYPE_RATING_REGEXES = [
+    /\A(.+?)\s*\(([AB])\s*rating\)\z/i,
+    /\A(.+?)\s*\(([AB])\s*\([^)]*\)\)\z/i
+  ].freeze
+  PROVISIONAL_TYPE_REGEX = /\A(.+?)\s*\(.*?:\s*Provisional\s*\)\z/i
 
   # -----------------------------------------------------------------------
   # Associations
@@ -45,16 +59,29 @@ class SponsorLicence < ApplicationRecord
   # -----------------------------------------------------------------------
 
   # Parse the raw "Type & Rating" CSV column into licence_type and rating.
-  # Returns { licence_type: "Worker", rating: "A" } or nil if unparseable.
+  # Returns { licence_type: "Worker", rating: "A" } (or rating: "Provisional")
+  # or nil if unparseable.
   def self.parse_type_and_rating(raw)
     return nil if raw.blank?
 
-    match = raw.strip.match(TYPE_RATING_REGEX)
+    cleaned = raw.strip
+
+    TYPE_RATING_REGEXES.each do |regex|
+      match = cleaned.match(regex)
+      next unless match
+
+      return {
+        licence_type: match[1].strip.split.map(&:capitalize).join(" "),
+        rating: match[2].upcase
+      }
+    end
+
+    match = cleaned.match(PROVISIONAL_TYPE_REGEX)
     return nil unless match
 
     {
       licence_type: match[1].strip.split.map(&:capitalize).join(" "),
-      rating: match[2].upcase
+      rating: "Provisional"
     }
   end
 
