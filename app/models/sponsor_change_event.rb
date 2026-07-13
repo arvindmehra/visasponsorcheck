@@ -21,6 +21,15 @@ class SponsorChangeEvent < ApplicationRecord
   belongs_to :sponsor_import_log
 
   # -----------------------------------------------------------------------
+  # Callbacks
+  # -----------------------------------------------------------------------
+
+  # Safety net: ensures the company's stale licence(s) actually end up
+  # "removed" once we've recorded that they were. Runs after commit so it
+  # never fires for an event that gets rolled back.
+  after_create_commit :enqueue_removal_job, if: -> { event_type == "removed" }
+
+  # -----------------------------------------------------------------------
   # Validations
   # -----------------------------------------------------------------------
 
@@ -66,5 +75,11 @@ class SponsorChangeEvent < ApplicationRecord
     when "removed"  then "❌"
     else                 "🔄"
     end
+  end
+
+  private
+
+  def enqueue_removal_job
+    SponsorLicenceRemovalJob.perform_later(id)
   end
 end

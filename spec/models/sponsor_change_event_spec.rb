@@ -12,6 +12,23 @@ RSpec.describe SponsorChangeEvent, type: :model do
     it { is_expected.to validate_presence_of(:occurred_at) }
   end
 
+  describe "callbacks" do
+    let(:company) { create(:company) }
+    let(:import_log) { create(:sponsor_import_log) }
+
+    it "enqueues SponsorLicenceRemovalJob after commit when event_type is removed" do
+      expect {
+        create(:sponsor_change_event, company: company, sponsor_import_log: import_log, event_type: "removed")
+      }.to have_enqueued_job(SponsorLicenceRemovalJob)
+    end
+
+    it "does not enqueue a job for non-removed event types" do
+      expect {
+        create(:sponsor_change_event, company: company, sponsor_import_log: import_log, event_type: "added")
+      }.not_to have_enqueued_job(SponsorLicenceRemovalJob)
+    end
+  end
+
   describe "scopes" do
     let(:company) { create(:company) }
     let(:import_log) { create(:sponsor_import_log) }
