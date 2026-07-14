@@ -34,7 +34,7 @@ gem "friendly_id", "~> 5.5"
 gem "meta-tags", "~> 2.22"
 
 # Fast, lightweight pagination [https://github.com/ddnexus/pagy]
-gem "pagy", "~> 9.3"
+gem "pagy", "~> 43.6"
 
 # XML sitemap generation [https://github.com/kjvarga/sitemap_generator]
 gem "sitemap_generator", "~> 6.3"
