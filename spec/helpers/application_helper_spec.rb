@@ -9,8 +9,8 @@ RSpec.describe ApplicationHelper, type: :helper do
       expect(helper.paginated_meta_title("UK Visa Sponsors", pagy_page_1)).to eq("UK Visa Sponsors")
     end
 
-    it "appends the page number on page 2+" do
-      expect(helper.paginated_meta_title("UK Visa Sponsors", pagy_page_2)).to eq("UK Visa Sponsors (Page 2)")
+    it "appends the page number on page 2+ as a prefix and strips suffixes after a pipe" do
+      expect(helper.paginated_meta_title("UK Visa Sponsors | Extra Tagline", pagy_page_2)).to eq("Page 2 | UK Visa Sponsors")
     end
 
     it "returns the base title unchanged when pagy is nil" do

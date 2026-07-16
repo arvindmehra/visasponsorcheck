@@ -137,4 +137,15 @@
       </div>
     </nav>
   <% end %>
+
+  <!-- City Description Section -->
+  <div class="mt-12 border-t border-slate-200 pt-8">
+    <div class="prose prose-slate max-w-none">
+      <h2 class="text-lg font-bold text-slate-900 mb-3">Visa Sponsorship in <%= @city_name %></h2>
+      <p class="text-sm text-slate-500 leading-relaxed">
+        Looking for a job with visa sponsorship in <%= @city_name %>? There are currently <%= number_with_delimiter(@count) %> licensed companies in <%= @city_name %> across various sectors who have been approved by the UK government to sponsor foreign workers. 
+        Whether you are looking for roles in technology, healthcare, finance, or engineering, finding an employer that already holds a valid sponsor licence is the first step toward securing your Skilled Worker or Health and Care Worker visa. Browse the table above to check the active license status, ratings, and visa routes of all companies operating in <%= @city_name %>.
+      </p>
+    </div>
+  </div>
 </div>

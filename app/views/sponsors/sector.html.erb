@@ -143,4 +143,15 @@
       </div>
     </nav>
   <% end %>
+
+  <!-- Sector Description Section -->
+  <div class="mt-12 border-t border-slate-200 pt-8">
+    <div class="prose prose-slate max-w-none">
+      <h2 class="text-lg font-bold text-slate-900 mb-3">About Visa Sponsorship in the <%= @sector_name %> Sector</h2>
+      <p class="text-sm text-slate-500 leading-relaxed">
+        The <%= @sector_name %> industry is one of the key contributors to the UK economy and relies on international talent to fill critical skill shortages. Companies operating in <%= @sector_name %> that want to hire foreign nationals must hold a valid sponsor licence under the relevant visa routes (such as Skilled Worker).
+        Our directory matches active visa sponsors with their registered Standard Industrial Classification (SIC) codes, showing you all <%= number_with_delimiter(@count) %> licensed companies in this category. You can use the table above to find company names, check their business activities (nature of business), active visa routes, and current sponsor licence status.
+      </p>
+    </div>
+  </div>
 </div>

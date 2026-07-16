@@ -216,4 +216,15 @@
       </div>
     </nav>
   <% end %>
+
+  <!-- Route Description Section -->
+  <div class="mt-12 border-t border-slate-200 pt-8">
+    <div class="prose prose-slate max-w-none">
+      <h2 class="text-lg font-bold text-slate-900 mb-3">Understanding the <%= @route_name %> Visa Route</h2>
+      <p class="text-sm text-slate-500 leading-relaxed">
+        The <%= @route_name %> visa route allows qualified professionals to come to or stay in the UK to do an eligible job with an approved employer. To hire someone on this route, a company must hold a valid sponsor licence specifically for <%= @route_name %>.
+        There are currently <%= number_with_delimiter(@count) %> registered visa sponsors in the UK for this visa route. Browse the table above to find licensed companies, filter by their city location, view their rating (e.g. A-rated), and check their current sponsor status. Working with an employer who is already an approved sponsor is crucial to a successful UK visa application.
+      </p>
+    </div>
+  </div>
 </div>

@@ -6,7 +6,8 @@ module ApplicationHelper
   # subsequent page a genuinely distinct <title> instead of duplicating it.
   def paginated_meta_title(base_title, pagy)
     return base_title unless pagy && pagy.page > 1
-    "#{base_title} (Page #{pagy.page})"
+    short_title = base_title.split("|").first.strip
+    "Page #{pagy.page} | #{short_title}"
   end
 
   # Appends page context to a paginated collection's meta description. Titles
