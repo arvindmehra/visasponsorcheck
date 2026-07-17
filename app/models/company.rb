@@ -54,54 +54,58 @@ class Company < ApplicationRecord
     )
   }
 
+  # These scopes filter via a `sponsor_licences` subquery (`where(id: ...)`)
+  # rather than `joins(:sponsor_licences)`, deliberately. Every caller pairs
+  # them with `.includes(:sponsor_licences)` to preload licences for display
+  # — but `.joins(:sponsor_licences)` + `.where(sponsor_licences: {...})` on
+  # the *same* association Rails is also trying to preload confuses its
+  # preload-vs-eager-load strategy selection, and the preload silently never
+  # happens. That reintroduces the exact N+1 `.includes` was there to avoid:
+  # one query per company per method call (`routes`, `active_sponsor?`,
+  # `active_licence_for_route`) instead of one query for the whole page. A
+  # subquery has no association name for `.includes` to collide with, so the
+  # preload always runs as a separate, clean query. It also removes the need
+  # for `.distinct` — `WHERE id IN (subquery)` can't produce duplicate rows
+  # the way `JOIN` can when a company has multiple matching licences.
+
   # Only companies that are currently active sponsors
   scope :active_sponsors, -> {
-    joins(:sponsor_licences).where(sponsor_licences: { status: "active" }).distinct
+    where(id: SponsorLicence.active.select(:company_id))
   }
 
   # Filter by normalised city slug (e.g. "london", "manchester")
   scope :by_city, ->(city_slug) {
-    joins(:sponsor_licences)
-      .where(sponsor_licences: { status: "active" })
-      .where(town_normalised: city_slug.to_s.downcase.strip)
-      .distinct
+    where(town_normalised: city_slug.to_s.downcase.strip)
+      .where(id: SponsorLicence.active.select(:company_id))
   }
 
   # Filter by visa route (e.g. "Skilled Worker")
-  #
-  # No .distinct needed: sponsor_licences has a unique index on
-  # [company_id, route], so for one fixed route a company can only match
-  # once. Adding .distinct here forces Postgres/Rails into a much slower
-  # query plan for no behavioral benefit.
   scope :by_route, ->(route) {
-    joins(:sponsor_licences)
-      .where(sponsor_licences: { status: "active", route: route })
+    where(id: SponsorLicence.active.where(route: route).select(:company_id))
   }
 
-  # Filter by SIC industry sector key (see SicSector)
+  # Filter by SIC industry sector key (see SicSector). Callers pair this
+  # with `.includes(:sponsor_licences, :company_profile)`, so both filters
+  # are subqueries rather than joins for the same reason as above.
   scope :by_sector, ->(sector_key) {
     division_range = SicSector.division_range(sector_key)
     return none unless division_range
 
-    joins(:sponsor_licences, :company_profile)
-      .where(sponsor_licences: { status: "active" })
-      .where("company_profiles.sic_code / 1000 BETWEEN ? AND ?", division_range.first, division_range.last)
-      .distinct
+    where(
+      id: CompanyProfile.where("sic_code / 1000 BETWEEN ? AND ?", division_range.first, division_range.last)
+                         .select(:company_id)
+    ).where(id: SponsorLicence.active.select(:company_id))
   }
 
   # All active A-rated sponsors
   scope :a_rated, -> {
-    joins(:sponsor_licences)
-      .where(sponsor_licences: { status: "active", rating: "A" })
-      .distinct
+    where(id: SponsorLicence.active.where(rating: "A").select(:company_id))
   }
 
   # Companies with removed/revoked licences (and no active ones)
   scope :revoked, -> {
-    where.not(id: joins(:sponsor_licences).where(sponsor_licences: { status: "active" }).select(:id))
-      .joins(:sponsor_licences)
-      .where(sponsor_licences: { status: "removed" })
-      .distinct
+    where.not(id: SponsorLicence.active.select(:company_id))
+      .where(id: SponsorLicence.removed.select(:company_id))
   }
 
   # Returns a sorted list of distinct clean city slugs (for sitemap + directory page)
@@ -205,6 +209,20 @@ class Company < ApplicationRecord
 
   def routes
     active_licences.map(&:route).uniq.sort
+  end
+
+  # All routes regardless of status — used on the revoked listing, where
+  # companies by definition have no active licences, so `routes` above
+  # would always return empty. Same loaded-association guard as
+  # `active_licences`: `.pluck` on an already-loaded association is smart
+  # enough to use the in-memory records, but only when nothing is chained
+  # in front of it — no `.where`/`.active` scoping here, unlike above.
+  def all_routes
+    if association(:sponsor_licences).loaded?
+      sponsor_licences.map(&:route).uniq.sort
+    else
+      sponsor_licences.pluck(:route).uniq.sort
+    end
   end
 
   def active_licence_for_route(route)

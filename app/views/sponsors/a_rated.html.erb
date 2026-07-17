@@ -72,7 +72,7 @@
               <% end %>
             </td>
             <td class="px-4 py-4 text-sm text-slate-500">
-              <%= company.sponsor_licences.active.pluck(:route).uniq.join(", ") %>
+              <%= company.routes.join(", ") %>
             </td>
             <td class="px-4 py-4">
               <%= sponsor_status_badge(company.active_sponsor?) %>

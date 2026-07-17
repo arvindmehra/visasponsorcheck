@@ -321,5 +321,27 @@ RSpec.describe Company, type: :model do
       related = Company.related_to(target, limit: 5)
       expect(related.count { |c| c.id == same_city.id }).to eq(1)
     end
+
+    it "does not fall back to Rails' slow two-phase limited-eager-load query" do
+      # `by_route(...).where.not(...).includes(:sponsor_licences).order(:name).limit(...)`
+      # previously combined `.joins(:sponsor_licences)` (inside by_route) with
+      # `.includes(:sponsor_licences)` on the same association plus
+      # `.order`+`.limit` — Rails detects that combination and silently
+      # switches to an internal "find distinct ids first, then fetch" eager
+      # -load strategy, which Sentry flagged as a slow query in production
+      # (SELECT DISTINCT companies.name AS alias_0, companies.id ...). Since
+      # by_route now filters via a subquery instead of a join, that trigger
+      # condition no longer exists. Assert on the actual SQL text so this
+      # regresses loudly if the scope goes back to a join.
+      6.times { |n| create(:sponsor_licence, company: create(:company, name: "Route Filler #{n}", town: "Leeds"), route: "Skilled Worker", status: "active") }
+
+      queries = []
+      subscriber = ->(_name, _started, _finished, _id, payload) { queries << payload[:sql] }
+      ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") do
+        Company.related_to(target, limit: 5)
+      end
+
+      expect(queries).not_to include(a_string_matching(/SELECT DISTINCT/i))
+    end
   end
 end

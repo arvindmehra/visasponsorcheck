@@ -263,4 +263,73 @@ RSpec.describe "Sponsors Directory", type: :request do
       expect(response.body).not_to include("Alpha Ltd") # Alpha is active
     end
   end
+
+  describe "N+1 query checks on paginated listing pages" do
+    # Each of these pages loops over @companies calling per-company helpers
+    # (routes, active_sponsor?, active_licence_for_route, rating_badge) that
+    # rely on the sponsor_licences association actually being preloaded via
+    # .includes. Comparing query count between a small and much larger
+    # company set is the real signature of an N+1 — a fixed small count on
+    # its own could just mean "happens to be cheap right now", not "doesn't
+    # scale badly". Each company gets 2 licences (not 1) since that's what
+    # actually exercises .distinct in the underlying scopes.
+    def seed_listing_companies(count, town:, route: "Skilled Worker", rating: "A", sic_code: nil, status: "active")
+      count.times do |n|
+        company = create(:company, name: "#{town} Co #{n}", town: town)
+        create(:sponsor_licence, company: company, route: route, rating: rating, status: status)
+        create(:sponsor_licence, company: company, route: "Temporary Worker", rating: rating, status: status)
+        company.create_company_profile!(sic_code: sic_code, enriched_at: Time.current) if sic_code
+      end
+    end
+
+    it "GET /sponsors/city/:city stays flat as company count grows" do
+      seed_listing_companies(3, town: "Smallville")
+      small = count_queries { get city_sponsors_path(city: "smallville") }
+
+      seed_listing_companies(15, town: "Bigville")
+      big = count_queries { get city_sponsors_path(city: "bigville") }
+
+      expect(big).to eq(small)
+    end
+
+    it "GET /sponsors/visa-route/:route stays flat as company count grows" do
+      seed_listing_companies(3, town: "Smallroute", route: "Health and Care Worker")
+      small = count_queries { get visa_route_sponsors_path(route: "health-and-care-worker") }
+
+      seed_listing_companies(15, town: "Bigroute", route: "Health and Care Worker")
+      big = count_queries { get visa_route_sponsors_path(route: "health-and-care-worker") }
+
+      expect(big).to eq(small)
+    end
+
+    it "GET /sponsors/sector/:sector stays flat as company count grows" do
+      seed_listing_companies(3, town: "Smallsector", sic_code: 62012) # information-communication
+      small = count_queries { get sector_sponsors_path(sector: "information-communication") }
+
+      seed_listing_companies(15, town: "Bigsector", sic_code: 62012)
+      big = count_queries { get sector_sponsors_path(sector: "information-communication") }
+
+      expect(big).to eq(small)
+    end
+
+    it "GET /sponsors/a-rated stays flat as company count grows" do
+      seed_listing_companies(3, town: "Smallarated", rating: "A")
+      small = count_queries { get a_rated_sponsors_path }
+
+      seed_listing_companies(15, town: "Bigarated", rating: "A")
+      big = count_queries { get a_rated_sponsors_path }
+
+      expect(big).to eq(small)
+    end
+
+    it "GET /sponsors/revoked stays flat as company count grows" do
+      seed_listing_companies(3, town: "Smallrevoked", status: "removed")
+      small = count_queries { get revoked_sponsors_path }
+
+      seed_listing_companies(15, town: "Bigrevoked", status: "removed")
+      big = count_queries { get revoked_sponsors_path }
+
+      expect(big).to eq(small)
+    end
+  end
 end
