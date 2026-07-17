@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_13_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_17_003904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -33,7 +33,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_090000) do
     t.index ["name"], name: "index_companies_on_name"
     t.index ["name_normalised"], name: "index_companies_on_name_normalised", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_companies_on_slug", unique: true
-    t.index ["town"], name: "index_companies_on_town"
     t.index ["town_normalised"], name: "index_companies_on_town_normalised"
   end
 
@@ -232,11 +231,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_090000) do
     t.text "status", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "route"], name: "index_sponsor_licences_on_company_id_and_route", unique: true
-    t.index ["company_id"], name: "index_sponsor_licences_on_company_id"
-    t.index ["licence_type"], name: "index_sponsor_licences_on_licence_type"
     t.index ["rating"], name: "index_sponsor_licences_on_rating"
     t.index ["route", "status"], name: "index_sponsor_licences_on_route_and_status"
-    t.index ["route"], name: "index_sponsor_licences_on_route"
     t.index ["status"], name: "index_sponsor_licences_on_status"
   end
 
