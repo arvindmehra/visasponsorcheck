@@ -115,5 +115,5 @@ group :test do
   gem "database_cleaner-active_record", "~> 2.2"
 
   # Test coverage reporting
-  gem "simplecov", "~> 0.22", require: false
+  gem "simplecov", "~> 1.0", require: false
 end
