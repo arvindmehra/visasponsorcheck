@@ -37,7 +37,7 @@ gem "meta-tags", "~> 2.22"
 gem "pagy", "~> 9.3"
 
 # XML sitemap generation [https://github.com/kjvarga/sitemap_generator]
-gem "sitemap_generator", "~> 6.3"
+gem "sitemap_generator", "~> 7.1"
 
 # HTTP client for downloading CSV files [https://github.com/jnunemaker/httparty]
 gem "httparty", "~> 0.22"
