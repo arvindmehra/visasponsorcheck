@@ -198,6 +198,17 @@ class SponsorsController < ApplicationController
     @pagy, @events = pagy(events_scope.includes(:company).recent, limit: 50)
     @count = events_scope.count
 
+    # Separate "Last 30 Days" segment — a rolling window across every sync in
+    # that period, not just the latest one. Uses its own page_param (days_page)
+    # so its pagination controls don't collide with the main list's ?page=.
+    last_30_days_scope = SponsorChangeEvent.public_send(type_config[:event_scope]).where(occurred_at: 30.days.ago..)
+    @last_30_days_count = last_30_days_scope.count
+    @last_30_days_pagy, @last_30_days_events = pagy(
+      last_30_days_scope.includes(:company).recent,
+      limit: 50,
+      page_param: :days_page
+    )
+
     base_title = "#{@label} Sponsors — #{@last_sync.completed_at.strftime('%-d %B %Y')} Register Update"
     base_description = "#{number_with_delimiter(@count)} UK visa sponsor licences were #{@type} in the #{@last_sync.completed_at.strftime('%-d %B %Y')} register update."
     canonical_url = @pagy.page > 1 ? recent_sponsors_url(type: @type, page: @pagy.page) : recent_sponsors_url(type: @type)

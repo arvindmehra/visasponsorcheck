@@ -219,13 +219,35 @@ RSpec.describe "Sponsors Directory", type: :request do
       end
     end
 
-    context "with a change from an older sync" do
+    context "with a change from an older sync, still within the last 30 days" do
       let!(:older_log) { create(:sponsor_import_log, created_at: 3.days.ago, started_at: 3.days.ago, completed_at: 3.days.ago) }
       let!(:stale_event) do
-        create(:sponsor_change_event, company: london_company, sponsor_import_log: older_log, event_type: "added")
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: older_log, event_type: "added", occurred_at: 3.days.ago)
       end
 
-      it "excludes it from the results, since only the latest sync counts" do
+      it "excludes it from the main list, since that's tied to only the latest sync" do
+        get recent_sponsors_path(type: "new")
+        expect(response).to have_http_status(:success)
+
+        main_section = response.body.split("Last 30 Days").first
+        expect(main_section).not_to include("Alpha Ltd")
+      end
+
+      it "includes it in the Last 30 Days section" do
+        get recent_sponsors_path(type: "new")
+
+        last_30_days_section = response.body.split("Last 30 Days").last
+        expect(last_30_days_section).to include("Alpha Ltd")
+      end
+    end
+
+    context "with a change older than 30 days" do
+      let!(:ancient_log) { create(:sponsor_import_log, created_at: 45.days.ago, started_at: 45.days.ago, completed_at: 45.days.ago) }
+      let!(:ancient_event) do
+        create(:sponsor_change_event, company: london_company, sponsor_import_log: ancient_log, event_type: "added", occurred_at: 45.days.ago)
+      end
+
+      it "excludes it from both the main list and the Last 30 Days section" do
         get recent_sponsors_path(type: "new")
         expect(response).to have_http_status(:success)
         expect(response.body).not_to include("Alpha Ltd")
@@ -233,10 +255,11 @@ RSpec.describe "Sponsors Directory", type: :request do
     end
 
     context "when the type is valid but there were no matching changes" do
-      it "renders an empty state instead of 404ing" do
+      it "renders an empty state instead of 404ing, for both the main list and the Last 30 Days section" do
         get recent_sponsors_path(type: "removed")
         expect(response).to have_http_status(:success)
         expect(response.body).to include("No removed sponsors in this update")
+        expect(response.body).to include("No removed sponsors in the last 30 days")
       end
     end
   end
