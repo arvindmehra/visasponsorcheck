@@ -15,6 +15,23 @@ RSpec.describe "Companies", type: :request do
       expect(response.body).to include("A-rated")
     end
 
+    it "logs the visit to search_logs, keyed by the company's name" do
+      expect {
+        get company_path(company)
+      }.to change(SearchLog, :count).by(1)
+
+      log = SearchLog.last
+      expect(log.query).to eq("boltwhiz limited")
+      expect(log.results_count).to eq(1)
+    end
+
+    it "still renders the page even if logging the visit fails" do
+      allow(SearchLog).to receive(:create!).and_raise(StandardError, "db down")
+
+      get company_path(company)
+      expect(response).to have_http_status(:success)
+    end
+
     context "when the company has a profile" do
       before do
         company.update!(company_number: "03900676", enriched_at: Time.current)

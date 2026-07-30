@@ -1,6 +1,7 @@
 class CompaniesController < ApplicationController
   def show
     @company = Company.friendly.find(params[:id])
+    log_show_page_visit
 
     # Cache key incorporating company state, licences, and change events
     cache_key = [
@@ -79,5 +80,18 @@ class CompaniesController < ApplicationController
         end
       end
     end
+  end
+
+  private
+
+  # Fires on every visit to a company's show page, including ones served as
+  # a 304 via the stale? check below — a cached response is still a real
+  # page view. Reuses the search_logs table (query/results_count) rather
+  # than a new one: landing on a specific company's page is conceptually the
+  # same signal as searching for it and getting exactly one result.
+  def log_show_page_visit
+    SearchLog.create!(query: @company.name.downcase, results_count: 1)
+  rescue => e
+    Rails.logger.error("Failed to log show page visit: #{e.message}")
   end
 end
