@@ -11,6 +11,24 @@ RSpec.describe "Static Pages", type: :request do
     end
   end
 
+  describe "GET /about" do
+    it "renders the about page, including the content moved off the homepage" do
+      get about_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("About the UK Visa Sponsor Register")
+      expect(response.body).to include("Skilled Worker visa")
+      expect(response.body).to include("A-rating")
+    end
+  end
+
+  describe "GET /contact" do
+    it "renders the contact page" do
+      get contact_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Contact Us")
+    end
+  end
+
   describe "GET /uk-visa-sponsorship-list" do
     let!(:company) { create(:company, name: "Gamma Ltd", town: "Manchester") }
     let!(:licence) { create(:sponsor_licence, company: company, route: "Skilled Worker", rating: "A", status: "active") }

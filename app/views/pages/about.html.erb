@@ -1,0 +1,62 @@
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About VisaSponsorUK",
+  "url": "<%= about_url %>",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= root_url %>" },
+      { "@type": "ListItem", "position": 2, "name": "About", "item": "<%= about_url %>" }
+    ]
+  }
+}
+</script>
+<% end %>
+
+<div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">About</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-4">
+    About the UK Visa Sponsor Register
+  </h1>
+  <p class="text-lg text-slate-500 mb-12">
+    What VisaSponsorUK is, where the data comes from, and how to read a sponsor licence.
+  </p>
+
+  <div class="prose prose-slate max-w-none">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-slate-500 leading-relaxed">
+      <div>
+        <p class="mb-4">
+          The official register of licensed sponsors is maintained by the Home Office (UKVI) and contains all companies authorised to employ foreign workers under various visa routes. The most common route is the <strong class="text-slate-800">Skilled Worker visa</strong> (previously known as the Tier 2 General visa), which allows UK employers to sponsor skilled professionals from outside the UK.
+        </p>
+        <p>
+          To sponsor a visa, a UK company must apply for and maintain a valid sponsor licence. In this directory, you can search and verify companies holding active licences, check their ratings (like A-rated), and view which specific routes they are licensed for.
+        </p>
+      </div>
+      <div>
+        <p class="mb-4">
+          Sponsors are given ratings by UKVI based on their compliance with sponsorship duties. An <strong class="text-slate-800">A-rating</strong> is the standard status for fully compliant employers who can issue Certificates of Sponsorship (CoS). If an employer fails to meet their duties, their rating may be downgraded or their licence entirely <strong class="text-slate-800">revoked</strong>.
+        </p>
+        <p>
+          Our tool parses and monitors the daily updates from the official GOV.UK register to provide a clean, searchable history of additions, removals, and modifications, helping you keep track of new employment opportunities.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+    <%= link_to root_path, class: "inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors" do %>
+      Search the Sponsor Register
+    <% end %>
+    <%= link_to "Read the FAQ", faq_path, class: "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors" %>
+  </div>
+</div>

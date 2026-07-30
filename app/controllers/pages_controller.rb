@@ -7,6 +7,22 @@ class PagesController < ApplicationController
     )
   end
 
+  def about
+    set_meta_tags(
+      title: "About VisaSponsorUK | UK Visa Sponsor Register",
+      description: "How VisaSponsorUK tracks the official GOV.UK register of licensed UK visa sponsors, what a sponsor licence and A-rating mean, and how the data is kept up to date.",
+      canonical: about_url
+    )
+  end
+
+  def contact
+    set_meta_tags(
+      title: "Contact VisaSponsorUK",
+      description: "Get in touch with VisaSponsorUK.",
+      canonical: contact_url
+    )
+  end
+
   # GET /uk-visa-sponsorship-list
   # Informational/explainer page — distinct from the transactional /sponsors
   # browse tool. Owns the "sponsorship" keyword phrasing (sponsorship list,

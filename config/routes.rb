@@ -21,6 +21,8 @@ Rails.application.routes.draw do
 
   # FAQ + Static pages
   get "faq", to: "pages#faq", as: :faq
+  get "about", to: "pages#about", as: :about
+  get "contact", to: "pages#contact", as: :contact
   get "uk-visa-sponsorship-list", to: "pages#sponsorship_list_guide", as: :sponsorship_list_guide
 
   # Sponsor directory — city, route/type, rating, revoked

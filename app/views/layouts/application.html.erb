@@ -165,6 +165,16 @@
             <% end %>
           </div>
 
+          <!-- Right-hand nav — shown on the home page only, in the space the
+               compact search box above occupies on every other page (the
+               home page already has its own large search bar in the hero). -->
+          <% if current_page?(root_path) %>
+            <nav class="hidden sm:flex items-center gap-6 text-sm font-semibold text-slate-600" aria-label="Site">
+              <%= link_to "About", about_path, class: "hover:text-indigo-600 transition-colors" %>
+              <%= link_to "FAQs", faq_path, class: "hover:text-indigo-600 transition-colors" %>
+              <%= link_to "Contact", contact_path, class: "hover:text-indigo-600 transition-colors" %>
+            </nav>
+          <% end %>
         </div>
       </div>
     </header>

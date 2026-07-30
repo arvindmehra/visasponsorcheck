@@ -9,6 +9,19 @@ RSpec.describe "Homes", type: :request do
       expect(response.body).to include("Sponsor Licence Checker")
     end
 
+    it "no longer renders the About section inline — it links out to the dedicated page instead" do
+      get root_path
+      expect(response.body).not_to include("The official register of licensed sponsors is maintained")
+      expect(response.body).to include("Read about how the sponsor register works")
+    end
+
+    it "shows the About/FAQs/Contact nav on the right-hand side of the header" do
+      get root_path
+      expect(response.body).to include(">About<")
+      expect(response.body).to include(">FAQs<")
+      expect(response.body).to include(">Contact<")
+    end
+
     context "when a sync has completed" do
       let!(:import_log) { create(:sponsor_import_log) }
 
