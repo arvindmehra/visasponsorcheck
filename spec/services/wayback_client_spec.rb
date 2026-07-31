@@ -46,6 +46,28 @@ RSpec.describe WaybackClient do
 
       described_class.list_snapshots(url: "https://www.gov.uk/some-page", from: "20211201", to: "20221231")
     end
+
+    it "retries on a transient 503 and succeeds once archive.org recovers" do
+      failing = double(code: 503, body: "")
+      succeeding = double(code: 200, body: "[]")
+      expect(HTTParty).to receive(:get).and_return(failing, succeeding)
+
+      expect(described_class.list_snapshots(url: "https://www.gov.uk/some-page")).to eq([])
+    end
+
+    it "gives up after MAX_ATTEMPTS and raises using the last failing response" do
+      failing = double(code: 503, body: "")
+      expect(HTTParty).to receive(:get).exactly(WaybackClient::MAX_ATTEMPTS).times.and_return(failing)
+
+      expect { described_class.list_snapshots(url: "https://www.gov.uk/some-page") }.to raise_error(/CDX query failed/)
+    end
+
+    it "does not retry a non-retryable error like a 404" do
+      response = double(code: 404, body: "")
+      expect(HTTParty).to receive(:get).once.and_return(response)
+
+      expect { described_class.list_snapshots(url: "https://www.gov.uk/some-page") }.to raise_error(/CDX query failed/)
+    end
   end
 
   describe ".fetch" do
@@ -70,6 +92,27 @@ RSpec.describe WaybackClient do
       expect {
         described_class.fetch(timestamp: "20220112122447", original_url: "https://example.com/missing.csv")
       }.to raise_error(/Failed to fetch Wayback snapshot/)
+    end
+
+    it "retries a transient 503 without leaving partial content from the failed attempt in the file" do
+      failing = double(code: 503)
+      succeeding = double(code: 200)
+      call_count = 0
+      allow(HTTParty).to receive(:get) do |*_args, &block|
+        call_count += 1
+        if call_count == 1
+          block.call("partial-garbage")
+          failing
+        else
+          block.call("row1,row2\n")
+          succeeding
+        end
+      end
+
+      path = described_class.fetch(timestamp: "20220112122447", original_url: "https://example.com/file.csv")
+
+      expect(File.read(path)).to eq("row1,row2\n")
+      File.delete(path)
     end
   end
 end
