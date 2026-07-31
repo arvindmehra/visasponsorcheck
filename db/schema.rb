@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_17_003904) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_235845) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -219,6 +219,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_003904) do
     t.integer "updated_licences", default: 0, null: false
   end
 
+  create_table "sponsor_licence_historical_observations", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.text "event_type", null: false
+    t.datetime "occurred_after"
+    t.datetime "occurred_before", null: false
+    t.text "route", null: false
+    t.text "source_csv_url", null: false
+    t.datetime "updated_at", null: false
+    t.string "wayback_timestamp", null: false
+    t.index ["company_id", "route", "event_type", "wayback_timestamp"], name: "index_sponsor_licence_historical_observations_uniqueness", unique: true
+    t.index ["company_id"], name: "index_sponsor_licence_historical_observations_on_company_id"
+  end
+
   create_table "sponsor_licences", force: :cascade do |t|
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
@@ -245,5 +259,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_003904) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "sponsor_change_events", "companies"
   add_foreign_key "sponsor_change_events", "sponsor_import_logs"
+  add_foreign_key "sponsor_licence_historical_observations", "companies"
   add_foreign_key "sponsor_licences", "companies"
 end

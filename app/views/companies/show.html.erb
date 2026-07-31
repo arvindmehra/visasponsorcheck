@@ -215,6 +215,8 @@
           </div>
         <% end %>
       <% end %>
+
+      <%= render partial: "companies/licence_history_card", locals: { change_events: @change_events } %>
     </div>
   </div>
 </div>

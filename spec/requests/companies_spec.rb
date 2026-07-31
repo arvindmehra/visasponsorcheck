@@ -56,6 +56,35 @@ RSpec.describe "Companies", type: :request do
     end
   end
 
+  describe "GET /sponsor/:id — Licence History section" do
+    it "shows granted and revoked events, labelled accordingly" do
+      create(:sponsor_change_event, company: company, sponsor_import_log: import_log, event_type: "removed", occurred_at: 1.day.ago)
+
+      get company_path(company)
+
+      expect(response.body).to include("Licence History")
+      expect(response.body).to include("Licence granted")
+      expect(response.body).to include("Licence revoked")
+    end
+
+    it "excludes rating/status/route/licence-type change events from the timeline" do
+      create(:sponsor_change_event, company: company, sponsor_import_log: import_log,
+        event_type: "rating_changed", old_value: "B", new_value: "A")
+
+      get company_path(company)
+
+      expect(response.body).not_to include("Rating changed")
+    end
+
+    it "omits the card entirely when there are no granted/revoked events" do
+      change_event.destroy
+
+      get company_path(company)
+
+      expect(response.body).not_to include("Licence History")
+    end
+  end
+
   describe "GET /companies/:id (legacy route)" do
     it "redirects to the new /sponsor/:id route with a 301" do
       get "/companies/#{company.slug}"
