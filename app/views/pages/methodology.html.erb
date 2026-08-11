@@ -1,0 +1,70 @@
+<div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">Methodology</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-6">
+    Data Methodology & Sources
+  </h1>
+  <p class="text-lg text-slate-500 mb-10">
+    How VisaSponsorUK collects, normalizes, processes, and matches UK sponsor licence data.
+  </p>
+
+  <div class="prose prose-slate max-w-none space-y-8">
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">1. Sourcing from GOV.UK</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        Our primary data source is the official <strong>Register of Licensed Sponsors: Workers</strong> published by the UK Home Office (Visas and Immigration). This register lists every employer authorized to sponsor international workers.
+      </p>
+      <p class="text-slate-600 leading-relaxed">
+        The data is processed under the terms of the <strong>Open Government Licence v3.0</strong>. We synchronize our system with the official GOV.UK register daily, ensuring that new licenses, rating updates, and removals are captured in near real-time.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">2. Entity Deduplication and Company Profiling</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        The raw Home Office register lists license routes separately. If a company is approved to sponsor workers under both the <em>Skilled Worker</em> and <em>Temporary Worker</em> routes, they appear multiple times.
+      </p>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        To prevent clutter, VisaSponsorUK groups all license routes under a single unified company profile page. This allows job seekers to see the company's full visa sponsorship capabilities in one view.
+      </p>
+      <p class="text-slate-600 leading-relaxed">
+        Furthermore, we match company records with <strong>Companies House</strong> using normalisation algorithms to retrieve additional business context, including registered SIC industry codes, creation dates, and current company status.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">3. Location Normalization Dictionary</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        The Home Office register contains raw spelling variants and typos for UK towns and cities (for example, separate entries for <em>Abbey Wood</em> vs <em>Abbeywood</em>, or <em>Abindgon</em> vs <em>Abingdon</em>).
+      </p>
+      <p class="text-slate-600 leading-relaxed">
+        We run all city data through a location normalization dictionary. This dictionary resolves spelling variations, canonicalizes them to standard display formats (e.g. <em>Abbots Langley</em>), and groups all local sponsors onto a single canonical URL. This prevents duplicate indexation and consolidates search rankings.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">4. Rating and Status Definitions</h2>
+      <div class="space-y-4">
+        <p class="text-slate-600 leading-relaxed">
+          Sponsors are rated based on their compliance with UKVI guidelines:
+        </p>
+        <ul class="list-disc pl-5 text-slate-600 space-y-2">
+          <li><strong>A-Rating:</strong> The default grade indicating full compliance with sponsor duties. The employer can freely issue Certificates of Sponsorship.</li>
+          <li><strong>B-Rating:</strong> Assigned when UKVI flags compliance concerns. The employer is placed on a corrective action plan and cannot sponsor new workers until they return to A-status.</li>
+          <li><strong>Provisional:</strong> Applied to specific routes where A/B compliance letter grades do not apply, such as the UK Expansion Worker route.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">5. Known Limitations</h2>
+      <p class="text-slate-600 leading-relaxed">
+        Due to synchronization intervals, there can be a delay of up to 24–48 hours between an update appearing on the Home Office's internal systems and its publication in the GOV.UK register. Always cross-reference crucial status changes with official sources prior to signing a job contract.
+      </p>
+    </section>
+  </div>
+</div>

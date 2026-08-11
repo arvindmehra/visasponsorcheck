@@ -85,32 +85,44 @@
 
       <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <!-- All -->
-        <%= link_to sponsors_path, class: "group flex flex-col gap-y-3 rounded-2xl bg-indigo-50 border border-indigo-150 p-6 hover:shadow-sm hover:border-indigo-300 transition-all duration-200" do %>
+        <div class="group relative flex flex-col gap-y-3 rounded-2xl bg-indigo-50 border border-indigo-150 p-6 hover:shadow-sm hover:border-indigo-300 transition-all duration-200">
           <dt class="text-sm font-semibold text-indigo-500 uppercase tracking-wider">All</dt>
           <dd class="text-4xl font-extrabold tracking-tight text-indigo-700"><%= number_with_delimiter(@active_companies_count) %></dd>
-          <span class="text-sm font-medium text-indigo-400 group-hover:text-indigo-600 transition-colors">Tap to view →</span>
-        <% end %>
+          <dd class="text-sm font-medium text-indigo-400 group-hover:text-indigo-600 transition-colors" aria-hidden="true">
+            Tap to view →
+            <%= link_to "", sponsors_path, class: "absolute inset-0", "aria-label": "View all sponsors" %>
+          </dd>
+        </div>
 
         <!-- New -->
-        <%= link_to recent_sponsors_path(type: "new"), class: "group flex flex-col gap-y-3 rounded-2xl bg-emerald-50 border border-emerald-150 p-6 hover:shadow-sm hover:border-emerald-300 transition-all duration-200" do %>
+        <div class="group relative flex flex-col gap-y-3 rounded-2xl bg-emerald-50 border border-emerald-150 p-6 hover:shadow-sm hover:border-emerald-300 transition-all duration-200">
           <dt class="text-sm font-semibold text-emerald-500 uppercase tracking-wider">New</dt>
           <dd class="text-4xl font-extrabold tracking-tight text-emerald-700">+<%= number_with_delimiter(@new_count) %></dd>
-          <span class="text-sm font-medium text-emerald-400 group-hover:text-emerald-600 transition-colors">Tap to view →</span>
-        <% end %>
+          <dd class="text-sm font-medium text-emerald-400 group-hover:text-emerald-600 transition-colors" aria-hidden="true">
+            Tap to view →
+            <%= link_to "", recent_sponsors_path(type: "new"), class: "absolute inset-0", "aria-label": "View newly added sponsors" %>
+          </dd>
+        </div>
 
         <!-- Updated -->
-        <%= link_to recent_sponsors_path(type: "updated"), class: "group flex flex-col gap-y-3 rounded-2xl bg-amber-50 border border-amber-150 p-6 hover:shadow-sm hover:border-amber-300 transition-all duration-200" do %>
+        <div class="group relative flex flex-col gap-y-3 rounded-2xl bg-amber-50 border border-amber-150 p-6 hover:shadow-sm hover:border-amber-300 transition-all duration-200">
           <dt class="text-sm font-semibold text-amber-500 uppercase tracking-wider">Updated</dt>
           <dd class="text-4xl font-extrabold tracking-tight text-amber-700"><%= number_with_delimiter(@updated_count) %></dd>
-          <span class="text-sm font-medium text-amber-400 group-hover:text-amber-600 transition-colors">Tap to view →</span>
-        <% end %>
+          <dd class="text-sm font-medium text-amber-400 group-hover:text-amber-600 transition-colors" aria-hidden="true">
+            Tap to view →
+            <%= link_to "", recent_sponsors_path(type: "updated"), class: "absolute inset-0", "aria-label": "View recently updated sponsors" %>
+          </dd>
+        </div>
 
         <!-- Removed -->
-        <%= link_to recent_sponsors_path(type: "removed"), class: "group flex flex-col gap-y-3 rounded-2xl bg-rose-50 border border-rose-150 p-6 hover:shadow-sm hover:border-rose-300 transition-all duration-200" do %>
+        <div class="group relative flex flex-col gap-y-3 rounded-2xl bg-rose-50 border border-rose-150 p-6 hover:shadow-sm hover:border-rose-300 transition-all duration-200">
           <dt class="text-sm font-semibold text-rose-500 uppercase tracking-wider">Removed</dt>
           <dd class="text-4xl font-extrabold tracking-tight text-rose-700"><%= number_with_delimiter(@removed_count) %></dd>
-          <span class="text-sm font-medium text-rose-400 group-hover:text-rose-600 transition-colors">Tap to view →</span>
-        <% end %>
+          <dd class="text-sm font-medium text-rose-400 group-hover:text-rose-600 transition-colors" aria-hidden="true">
+            Tap to view →
+            <%= link_to "", recent_sponsors_path(type: "removed"), class: "absolute inset-0", "aria-label": "View recently removed sponsors" %>
+          </dd>
+        </div>
       </dl>
     </div>
   <% end %>

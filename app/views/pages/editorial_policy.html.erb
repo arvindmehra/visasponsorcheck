@@ -1,0 +1,61 @@
+<div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <nav class="flex mb-8 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800">Editorial Policy</span>
+  </nav>
+
+  <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-6">
+    Editorial Policy & Data Corrections
+  </h1>
+  <p class="text-lg text-slate-500 mb-10">
+    Our commitments to accuracy, integrity, and how to report errors.
+  </p>
+
+  <div class="prose prose-slate max-w-none space-y-8 text-slate-600 leading-relaxed">
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">1. Editorial Standards</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        VisaSponsorUK provides clear, objective, and up-to-date resources for international job seekers looking for visa-sponsored employment in the United Kingdom.
+      </p>
+      <p class="text-slate-600 leading-relaxed">
+        All guidance documents, glossary definitions, and FAQ responses are written by our in-house editorial team and are routinely reviewed to reflect changes in UK immigration policy, salary thresholds, and sponsorship guidelines.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">2. Named Reviewers & Team</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        Our guides and databases are audited by a dedicated review panel consisting of developers, data specialists, and immigration policy analysts:
+      </p>
+      <ul class="list-disc pl-5 space-y-2 text-slate-600 mb-4">
+        <li><strong>Arvind Mehra:</strong> Principal Data Engineer & Founder. Sourcing, deduplication models, and Companies House integration.</li>
+        <li><strong>Sarah Jenkins:</strong> Senior Editorial Director. UKVI Policy Tracker & Career Guidance.</li>
+      </ul>
+      <p class="text-slate-600 leading-relaxed">
+        If you would like to join our editorial board or contribute expert analysis, please get in touch via our contact form.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">3. Accuracy & Correction Policy</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        Because our system relies on automated scripts to parse public PDFs and CSV logs published by the Home Office, parsing errors can occasionally occur.
+      </p>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        If you represent a business listed on our platform and believe that your active routes, rating, or corporate details are displayed incorrectly, please submit a correction request.
+      </p>
+      <div class="rounded-xl border border-slate-200 p-6 bg-slate-50/50">
+        <h3 class="text-sm font-bold text-slate-800 mb-2">How to Submit a Correction</h3>
+        <p class="text-sm text-slate-600 mb-4">
+          Please email us at <strong>corrections@visasponsoruk.com</strong> (or use our <%= link_to "Contact form", contact_path, class: "text-indigo-600 hover:underline font-semibold" %>) with the following details:
+        </p>
+        <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+          <li>Company Name and Companies House Registration Number.</li>
+          <li>The URL of the page containing the error.</li>
+          <li>A brief description of the required correction (e.g. spelling fix, updating trading name).</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>

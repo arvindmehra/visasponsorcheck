@@ -189,14 +189,14 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         <!-- Top Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-100">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-slate-100">
           
           <!-- Column 1: Brand & Tagline -->
-          <div class="md:col-span-1 space-y-4">
+          <div class="space-y-4">
             <div class="flex items-center gap-2.5">
               <%= image_tag 'logo-transparent.png', class: "h-8 w-auto flex-shrink-0 object-contain", alt: "VisaSponsorUK Logo" %>
             </div>
-            <p class="text-xs text-slate-500 leading-relaxed max-w-sm">
+            <p class="text-xs text-slate-500 leading-relaxed">
               Verify registered UK companies holding licensed visa sponsor status. Sourced regularly from the official GOV.UK sponsor logs.
             </p>
           </div>
@@ -215,14 +215,33 @@
                 <%= link_to "Tier 2 / Skilled Worker Sponsors", visa_route_sponsors_path(route: "skilled-worker"), class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
               </li>
               <li>
+                <%= link_to "Methodology & Sources", methodology_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Trust & Editorial -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Trust &amp; Editorial</h4>
+            <ul class="space-y-2 text-xs">
+              <li>
+                <%= link_to "Editorial & Corrections Policy", editorial_policy_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
+              </li>
+              <li>
+                <%= link_to "Privacy Policy", privacy_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
+              </li>
+              <li>
+                <%= link_to "Terms of Service & Disclaimer", terms_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
+              </li>
+              <li>
                 <%= link_to "FAQ", faq_path, class: "text-slate-500 hover:text-indigo-600 transition-colors" %>
               </li>
             </ul>
           </div>
 
-          <!-- Column 3: Data Sources -->
+          <!-- Column 4: Official Data -->
           <div class="space-y-3">
-            <h4 class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Official Data & Licensing</h4>
+            <h4 class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Official Data &amp; Licensing</h4>
             <ul class="space-y-2 text-xs">
               <li>
                 <%= trusted_external_link_to "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers", class: "text-slate-500 hover:text-indigo-600 transition-colors inline-flex items-center gap-1" do %>

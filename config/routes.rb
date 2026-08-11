@@ -24,6 +24,10 @@ Rails.application.routes.draw do
   get "about", to: "pages#about", as: :about
   get "contact", to: "pages#contact", as: :contact
   get "uk-visa-sponsorship-list", to: "pages#sponsorship_list_guide", as: :sponsorship_list_guide
+  get "methodology", to: "pages#methodology", as: :methodology
+  get "privacy", to: "pages#privacy", as: :privacy
+  get "terms", to: "pages#terms", as: :terms
+  get "editorial-policy", to: "pages#editorial_policy", as: :editorial_policy
 
   # Sponsor directory — city, route/type, rating, revoked
   get "sponsors",                          to: "sponsors#index",   as: :sponsors

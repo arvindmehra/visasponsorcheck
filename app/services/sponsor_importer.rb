@@ -23,6 +23,19 @@ class SponsorImporter
       error_message = write_error_csv_if_needed(import_log, errors)
       finalize_import_log(import_log, counts, error_message)
 
+      # Run data quality audit and append warnings to import log error message
+      begin
+        anomalies = DataQualityAudit.run
+        if anomalies.any?
+          warning_msg = "Data Quality Warnings:\n" + anomalies.join("\n")
+          existing_msg = import_log.reload.error_message.presence
+          new_msg = [existing_msg, warning_msg].compact.join("\n\n")
+          import_log.update!(error_message: new_msg)
+        end
+      rescue => e
+        Rails.logger.error("Data quality audit failed: #{e.message}")
+      end
+
       cleanup_temp_file(download_result[:path])
 
       import_log
@@ -121,12 +134,14 @@ class SponsorImporter
       )
       licence.save!
 
-      SponsorChangeEvent.create!(
-        company: company,
-        sponsor_import_log: import_log,
-        event_type: "added",
-        occurred_at: import_log.started_at
-      )
+      unless SponsorChangeEvent.exists?(company_id: company.id, sponsor_import_log_id: import_log.id, event_type: "added")
+        SponsorChangeEvent.create!(
+          company: company,
+          sponsor_import_log: import_log,
+          event_type: "added",
+          occurred_at: import_log.started_at
+        )
+      end
       :new
     else
       licence.assign_attributes(
@@ -149,36 +164,42 @@ class SponsorImporter
         licence.save!
 
         if was_removed
-          SponsorChangeEvent.create!(
-            company: company,
-            sponsor_import_log: import_log,
-            event_type: "status_changed",
-            old_value: old_status,
-            new_value: "active",
-            occurred_at: import_log.started_at
-          )
+          unless SponsorChangeEvent.exists?(company_id: company.id, sponsor_import_log_id: import_log.id, event_type: "status_changed")
+            SponsorChangeEvent.create!(
+              company: company,
+              sponsor_import_log: import_log,
+              event_type: "status_changed",
+              old_value: old_status,
+              new_value: "active",
+              occurred_at: import_log.started_at
+            )
+          end
         end
 
         if rating_changed
-          SponsorChangeEvent.create!(
-            company: company,
-            sponsor_import_log: import_log,
-            event_type: "rating_changed",
-            old_value: old_rating,
-            new_value: rating,
-            occurred_at: import_log.started_at
-          )
+          unless SponsorChangeEvent.exists?(company_id: company.id, sponsor_import_log_id: import_log.id, event_type: "rating_changed")
+            SponsorChangeEvent.create!(
+              company: company,
+              sponsor_import_log: import_log,
+              event_type: "rating_changed",
+              old_value: old_rating,
+              new_value: rating,
+              occurred_at: import_log.started_at
+            )
+          end
         end
 
         if licence_type_changed
-          SponsorChangeEvent.create!(
-            company: company,
-            sponsor_import_log: import_log,
-            event_type: "licence_type_changed",
-            old_value: old_licence_type,
-            new_value: licence_type,
-            occurred_at: import_log.started_at
-          )
+          unless SponsorChangeEvent.exists?(company_id: company.id, sponsor_import_log_id: import_log.id, event_type: "licence_type_changed")
+            SponsorChangeEvent.create!(
+              company: company,
+              sponsor_import_log: import_log,
+              event_type: "licence_type_changed",
+              old_value: old_licence_type,
+              new_value: licence_type,
+              occurred_at: import_log.started_at
+            )
+          end
         end
 
         # Only count/report a licence as "updated" when something meaningful
@@ -204,12 +225,14 @@ class SponsorImporter
           unseen.update!(status: "removed")
           removed_count += 1
 
-          SponsorChangeEvent.create!(
-            company: unseen.company,
-            sponsor_import_log: import_log,
-            event_type: "removed",
-            occurred_at: import_log.started_at
-          )
+          unless SponsorChangeEvent.exists?(company_id: unseen.company_id, sponsor_import_log_id: import_log.id, event_type: "removed")
+            SponsorChangeEvent.create!(
+              company: unseen.company,
+              sponsor_import_log: import_log,
+              event_type: "removed",
+              occurred_at: import_log.started_at
+            )
+          end
         end
       rescue => e
         errors << {

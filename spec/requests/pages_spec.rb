@@ -42,6 +42,38 @@ RSpec.describe "Static Pages", type: :request do
     end
   end
 
+  describe "GET /methodology" do
+    it "renders the methodology page successfully" do
+      get methodology_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Data Methodology & Sources")
+    end
+  end
+
+  describe "GET /privacy" do
+    it "renders the privacy page successfully" do
+      get privacy_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Privacy Policy")
+    end
+  end
+
+  describe "GET /terms" do
+    it "renders the terms page successfully" do
+      get terms_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Terms of Service & Disclaimer")
+    end
+  end
+
+  describe "GET /editorial-policy" do
+    it "renders the editorial policy page successfully" do
+      get editorial_policy_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Editorial Policy & Data Corrections")
+    end
+  end
+
   describe "GET /llms.txt" do
     it "serves the static llms.txt file describing the site for AI/semantic crawlers" do
       get "/llms.txt"

@@ -26,7 +26,7 @@ class SponsorsController < ApplicationController
     @pagy, @cities = pagy_array(all_city_slugs, limit: 500)
 
     @grouped_cities = @cities.map do |slug|
-      name = slug.split("-").map(&:capitalize).join(" ")
+      name = LocationNormalizer.canonical_name(slug)
       { name: name, slug: slug }
     end.sort_by { |c| c[:name] }.group_by { |c| c[:name][0].upcase }
 
@@ -62,7 +62,13 @@ class SponsorsController < ApplicationController
   # GET /sponsors/city/:city
   def city
     @city_slug   = params[:city].to_s.downcase.strip
-    @city_name   = @city_slug.split("-").map(&:capitalize).join(" ")
+    # If the slug contains spaces or is not canonical, redirect it via 301
+    canonical = LocationNormalizer.canonical_slug(@city_slug.gsub("-", " "))
+    if @city_slug != canonical && canonical.present?
+      redirect_to city_sponsors_url(city: canonical), status: :moved_permanently and return
+    end
+
+    @city_name   = LocationNormalizer.canonical_name(@city_slug)
     @pagy, @companies = pagy(
       Company.by_city(@city_slug).includes(:sponsor_licences).order(:name),
       limit: 50
@@ -73,6 +79,18 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
+    # Calculate Route Distribution, Rating Breakdown, and Recent register activity
+    @route_distribution = SponsorLicence.active.joins(:company)
+                                        .where(companies: { town_normalised: @city_slug })
+                                        .group(:route).count
+    @rating_breakdown = SponsorLicence.active.joins(:company)
+                                      .where(companies: { town_normalised: @city_slug })
+                                      .group(:rating).count
+    @recent_events = SponsorChangeEvent.joins(:company)
+                                       .where(companies: { town_normalised: @city_slug })
+                                       .includes(:company)
+                                       .recent.limit(5)
+
     base_title = "Visa Sponsors in #{@city_name} | UK Sponsor Licence List"
     base_description = "#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}."
     canonical_url = @pagy.page > 1 ? city_sponsors_url(city: @city_slug, page: @pagy.page) : city_sponsors_url(city: @city_slug)
@@ -80,7 +98,8 @@ class SponsorsController < ApplicationController
     set_meta_tags(
       title: helpers.paginated_meta_title(base_title, @pagy),
       description: helpers.paginated_meta_description(base_description, @pagy),
-      canonical: canonical_url
+      canonical: canonical_url,
+      noindex: @count < 3
     )
   end
 
@@ -114,6 +133,19 @@ class SponsorsController < ApplicationController
       render file: "public/404.html", status: :not_found and return
     end
 
+    # Calculate Top Cities, Route Distribution, and Recent updates for this sector
+    @top_cities = Company.by_sector(@sector_key)
+                         .group(:town)
+                         .order(Arel.sql("count(*) DESC, town ASC"))
+                         .limit(5)
+                         .count
+
+    company_ids = Company.by_sector(@sector_key).select(:id)
+    @route_distribution = SponsorLicence.active.where(company_id: company_ids).group(:route).count
+    @recent_events = SponsorChangeEvent.where(company_id: company_ids)
+                                       .includes(:company)
+                                       .recent.limit(5)
+
     base_title = "#{@sector_name} Visa Sponsors UK | Licensed Sponsor Register"
     base_description = "#{number_with_delimiter(@count)} UK companies in the #{@sector_name} sector are licensed to sponsor work visas. Browse the full register of #{@sector_name} visa sponsors."
     canonical_url = @pagy.page > 1 ? sector_sponsors_url(sector: @sector_key, page: @pagy.page) : sector_sponsors_url(sector: @sector_key)
@@ -121,7 +153,8 @@ class SponsorsController < ApplicationController
     set_meta_tags(
       title: helpers.paginated_meta_title(base_title, @pagy),
       description: helpers.paginated_meta_description(base_description, @pagy),
-      canonical: canonical_url
+      canonical: canonical_url,
+      noindex: @count < 3
     )
   end
 

@@ -22,9 +22,10 @@ class Company < ApplicationRecord
   # Sanitise location fields on write
   def town=(value)
     sanitised = sanitise_location(value)
-    super(sanitised)
+    normalized = LocationNormalizer.normalize(sanitised)
+    super(normalized)
     # Keep normalised version in sync for city-slug routing
-    write_attribute(:town_normalised, sanitised&.downcase&.strip)
+    write_attribute(:town_normalised, LocationNormalizer.canonical_slug(normalized))
   end
 
   def county=(value)
@@ -111,7 +112,7 @@ class Company < ApplicationRecord
   # Returns a sorted list of distinct clean city slugs (for sitemap + directory page)
   def self.distinct_cities
     where.not(town_normalised: [ nil, "" ])
-      .where("town_normalised ~ '^[a-z][a-z -]+$'")  # only clean alpha slugs
+      .where("town_normalised ~ '^[a-z][a-z-]+$'")  # only clean alpha hyphenated slugs
       .where("LENGTH(town_normalised) >= 2")
       .distinct
       .pluck(:town_normalised)
@@ -121,7 +122,7 @@ class Company < ApplicationRecord
   # Returns the top cities by company record count in descending order
   def self.top_cities(limit = 10)
     where.not(town_normalised: [ nil, "" ])
-      .where("town_normalised ~ '^[a-z][a-z -]+$'")  # only clean alpha slugs
+      .where("town_normalised ~ '^[a-z][a-z-]+$'")  # only clean alpha hyphenated slugs
       .where("LENGTH(town_normalised) >= 2")
       .group(:town_normalised)
       .order(Arel.sql("count(*) DESC, town_normalised ASC"))
@@ -149,7 +150,7 @@ class Company < ApplicationRecord
     joins(:sponsor_licences)
       .where(sponsor_licences: { status: "active", route: route })
       .where.not(town_normalised: [ nil, "" ])
-      .where("town_normalised ~ '^[a-z][a-z -]+$'")
+      .where("town_normalised ~ '^[a-z][a-z-]+$'")
       .group(:town_normalised)
       .order(Arel.sql("count(*) DESC, town_normalised ASC"))
       .limit(limit)

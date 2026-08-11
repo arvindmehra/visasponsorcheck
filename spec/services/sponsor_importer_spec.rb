@@ -290,5 +290,23 @@ RSpec.describe SponsorImporter do
       log = SponsorImportLog.last
       expect(log.error_message).to be_nil
     end
+    it "deduplicates addition change events when a company is added with multiple routes in one run" do
+      temp_csv.write(<<~CSV)
+        Organisation Name,Town/City,County,Type & Rating,Route
+        "DUAL ROUTE LTD",London,,Worker (A rating),Skilled Worker
+        "DUAL ROUTE LTD",London,,Worker (A rating),Temporary Worker
+      CSV
+      temp_csv.rewind
+
+      expect {
+        SponsorImporter.call
+      }.to change(Company, :count).by(1)
+       .and change(SponsorLicence, :count).by(2)
+       .and change(SponsorChangeEvent, :count).by(1)
+
+      company = Company.find_by(name_normalised: "dual route ltd")
+      expect(company.sponsor_change_events.count).to eq(1)
+      expect(company.sponsor_change_events.first.event_type).to eq("added")
+    end
   end
 end

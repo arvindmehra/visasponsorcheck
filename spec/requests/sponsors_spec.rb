@@ -71,6 +71,11 @@ RSpec.describe "Sponsors Directory", type: :request do
   describe "GET /sponsors/city/:city" do
     context "when sponsors exist in the city" do
       it "renders the city page successfully" do
+        # Create at least 3 companies in London to verify indexable page works
+        create_list(:company, 2, town: "London").each do |c|
+          create(:sponsor_licence, company: c, status: "active")
+        end
+
         get city_sponsors_path(city: "london")
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Visa Sponsors in London")
@@ -78,9 +83,28 @@ RSpec.describe "Sponsors Directory", type: :request do
       end
     end
 
+    context "when visiting a typo or non-canonical city slug" do
+      it "redirects 301 to the canonical hyphenated slug" do
+        get "/sponsors/city/abbeywood"
+        expect(response).to redirect_to("/sponsors/city/abbey-wood")
+        expect(response.status).to eq(301)
+
+        get "/sponsors/city/abbey%20wood"
+        expect(response).to redirect_to("/sponsors/city/abbey-wood")
+        expect(response.status).to eq(301)
+      end
+    end
+
+    context "when the city has fewer than 3 active sponsors" do
+      it "adds a noindex meta tag to control index bloat" do
+        get city_sponsors_path(city: "london")
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('<meta name="robots" content="noindex">')
+      end
+    end
+
     context "when no sponsors exist in the city" do
       it "returns a 404 not found status" do
-        # town_normalised needs to match the slug, so "bristol" won't find anything
         get city_sponsors_path(city: "bristol")
         expect(response).to have_http_status(:not_found)
       end

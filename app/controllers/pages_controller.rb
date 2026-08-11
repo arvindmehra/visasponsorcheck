@@ -41,4 +41,36 @@ class PagesController < ApplicationController
       canonical: sponsorship_list_guide_url
     )
   end
+
+  def methodology
+    set_meta_tags(
+      title: "Data Methodology & Sources | VisaSponsorUK",
+      description: "Learn how VisaSponsorUK processes, cleans, normalizes, and matches UK Home Office register data and Companies House records.",
+      canonical: methodology_url
+    )
+  end
+
+  def privacy
+    set_meta_tags(
+      title: "Privacy Policy | VisaSponsorUK",
+      description: "Read our privacy policy to understand how we collect, store, and protect your data.",
+      canonical: privacy_url
+    )
+  end
+
+  def terms
+    set_meta_tags(
+      title: "Terms of Service & Disclaimer | VisaSponsorUK",
+      description: "Read our terms of service, usage guidelines, and general disclaimer details.",
+      canonical: terms_url
+    )
+  end
+
+  def editorial_policy
+    set_meta_tags(
+      title: "Editorial Policy & Data Corrections | VisaSponsorUK",
+      description: "Understand our editorial integrity guidelines, fact-checking procedures, and how to request data corrections.",
+      canonical: editorial_policy_url
+    )
+  end
 end

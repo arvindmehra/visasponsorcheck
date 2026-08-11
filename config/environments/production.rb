@@ -38,6 +38,12 @@ Rails.application.configure do
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
+  # STDOUT.sync = true so output is flushed line-by-line rather than fully
+  # buffered — matters for `kamal app exec` runs (like the Wayback backfill
+  # rake task), where stdout is a pipe, not a TTY, so Ruby block-buffers by
+  # default and log output only appears once the buffer fills or the
+  # process exits.
+  STDOUT.sync = true
   config.log_tags = [ :request_id ]
   config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
 
