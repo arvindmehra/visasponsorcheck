@@ -90,6 +90,11 @@ class CompaniesController < ApplicationController
   # than a new one: landing on a specific company's page is conceptually the
   # same signal as searching for it and getting exactly one result.
   def log_show_page_visit
+    user_agent = request.user_agent.to_s.downcase
+    # Skip logging if the request comes from a known crawler or bot
+    is_bot = user_agent.match?(/bot|spider|crawler|slurp|crawl|archiver|transcoder|curl|wget|http-client|faraday|python|ruby|php|headless|lighthouse/i)
+    return if is_bot
+
     SearchLog.create!(query: @company.name.downcase, results_count: 1)
   rescue => e
     Rails.logger.error("Failed to log show page visit: #{e.message}")

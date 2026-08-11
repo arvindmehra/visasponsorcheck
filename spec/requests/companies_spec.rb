@@ -25,6 +25,12 @@ RSpec.describe "Companies", type: :request do
       expect(log.results_count).to eq(1)
     end
 
+    it "does not log the visit to search_logs when the request comes from a crawler/bot" do
+      expect {
+        get company_path(company), headers: { "HTTP_USER_AGENT" => "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" }
+      }.not_to change(SearchLog, :count)
+    end
+
     it "still renders the page even if logging the visit fails" do
       allow(SearchLog).to receive(:create!).and_raise(StandardError, "db down")
 
