@@ -4,7 +4,7 @@ class Blog < ApplicationRecord
     "Sponsor Licence",
     "Compliance",
     "Visa",
-    "WorkPermitCloud Tools",
+    "VisaSponsorCheck Tools",
     "Others"
   ].freeze
 

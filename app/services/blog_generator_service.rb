@@ -349,9 +349,9 @@ class BlogGeneratorService
       end
     end
 
-    "/logo-wpc.png"
+    "/icon.png"
   rescue => e
     Rails.logger.warn("[Imagen Generation Warning]: #{e.message}")
-    "/logo-wpc.png"
+    "/icon.png"
   end
 end
