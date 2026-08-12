@@ -11,7 +11,7 @@ module SponsorsHelper
     else
       content_tag(:span, class: "inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-sm font-bold text-red-700 border border-red-200") do
         concat content_tag(:span, "", class: "h-2 w-2 rounded-full bg-red-500")
-        concat "Removed"
+        concat "Sponsorship Licence Revoked"
       end
     end
   end
