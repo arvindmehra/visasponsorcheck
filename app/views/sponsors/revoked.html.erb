@@ -55,11 +55,9 @@
       </thead>
       <tbody class="divide-y divide-slate-100">
         <% @companies.each do |company| %>
-          <tr class="hover:bg-slate-50/60 transition-colors opacity-80">
+          <tr class="group relative hover:bg-slate-50/80 transition-colors cursor-pointer opacity-90" onclick="window.Turbo ? Turbo.visit('<%= company_path(company) %>') : window.location='<%= company_path(company) %>'">
             <td class="px-6 py-4">
-              <%= link_to company_path(company), class: "font-semibold text-slate-700 hover:text-indigo-600 transition-colors" do %>
-                <%= company.name %>
-              <% end %>
+              <%= link_to company.name, company_path(company), class: "font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors" %>
             </td>
             <td class="px-4 py-4 text-sm text-slate-500"><%= company.location || "—" %></td>
             <td class="px-4 py-4 text-sm text-slate-500 line-through">
