@@ -76,7 +76,7 @@ class SponsorsController < ApplicationController
     @count = Company.by_city(@city_slug).count
 
     # Calculate Route Distribution, Rating Breakdown, and Recent register activity
-    city_slugs = [@city_slug, LocationNormalizer.canonical_slug(@city_slug.gsub("-", " "))].compact_blank.uniq
+    city_slugs = LocationNormalizer.all_slug_variants(@city_slug)
     @route_distribution = @count.positive? ? SponsorLicence.active.joins(:company)
                                         .where(companies: { town_normalised: city_slugs })
                                         .group(:route).count : {}

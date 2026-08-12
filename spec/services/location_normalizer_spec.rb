@@ -49,4 +49,11 @@ RSpec.describe LocationNormalizer do
       expect(LocationNormalizer.canonical_name("milton-keynes")).to eq("Milton Keynes")
     end
   end
+
+  describe ".all_slug_variants" do
+    it "returns all hyphenated, unhyphenated, and mapped slug variations for abbey-wood" do
+      variants = LocationNormalizer.all_slug_variants("abbey-wood")
+      expect(variants).to include("abbey-wood", "abbeywood", "abbey wood")
+    end
+  end
 end

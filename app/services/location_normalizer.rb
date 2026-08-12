@@ -40,4 +40,23 @@ module LocationNormalizer
     # Fallback to capitalize parts
     normalized_slug.split("-").map(&:capitalize).join(" ")
   end
+
+  # Returns all matching slug/town database variations for a city
+  def self.all_slug_variants(town_name)
+    return [] if town_name.blank?
+
+    slug = town_name.to_s.downcase.strip
+    unhyphenated = slug.gsub("-", "")
+    spaced = slug.gsub("-", " ")
+    canonical = canonical_slug(spaced)
+
+    normalized_name = normalize(spaced) || normalize(slug)
+    mapping_keys = MAPPING.select { |_k, v| v.downcase == normalized_name.downcase }.keys
+    mapping_slugs = mapping_keys.map { |k| k.gsub(/[^a-z0-9 -]/, "").gsub(/\s+/, "-") }
+
+    ([ slug, unhyphenated, spaced, canonical ] + mapping_keys + mapping_slugs)
+      .compact_blank
+      .map(&:downcase)
+      .uniq
+  end
 end
