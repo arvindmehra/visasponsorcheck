@@ -15,4 +15,4 @@ Disallow: /up
 # Block search result pages (not indexable, infinite scroll risk)
 Disallow: /search?
 
-Sitemap: https://visasponsoruk.com/sitemap.xml.gz
+Sitemap: https://visasponsoruk.com/sitemaps/sitemap.xml.gz
