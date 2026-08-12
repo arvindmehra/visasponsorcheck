@@ -20,10 +20,9 @@
 
     <%= yield :head %>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Petrona:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="<%= asset_path('dmsans-normal.woff2') %>" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="<%= asset_path('petrona-normal.woff2') %>" as="font" type="font/woff2" crossorigin>
 
     <style>
       body {
@@ -55,10 +54,42 @@
     </script>
 
     <% if Rails.env.production? %>
-      <script async src="https://www.googletagmanager.com/gtag/js?id=<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>"></script>
+      <!-- Defer Google Tag Manager until first user interaction or fallback timeout -->
       <script>
-        gtag('js', new Date());
-        gtag('config', '<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>', { send_page_view: false });
+        (function() {
+          var gtmLoaded = false;
+          function loadGTM() {
+            if (gtmLoaded) return;
+            gtmLoaded = true;
+            
+            // Remove event listeners
+            window.removeEventListener('scroll', loadGTM);
+            window.removeEventListener('mousemove', loadGTM);
+            window.removeEventListener('touchstart', loadGTM);
+            window.removeEventListener('keydown', loadGTM);
+            
+            // Create script element
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>';
+            document.head.appendChild(script);
+            
+            // Initialize GTM/GA4
+            script.onload = function() {
+              gtag('js', new Date());
+              gtag('config', '<%= Rails.application.credentials.dig(:ga4, :measurement_id) %>', { send_page_view: false });
+            };
+          }
+          
+          // Load on interaction
+          window.addEventListener('scroll', loadGTM, { passive: true });
+          window.addEventListener('mousemove', loadGTM, { passive: true });
+          window.addEventListener('touchstart', loadGTM, { passive: true });
+          window.addEventListener('keydown', loadGTM, { passive: true });
+          
+          // Fallback timeout to ensure it loads even if no interaction
+          setTimeout(loadGTM, 4000);
+        })();
       </script>
     <% end %>
 
@@ -105,7 +136,7 @@
           <!-- Logo / Link to Home -->
           <div class="flex items-center flex-1">
             <a href="/" class="flex items-center gap-2.5 group" id="nav-logo-link">
-              <%= image_tag 'logo-transparent.png', class: "h-10 w-auto flex-shrink-0 object-contain group-hover:scale-105 transition-all duration-300", alt: "VisaSponsorUK Logo" %>
+              <%= image_tag 'logo-transparent.webp', width: 240, height: 40, class: "h-10 w-auto flex-shrink-0 object-contain group-hover:scale-105 transition-all duration-300", alt: "VisaSponsorUK Logo" %>
             </a>
             <% unless current_page?(root_path) %>
               <div class="ml-6 flex-1 max-w-md hidden sm:block" data-controller="search">
@@ -193,7 +224,7 @@
           <!-- Column 1: Brand & Tagline -->
           <div class="space-y-4">
             <div class="flex items-center gap-2.5">
-              <%= image_tag 'logo-transparent.png', class: "h-8 w-auto flex-shrink-0 object-contain", alt: "VisaSponsorUK Logo" %>
+              <%= image_tag 'logo-transparent.webp', width: 192, height: 32, class: "h-8 w-auto flex-shrink-0 object-contain", alt: "VisaSponsorUK Logo" %>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
               Verify registered UK companies holding licensed visa sponsor status. Sourced regularly from the official GOV.UK sponsor logs.
