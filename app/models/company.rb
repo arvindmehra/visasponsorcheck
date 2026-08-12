@@ -74,9 +74,11 @@ class Company < ApplicationRecord
     where(id: SponsorLicence.active.select(:company_id))
   }
 
-  # Filter by normalised city slug (e.g. "london", "manchester")
+  # Filter by normalised city slug (e.g. "london", "abbeywood", "abbey-wood")
   scope :by_city, ->(city_slug) {
-    where(town_normalised: city_slug.to_s.downcase.strip)
+    slug = city_slug.to_s.downcase.strip
+    canonical = LocationNormalizer.canonical_slug(slug.gsub("-", " "))
+    where(town_normalised: [slug, canonical].compact_blank.uniq)
       .where(id: SponsorLicence.active.select(:company_id))
   }
 

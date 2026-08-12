@@ -104,9 +104,10 @@ RSpec.describe "Sponsors Directory", type: :request do
     end
 
     context "when no sponsors exist in the city" do
-      it "returns a 404 not found status" do
+      it "renders the page with noindex meta tag to prevent search index bloat" do
         get city_sponsors_path(city: "bristol")
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('<meta name="robots" content="noindex')
       end
     end
   end

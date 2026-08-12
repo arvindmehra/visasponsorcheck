@@ -75,21 +75,18 @@ class SponsorsController < ApplicationController
     )
     @count = Company.by_city(@city_slug).count
 
-    if @count.zero?
-      render file: "public/404.html", status: :not_found and return
-    end
-
     # Calculate Route Distribution, Rating Breakdown, and Recent register activity
-    @route_distribution = SponsorLicence.active.joins(:company)
-                                        .where(companies: { town_normalised: @city_slug })
-                                        .group(:route).count
-    @rating_breakdown = SponsorLicence.active.joins(:company)
-                                      .where(companies: { town_normalised: @city_slug })
-                                      .group(:rating).count
-    @recent_events = SponsorChangeEvent.joins(:company)
-                                       .where(companies: { town_normalised: @city_slug })
+    city_slugs = [@city_slug, LocationNormalizer.canonical_slug(@city_slug.gsub("-", " "))].compact_blank.uniq
+    @route_distribution = @count.positive? ? SponsorLicence.active.joins(:company)
+                                        .where(companies: { town_normalised: city_slugs })
+                                        .group(:route).count : {}
+    @rating_breakdown = @count.positive? ? SponsorLicence.active.joins(:company)
+                                      .where(companies: { town_normalised: city_slugs })
+                                      .group(:rating).count : {}
+    @recent_events = @count.positive? ? SponsorChangeEvent.joins(:company)
+                                       .where(companies: { town_normalised: city_slugs })
                                        .includes(:company)
-                                       .recent.limit(5)
+                                       .recent.limit(5) : []
 
     base_title = "Visa Sponsors in #{@city_name} | UK Sponsor Licence List"
     base_description = "#{number_with_delimiter(@count)} companies in #{@city_name} are licensed to sponsor UK work visas. Browse the full register of visa sponsors in #{@city_name}."
