@@ -18,8 +18,16 @@ body {
 
 /* Base header adjustments */
 h1, h2, h3, h4, h5, h6 {
-  color: #0c1c18 !important; /* Warm deep forest charcoal */
-  letter-spacing: -0.01em !important;
+  color: #0c1c18;
+  letter-spacing: -0.01em;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+input, textarea, select {
+  color: #0f172a !important;
 }
 
 /* Interactive colors */
