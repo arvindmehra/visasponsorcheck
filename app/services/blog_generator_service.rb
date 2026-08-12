@@ -71,7 +71,7 @@ class BlogGeneratorService
         success: false, 
         stage: :ai_generation,
         error: "Gemini AI generation failed across all attempted models",
-        troubleshooting: "Check if your Gemini API key has access to 'gemini-1.5-flash' / 'gemini-1.5-pro' on Google AI Studio (aistudio.google.com) and has quota remaining.",
+        troubleshooting: "Check if your Gemini API key on Google AI Studio (aistudio.google.com) has quota remaining.",
         details: { 
           source_topic: source_data[:topic],
           api_attempts: @api_attempts 
@@ -160,7 +160,15 @@ class BlogGeneratorService
   end
 
   def generate_content_with_gemini(source_data)
-    models_to_try = [ "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash" ]
+    # 1. Primary candidate model list (using -latest and newer 2.5/1.5 variants)
+    candidate_models = [
+      "gemini-1.5-flash-latest",
+      "gemini-1.5-pro-latest",
+      "gemini-2.5-flash",
+      "gemini-2.5-pro",
+      "gemini-1.5-flash",
+      "gemini-1.5-pro"
+    ]
 
     system_instruction = <<~SYS
       You are a senior UK immigration solicitor and legal content editor.
@@ -203,7 +211,25 @@ class BlogGeneratorService
       }
     }
 
-    models_to_try.each do |model_name|
+    # Try static candidate models first
+    result = try_models(candidate_models, body)
+    return result if result.present?
+
+    # Fallback: Dynamic auto-discovery of available models from Google API
+    discovered_models = discover_available_models
+    if discovered_models.any?
+      Rails.logger.info("[BlogGeneratorService] Attempting auto-discovered models: #{discovered_models.join(', ')}")
+      result = try_models(discovered_models, body)
+      return result if result.present?
+    end
+
+    nil
+  end
+
+  def try_models(model_names, body)
+    model_names.each do |model_name|
+      next if @api_attempts.any? { |a| a[:model] == model_name }
+
       url = "#{GEMINI_API_URL}/#{model_name}:generateContent?key=#{@api_key}"
 
       begin
@@ -242,6 +268,22 @@ class BlogGeneratorService
     end
 
     nil
+  end
+
+  def discover_available_models
+    url = "#{GEMINI_API_URL}?key=#{@api_key}"
+    response = HTTParty.get(url, timeout: 10)
+
+    if response.success?
+      models = response.parsed_response["models"] || []
+      models.select { |m| m["supportedGenerationMethods"]&.include?("generateContent") }
+            .map { |m| m["name"].gsub("models/", "") }
+    else
+      []
+    end
+  rescue => e
+    Rails.logger.warn("[BlogGeneratorService] Model auto-discovery failed: #{e.message}")
+    []
   end
 
   def evaluate_quality(blog_json)
