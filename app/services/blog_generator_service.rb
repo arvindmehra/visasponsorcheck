@@ -160,14 +160,14 @@ class BlogGeneratorService
   end
 
   def generate_content_with_gemini(source_data)
-    # 1. Primary candidate model list (using -latest and newer 2.5/1.5 variants)
+    # Primary candidate models (using standard active Gemini models)
     candidate_models = [
-      "gemini-1.5-flash-latest",
-      "gemini-1.5-pro-latest",
-      "gemini-2.5-flash",
-      "gemini-2.5-pro",
-      "gemini-1.5-flash",
-      "gemini-1.5-pro"
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+      "gemini-flash-latest",
+      "gemini-flash-lite-latest",
+      "gemini-pro-latest",
+      "gemini-3.1-flash-lite"
     ]
 
     system_instruction = <<~SYS
@@ -211,14 +211,14 @@ class BlogGeneratorService
       }
     }
 
-    # Try static candidate models first
+    # Try primary candidate models first
     result = try_models(candidate_models, body)
     return result if result.present?
 
-    # Fallback: Dynamic auto-discovery of available models from Google API
+    # Fallback: Dynamic auto-discovery of available text models
     discovered_models = discover_available_models
     if discovered_models.any?
-      Rails.logger.info("[BlogGeneratorService] Attempting auto-discovered models: #{discovered_models.join(', ')}")
+      Rails.logger.info("[BlogGeneratorService] Attempting filtered auto-discovered text models: #{discovered_models.join(', ')}")
       result = try_models(discovered_models, body)
       return result if result.present?
     end
@@ -278,6 +278,7 @@ class BlogGeneratorService
       models = response.parsed_response["models"] || []
       models.select { |m| m["supportedGenerationMethods"]&.include?("generateContent") }
             .map { |m| m["name"].gsub("models/", "") }
+            .reject { |name| name.match?(/(tts|image|audio|clip|robotics|computer-use|lyria|research)/i) }
     else
       []
     end
