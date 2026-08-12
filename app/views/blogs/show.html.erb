@@ -1,0 +1,111 @@
+<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-6 text-xs text-slate-500 font-medium uppercase tracking-wider" aria-label="Breadcrumb">
+    <%= link_to "Home", root_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <%= link_to "Blog", blogs_path, class: "hover:text-indigo-600 transition-colors" %>
+    <span class="mx-2 text-slate-300">›</span>
+    <span class="text-slate-800 truncate max-w-xs"><%= @blog.title %></span>
+  </nav>
+
+  <!-- Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="px-3 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+        <%= @blog.category %>
+      </span>
+      <span class="text-xs text-slate-400">
+        Published <%= @blog.published_at&.strftime("%B %d, %Y") %>
+      </span>
+    </div>
+
+    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+      <%= @blog.title %>
+    </h1>
+
+    <p class="text-lg text-slate-600 leading-relaxed font-normal">
+      <%= @blog.meta_description %>
+    </p>
+  </header>
+
+  <!-- Featured Image -->
+  <% if @blog.featured_image_url.present? %>
+    <div class="aspect-video w-full rounded-2xl overflow-hidden mb-10 shadow-md border border-slate-200">
+      <img src="<%= @blog.featured_image_url %>" alt="<%= @blog.title %>" class="w-full h-full object-cover" />
+    </div>
+  <% end %>
+
+  <!-- Key Takeaways Callout Box -->
+  <% if @blog.key_takeaways.present? && @blog.key_takeaways.any? %>
+    <div class="bg-indigo-50/70 border-l-4 border-indigo-600 rounded-r-2xl p-6 mb-10 shadow-sm">
+      <h3 class="text-xs font-extrabold uppercase tracking-wider text-indigo-900 mb-3 flex items-center gap-2">
+        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Key Takeaways for Employers & Applicants
+      </h3>
+      <ul class="space-y-2 text-sm text-slate-800">
+        <% @blog.key_takeaways.each do |item| %>
+          <li class="flex items-start gap-2">
+            <span class="text-indigo-600 font-bold">•</span>
+            <span><%= item %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Main Article Body -->
+  <article class="prose prose-slate max-w-none mb-12 text-slate-800 leading-relaxed font-normal [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-slate-900 [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_li]:mb-1 [&_table]:w-full [&_table]:my-6 [&_table]:border-collapse [&_th]:bg-slate-100 [&_th]:p-3 [&_th]:text-left [&_td]:p-3 [&_td]:border-b">
+    <%= @blog.content_html.html_safe %>
+  </article>
+
+  <!-- CTA Box -->
+  <div class="rounded-2xl bg-gradient-to-r from-indigo-900 to-slate-900 p-8 text-white text-center shadow-lg mb-12">
+    <h3 class="text-2xl font-bold mb-2">Verify Any Employer's Sponsor Licence</h3>
+    <p class="text-slate-300 text-sm mb-6 max-w-xl mx-auto">
+      Check real-time Home Office sponsor status, revoked licences, and A-rated companies on VisaSponsorCheck.
+    </p>
+    <%= link_to "Check Sponsor Licence Now", sponsors_path, class: "inline-flex px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-xl shadow transition" %>
+  </div>
+
+  <!-- Related Articles -->
+  <% if @related_blogs.any? %>
+    <section class="pt-8 border-t border-slate-200">
+      <h3 class="text-xl font-bold text-slate-900 mb-6">Related Articles</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <% @related_blogs.each do |rel| %>
+          <div class="rounded-xl border border-slate-200 p-4 hover:border-indigo-300 transition">
+            <span class="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider block mb-1">
+              <%= rel.category %>
+            </span>
+            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 hover:text-indigo-600 mb-2">
+              <%= link_to rel.title, blog_path(rel.slug) %>
+            </h4>
+            <span class="text-xs text-slate-400">
+              <%= rel.published_at&.strftime("%b %d, %Y") %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>
+
+<!-- JSON-LD Structured Data for Google SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": <%= raw @blog.title.to_json %>,
+  "description": <%= raw @blog.meta_description.to_json %>,
+  "image": <%= raw (@blog.featured_image_url || "").to_json %>,
+  "datePublished": <%= raw (@blog.published_at || @blog.created_at).iso8601.to_json %>,
+  "dateModified": <%= raw @blog.updated_at.iso8601.to_json %>,
+  "publisher": {
+    "@type": "Organization",
+    "name": "VisaSponsorCheck",
+    "url": "https://visasponsoruk.com"
+  }
+}
+</script>

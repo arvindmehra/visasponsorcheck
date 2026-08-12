@@ -32,7 +32,8 @@ VisaSponsorUK is a Ruby on Rails 8 application that tracks and monitors UK-licen
 | **Change Detection** | Tracks when a sponsor is added, removed, or has its rating/type/route changed |
 | **Audit Log** | Every change is recorded as a `SponsorChangeEvent` with timestamp |
 | **Fuzzy Search** | PostgreSQL trigram search (`pg_trgm`) finds companies even with typos |
-| **Background Jobs** | Solid Queue runs the sync at 2:00 AM daily |
+| **Automated Blog** | Gemini 1.5 + Imagen 3 multi-source weekly blog engine ([Docs](docs/AUTOMATED_BLOG_SYSTEM.md)) |
+| **Background Jobs** | Solid Queue runs the sync at 2:00 AM daily and weekly blog ingestion at 8:00 AM Mondays |
 
 ---
 

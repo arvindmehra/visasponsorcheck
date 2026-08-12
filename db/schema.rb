@@ -10,10 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_235845) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_12_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
+
+  create_table "blog_ingestion_logs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "processed_at"
+    t.string "source_url", null: false
+    t.string "status", default: "processed", null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.index ["source_url"], name: "index_blog_ingestion_logs_on_source_url", unique: true
+  end
+
+  create_table "blogs", force: :cascade do |t|
+    t.string "category", null: false
+    t.text "content_html", null: false
+    t.datetime "created_at", null: false
+    t.string "featured_image_url"
+    t.jsonb "key_takeaways", default: []
+    t.text "meta_description", null: false
+    t.datetime "published_at"
+    t.integer "quality_score", default: 0, null: false
+    t.string "slug", null: false
+    t.string "source_url"
+    t.string "status", default: "pending_review", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_blogs_on_category"
+    t.index ["published_at"], name: "index_blogs_on_published_at"
+    t.index ["slug"], name: "index_blogs_on_slug", unique: true
+    t.index ["status"], name: "index_blogs_on_status"
+  end
 
   create_table "companies", force: :cascade do |t|
     t.string "company_number"

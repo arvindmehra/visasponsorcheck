@@ -53,6 +53,7 @@ SitemapGenerator::Sitemap.create do
   group(filename: "sitemap-core") do
     # Static + structural pages
     add "/",                         changefreq: "daily",   priority: 1.0
+    add "/blogs",                     changefreq: "daily",   priority: 0.9
     add "/sponsors",                 changefreq: "weekly",  priority: 0.9
     add "/uk-visa-sponsorship-list", changefreq: "weekly",  priority: 0.9
     add "/faq",                      changefreq: "monthly", priority: 0.7
@@ -60,6 +61,12 @@ SitemapGenerator::Sitemap.create do
     add "/sponsors/revoked",         changefreq: "weekly",  priority: 0.7
     add "/sponsors/sectors",         changefreq: "weekly",  priority: 0.8
     add "/sponsors/locations",       changefreq: "weekly",  priority: 0.8
+
+    # Individual published blog posts
+    puts "Adding blog post pages..."
+    Blog.published.select(:slug, :updated_at).find_each do |blog|
+      add "/blog/#{blog.slug}", lastmod: blog.updated_at, changefreq: "weekly", priority: 0.8
+    end
 
     # Visa route pages
     puts "Adding route pages..."

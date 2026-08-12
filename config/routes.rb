@@ -19,6 +19,10 @@ Rails.application.routes.draw do
   # Search routes
   get "search", to: "search#index"
 
+  # Blog routes
+  get "blogs", to: "blogs#index", as: :blogs
+  get "blog/:slug", to: "blogs#show", as: :blog
+
   # FAQ + Static pages
   get "faq", to: "pages#faq", as: :faq
   get "about", to: "pages#about", as: :about

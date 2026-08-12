@@ -21,3 +21,7 @@ production:
   pghero_capture_query_stats:
     command: "PgHero.capture_query_stats"
     schedule: every 30 minutes
+
+  weekly_blog_ingestion:
+    class: WeeklyBlogIngestionJob
+    schedule: at 8am every Monday
