@@ -11,11 +11,23 @@ namespace :blog do
       puts "Quality Score: #{result[:quality_report][:score]}/100"
       puts "Status: #{result[:blog].status}"
     else
-      puts "❌ Ingestion completed/skipped:"
-      puts "Reason: #{result[:error]}"
+      puts "\n❌ Ingestion / Generation Failed!"
+      puts "Stage: #{result[:stage]}"
+      puts "Error: #{result[:error]}"
+      
+      if result[:troubleshooting].present?
+        puts "\n💡 Troubleshooting Advice:"
+        puts "   #{result[:troubleshooting]}"
+      end
+
       if result[:issues].present?
-        puts "Quality Issues:"
+        puts "\n⚠️ Quality Issues Found:"
         result[:issues].each { |issue| puts " - #{issue}" }
+      end
+
+      if result[:details].present?
+        puts "\n🔍 Diagnostic Details:"
+        puts JSON.pretty_generate(result[:details])
       end
     end
   end

@@ -36,23 +36,58 @@ class BlogGeneratorService
     @source_url = source_url
     @raw_content = raw_content
     @api_key = Rails.application.credentials.dig(:gemini, :api_key)
+    @api_attempts = []
+    @feed_attempts = []
   end
 
   def perform
-    raise "GEMINI_API_KEY is not set" if @api_key.blank?
+    if @api_key.blank?
+      return { 
+        success: false, 
+        stage: :api_key_check,
+        error: "Gemini API key missing in Rails credentials under gemini.api_key",
+        troubleshooting: "Run 'bin/rails credentials:edit' and set gemini.api_key: 'YOUR_GEMINI_KEY'.",
+        details: {
+          credentials_file_exists: File.exist?(Rails.root.join("config/credentials.yml.enc")),
+          master_key_exists: File.exist?(Rails.root.join("config/master.key")) || ENV["RAILS_MASTER_KEY"].present?
+        }
+      }
+    end
 
     source_data = fetch_or_prepare_source
-    return { success: false, error: "No new source data found to ingest" } if source_data.nil?
+    if source_data.nil?
+      return { 
+        success: false, 
+        stage: :source_ingestion,
+        error: "No new source data found across RSS feeds",
+        troubleshooting: "All feed articles may have already been processed in 'blog_ingestion_logs'. Try passing a manual topic e.g. BlogGeneratorService.call(topic: 'Your Custom Topic').",
+        details: { feed_attempts: @feed_attempts }
+      }
+    end
 
     blog_json = generate_content_with_gemini(source_data)
-    return { success: false, error: "Gemini generation failed" } if blog_json.nil?
+    if blog_json.nil?
+      return { 
+        success: false, 
+        stage: :ai_generation,
+        error: "Gemini AI generation failed across all attempted models",
+        troubleshooting: "Check if your Gemini API key has access to 'gemini-1.5-flash' / 'gemini-1.5-pro' on Google AI Studio (aistudio.google.com) and has quota remaining.",
+        details: { 
+          source_topic: source_data[:topic],
+          api_attempts: @api_attempts 
+        }
+      }
+    end
 
     quality_report = evaluate_quality(blog_json)
     if quality_report[:score] < 80
       return {
         success: false,
-        error: "Quality Gate Failed (Score: #{quality_report[:score]}/100)",
-        issues: quality_report[:issues]
+        stage: :quality_gate,
+        error: "Quality Gate Failed (Score: #{quality_report[:score]}/100, Minimum required: 80)",
+        troubleshooting: "The generated article was flagged for low depth, missing structural elements, or containing banned AI clichés.",
+        issues: quality_report[:issues],
+        details: { quality_score: quality_report[:score] }
       }
     end
 
@@ -76,7 +111,13 @@ class BlogGeneratorService
     { success: true, blog: blog, quality_report: quality_report }
   rescue => e
     Rails.logger.error("[BlogGeneratorService Error]: #{e.message}\n#{e.backtrace.join("\n")}")
-    { success: false, error: e.message }
+    { 
+      success: false, 
+      stage: :exception,
+      error: "Unexpected runtime exception: #{e.message}",
+      troubleshooting: "Inspect application logs or stacktrace for details.",
+      details: { exception_class: e.class.name, backtrace: e.backtrace.first(5) }
+    }
   end
 
   private
@@ -86,26 +127,32 @@ class BlogGeneratorService
       return { topic: @topic, body: @raw_content || @topic }
     end
 
-    # Fetch feeds and find first unprocessed story
     RSS_FEEDS.each do |feed_url|
-      response = HTTParty.get(feed_url, headers: { "User-Agent" => "VisaSponsorCheck/1.0" }, timeout: 10)
-      next unless response.success?
+      begin
+        response = HTTParty.get(feed_url, headers: { "User-Agent" => "VisaSponsorCheck/1.0" }, timeout: 10)
+        unless response.success?
+          @feed_attempts << { feed: feed_url, status: response.code, error: response.body }
+          next
+        end
 
-      doc = Nokogiri::XML(response.body)
-      # Check Atom entry or RSS item
-      items = doc.xpath("//xmlns:entry")
-      items = doc.xpath("//item") if items.empty?
+        doc = Nokogiri::XML(response.body)
+        items = doc.xpath("//xmlns:entry")
+        items = doc.xpath("//item") if items.empty?
 
-      items.each do |item|
-        link = item.at_xpath("xmlns:link/@href")&.text || item.at_xpath("link")&.text
-        title = item.at_xpath("xmlns:title")&.text || item.at_xpath("title")&.text
-        summary = item.at_xpath("xmlns:summary")&.text || item.at_xpath("description")&.text
+        items.each do |item|
+          link = item.at_xpath("xmlns:link/@href")&.text || item.at_xpath("link")&.text
+          title = item.at_xpath("xmlns:title")&.text || item.at_xpath("title")&.text
+          summary = item.at_xpath("xmlns:summary")&.text || item.at_xpath("description")&.text
 
-        next if link.blank? || BlogIngestionLog.already_processed?(link)
+          next if link.blank? || BlogIngestionLog.already_processed?(link)
 
-        @source_url = link
-        @topic = title
-        return { topic: title, body: summary, url: link }
+          @source_url = link
+          @topic = title
+          return { topic: title, body: summary, url: link }
+        end
+        @feed_attempts << { feed: feed_url, status: 200, note: "All stories already processed" }
+      rescue => e
+        @feed_attempts << { feed: feed_url, status: "error", error: e.message }
       end
     end
 
@@ -113,7 +160,7 @@ class BlogGeneratorService
   end
 
   def generate_content_with_gemini(source_data)
-    url = "#{GEMINI_API_URL}/gemini-1.5-pro:generateContent?key=#{@api_key}"
+    models_to_try = [ "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash" ]
 
     system_instruction = <<~SYS
       You are a senior UK immigration solicitor and legal content editor.
@@ -156,19 +203,45 @@ class BlogGeneratorService
       }
     }
 
-    response = HTTParty.post(
-      url,
-      headers: { "Content-Type" => "application/json" },
-      body: body.to_json,
-      timeout: 30
-    )
+    models_to_try.each do |model_name|
+      url = "#{GEMINI_API_URL}/#{model_name}:generateContent?key=#{@api_key}"
 
-    return nil unless response.success?
+      begin
+        response = HTTParty.post(
+          url,
+          headers: { "Content-Type" => "application/json" },
+          body: body.to_json,
+          timeout: 30
+        )
 
-    text_output = response.parsed_response.dig("candidates", 0, "content", "parts", 0, "text")
-    return nil if text_output.blank?
+        if response.success?
+          text_output = response.parsed_response.dig("candidates", 0, "content", "parts", 0, "text")
+          if text_output.present?
+            @api_attempts << { model: model_name, status: "success", code: response.code }
+            return JSON.parse(text_output)
+          else
+            @api_attempts << { model: model_name, status: "empty_response", code: response.code }
+          end
+        else
+          error_data = response.parsed_response.is_a?(Hash) ? response.parsed_response.dig("error") : nil
+          api_message = error_data ? error_data["message"] : response.body
+          api_status = error_data ? error_data["status"] : "HTTP_#{response.code}"
 
-    JSON.parse(text_output)
+          @api_attempts << { 
+            model: model_name, 
+            status: "failed", 
+            code: response.code, 
+            api_status: api_status,
+            message: api_message 
+          }
+          Rails.logger.warn("[BlogGeneratorService] #{model_name} API Error [#{response.code}]: #{api_message}")
+        end
+      rescue => e
+        @api_attempts << { model: model_name, status: "exception", error: e.message }
+      end
+    end
+
+    nil
   end
 
   def evaluate_quality(blog_json)
@@ -233,7 +306,6 @@ class BlogGeneratorService
       end
     end
 
-    # Fallback image placeholder
     "/logo-wpc.png"
   rescue => e
     Rails.logger.warn("[Imagen Generation Warning]: #{e.message}")

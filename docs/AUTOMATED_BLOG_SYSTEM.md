@@ -47,12 +47,13 @@ flowchart TD
 
 ---
 
-## 3. Environment Variables & Setup
+## 3. Rails Credentials & Setup
 
-Ensure the following environment variable is configured in your `.env` file or Rails credentials:
+Configure your API key in Rails credentials (`bin/rails credentials:edit`):
 
-```bash
-GEMINI_API_KEY="your-google-gemini-api-key"
+```yaml
+gemini:
+  api_key: "your-google-gemini-api-key"
 ```
 
 ---
