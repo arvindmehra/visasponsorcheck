@@ -1,29 +1,24 @@
 require "httparty"
-require "nokogiri"
 require "tempfile"
 require "uri"
 
 class SponsorCsvDownloader
-  GOV_UK_URL = "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers".freeze
+  GOV_UK_CONTENT_API_URL = "https://www.gov.uk/api/content/government/publications/register-of-licensed-sponsors-workers".freeze
 
   def self.call(source = nil)
     new(source).download
   end
 
   def initialize(source = nil)
-    @source = source || GOV_UK_URL
+    @source = source
   end
 
   def download
-    if local_file?(@source)
+    if @source && local_file?(@source)
       return { path: @source, url: @source, filename: File.basename(@source) }
     end
 
-    url = if @source == GOV_UK_URL
-            scrape_csv_url
-    else
-            @source
-    end
+    url = @source || scrape_csv_url
 
     raise "Could not resolve CSV URL" if url.blank?
 
@@ -57,23 +52,24 @@ class SponsorCsvDownloader
   end
 
   def scrape_csv_url
-    response = HTTParty.get(GOV_UK_URL)
-    return nil unless response.code == 200
+    response = HTTParty.get(GOV_UK_CONTENT_API_URL, headers: cache_busting_headers, timeout: 30)
+    raise "GOV.UK Content API returned HTTP #{response.code}" unless response.code == 200
 
-    doc = Nokogiri::HTML(response.body)
-    # Look for links ending in .csv
-    csv_links = doc.css("a").map { |a| a["href"] }.compact.select { |href| href.end_with?(".csv") }
+    data = JSON.parse(response.body)
+    attachments = data.dig("details", "attachments") || []
 
-    # Try to find one containing worker/temporary worker
-    target_link = csv_links.find { |href| href.include?("Worker") } || csv_links.first
+    # Find the Worker register CSV attachment
+    attachment = attachments.find { |a| a["content_type"] == "text/csv" && a["filename"]&.include?("Worker") }
+    attachment ||= attachments.find { |a| a["content_type"] == "text/csv" }
 
-    return nil unless target_link
+    attachment&.fetch("url", nil)
+  end
 
-    # Make absolute if relative
-    if target_link.start_with?("/")
-      "https://www.gov.uk#{target_link}"
-    else
-      target_link
-    end
+  def cache_busting_headers
+    {
+      "Cache-Control" => "no-cache, no-store, must-revalidate",
+      "Pragma" => "no-cache",
+      "User-Agent" => "VisaSponsorCheck/1.0 (+https://visasponsorcheck.co.uk)"
+    }
   end
 end

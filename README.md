@@ -76,7 +76,7 @@ VisaSponsorUK is a Ruby on Rails 8 application that tracks and monitors UK-licen
 
 | Link | Purpose |
 | :--- | :--- |
-| [GOV.UK Register of Licensed Sponsors](https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers) | Official source this app scrapes and syncs from daily — see [`SponsorCsvDownloader::GOV_UK_URL`](app/services/sponsor_csv_downloader.rb) |
+| [GOV.UK Register of Licensed Sponsors](https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers) | Official source this app syncs from daily via the GOV.UK Content API — see [`SponsorCsvDownloader::GOV_UK_CONTENT_API_URL`](app/services/sponsor_csv_downloader.rb) |
 
 ---
 

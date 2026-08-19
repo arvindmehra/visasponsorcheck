@@ -49,7 +49,7 @@ class SponsorImporter
 
   def create_import_log
     SponsorImportLog.create!(
-      source_url: @source || SponsorCsvDownloader::GOV_UK_URL,
+      source_url: @source || SponsorCsvDownloader::GOV_UK_CONTENT_API_URL,
       status: "pending"
     )
   end

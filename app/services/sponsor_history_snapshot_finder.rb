@@ -14,7 +14,7 @@ require "nokogiri"
 # to a single entry — most nearby captures are the same underlying register
 # version, re-crawled before the next real update.
 class SponsorHistorySnapshotFinder
-  REGISTER_PAGE_URL = SponsorCsvDownloader::GOV_UK_URL
+  REGISTER_PAGE_URL = "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers".freeze
   # The register was still a PDF before this; see CLAUDE.md-adjacent research
   # notes / conversation history for how this date was established.
   CSV_ERA_START = "20211201".freeze
